@@ -33,15 +33,32 @@ Defaults are in `.env.example`; copy it to `.env` to change ports or credentials
 ```powershell
 cd apps/api
 Copy-Item .env.example .env
-npm install
+# Put a real secret into JWT_ACCESS_SECRET:
+node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+npm install            # also generates the Prisma client
+npm run db:deploy      # applies migrations to the dev database
 npm run start:dev
 ```
-- Health: `Invoke-RestMethod http://localhost:3000/health`
+- Health (checks Postgres and Redis): `Invoke-RestMethod http://localhost:3000/health`
 - Swagger UI: http://localhost:3000/docs
 
-Checks:
+Checks (e2e tests use the `flowboard_test` database and apply migrations themselves; Docker must be running):
 ```powershell
 npm run lint; npm run format:check; npm run typecheck; npm test; npm run test:e2e
+```
+After changing `prisma/schema.prisma`: `npm run db:migrate -- --name <change>`.
+
+### Try two users in one workspace (PowerShell)
+```powershell
+$api = 'http://localhost:3000'
+$a = Invoke-RestMethod "$api/auth/register" -Method Post -ContentType 'application/json' -Body '{"email":"alice@example.com","password":"password123","name":"Alice"}'
+$b = Invoke-RestMethod "$api/auth/register" -Method Post -ContentType 'application/json' -Body '{"email":"bob@example.com","password":"password123","name":"Bob"}'
+$ha = @{ Authorization = "Bearer $($a.tokens.accessToken)" }
+$hb = @{ Authorization = "Bearer $($b.tokens.accessToken)" }
+$ws = Invoke-RestMethod "$api/workspaces" -Method Post -Headers $ha -ContentType 'application/json' -Body '{"name":"Team"}'
+$inv = Invoke-RestMethod "$api/workspaces/$($ws.id)/invites" -Method Post -Headers $ha
+Invoke-RestMethod "$api/invites/$($inv.token)/accept" -Method Post -Headers $hb
+Invoke-RestMethod "$api/workspaces/$($ws.id)/members" -Headers $ha | ConvertTo-Json -Depth 4
 ```
 
 ## 3. Run the mobile app
@@ -57,10 +74,20 @@ Override for other targets, e.g. a physical device on the same Wi-Fi:
 flutter run --dart-define=API_BASE_URL=http://192.168.1.10:3000
 ```
 
+Invite links have the form `flowboard://app/invite/<token>`. To open one on the emulator:
+```powershell
+adb shell am start -a android.intent.action.VIEW -d "flowboard://app/invite/<token>"
+```
+
 Checks:
 ```powershell
 flutter gen-l10n; dart format --set-exit-if-changed lib test; flutter analyze; flutter test
 ```
+After changing `@freezed` / `@JsonSerializable` models regenerate code:
+```powershell
+dart run build_runner build --delete-conflicting-outputs
+```
+(If `dart` on your PATH is not Flutter's own, call it explicitly, e.g. `& "$((Get-Command flutter).Source | Split-Path)\dart.bat" run build_runner build`.)
 
 ## iOS
 iOS cannot be built on Windows. The code avoids Android-only APIs; iOS builds will run on a macOS CI runner (phase 7). On the iOS simulator use `API_BASE_URL=http://localhost:3000`.

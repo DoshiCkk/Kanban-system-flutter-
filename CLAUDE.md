@@ -20,6 +20,9 @@ Mobile-first, offline-first Kanban for small teams. Monorepo:
 - Colors only from `Theme.of(context).colorScheme` / `AppColors`. Tap targets ≥ 48dp, primary actions in the lower half of the screen.
 - API base URL comes from `--dart-define=API_BASE_URL` (`AppConfig`); never hardcode it.
 - Lints: `very_good_analysis`. Code and comments in English.
+- Models: `@freezed` + `json_serializable`; generated `*.freezed.dart` / `*.g.dart` are committed. Regenerate with Flutter's own Dart: `& D:\Devtools\flutter\bin\dart.bat run build_runner build --delete-conflicting-outputs` (the `dart` on PATH on this machine is a standalone SDK).
+- Network: repositories call Dio and wrap errors with `guardApi` → `ApiException(ApiErrorCode)`; UI maps codes via `l10n.apiError(code)`. Auth endpoints pass `Options(extra: {AuthExtra.skipAuth: true})`.
+- Screen cubits are created in `app_router.dart` from get_it; widgets never call get_it.
 
 Checks (run from `apps/mobile`):
 ```powershell
@@ -29,7 +32,10 @@ flutter gen-l10n; dart format --set-exit-if-changed lib test; flutter analyze; f
 ## API (`apps/api`)
 - NestJS, TypeScript strict, ESM (`.js` suffix in relative imports).
 - One Nest module per feature under `src/<feature>/`. DTOs validated with class-validator, documented with @nestjs/swagger.
-- Env is validated in `src/config/env.validation.ts`; add new variables there and to `.env.example`.
+- Env is validated in `src/config/env.validation.ts`; add new variables there and to `.env.example` and `.env.test.example`.
+- Prisma 7 (`prisma-client` generator → `src/generated/prisma`, not committed; `postinstall` generates it). DB URL lives in `prisma.config.ts`.
+- All routes require JWT unless `@Public()`. Workspace routes use `WorkspaceMemberGuard` + `@WorkspaceRoles(...)`; non-members get 404.
+- Throw `ApiException(status, ErrorCode.X, message)` — never bare strings; the mobile app relies on `code`.
 - Tests: Vitest (`*.spec.ts` unit next to code, `test/*.e2e-spec.ts` e2e on the `flowboard_test` database). See ADR 0001 for why Vitest instead of Jest.
 
 Checks (run from `apps/api`):
