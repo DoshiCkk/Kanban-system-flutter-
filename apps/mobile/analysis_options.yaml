@@ -1,0 +1,12 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - lib/**/*.g.dart
+    - lib/**/*.freezed.dart
+    - lib/core/l10n/gen/**
+
+linter:
+  rules:
+    # App code, not a published package.
+    public_member_api_docs: false

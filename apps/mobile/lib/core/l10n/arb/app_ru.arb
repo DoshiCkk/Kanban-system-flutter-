@@ -1,0 +1,16 @@
+{
+  "@@locale": "ru",
+  "appTitle": "FlowBoard",
+  "homeEmptyTitle": "Досок пока нет",
+  "homeEmptyBody": "Скоро здесь появятся ваши доски.",
+  "settingsTitle": "Настройки",
+  "settingsThemeSection": "Тема",
+  "themeSystem": "Системная",
+  "themeLight": "Светлая",
+  "themeDark": "Тёмная",
+  "settingsLanguageSection": "Язык",
+  "languageSystem": "Язык системы",
+  "languageEnglish": "English",
+  "languageRussian": "Русский",
+  "languageKazakh": "Қазақша"
+}

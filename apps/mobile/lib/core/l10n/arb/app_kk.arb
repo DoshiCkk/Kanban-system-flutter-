@@ -1,0 +1,16 @@
+{
+  "@@locale": "kk",
+  "appTitle": "FlowBoard",
+  "homeEmptyTitle": "Әзірге тақталар жоқ",
+  "homeEmptyBody": "Тақталарыңыз жақында осында пайда болады.",
+  "settingsTitle": "Баптаулар",
+  "settingsThemeSection": "Тақырып",
+  "themeSystem": "Жүйелік",
+  "themeLight": "Ашық",
+  "themeDark": "Қараңғы",
+  "settingsLanguageSection": "Тіл",
+  "languageSystem": "Жүйе тілі",
+  "languageEnglish": "English",
+  "languageRussian": "Русский",
+  "languageKazakh": "Қазақша"
+}

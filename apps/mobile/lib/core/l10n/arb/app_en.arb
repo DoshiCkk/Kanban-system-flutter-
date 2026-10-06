@@ -1,0 +1,55 @@
+{
+  "@@locale": "en",
+  "appTitle": "FlowBoard",
+  "@appTitle": {
+    "description": "Application name shown in the task switcher and app bar."
+  },
+  "homeEmptyTitle": "No boards yet",
+  "@homeEmptyTitle": {
+    "description": "Title of the home screen empty state."
+  },
+  "homeEmptyBody": "Boards will appear here soon.",
+  "@homeEmptyBody": {
+    "description": "Body text of the home screen empty state."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Settings screen title and settings button tooltip."
+  },
+  "settingsThemeSection": "Theme",
+  "@settingsThemeSection": {
+    "description": "Section header for theme selection."
+  },
+  "themeSystem": "System",
+  "@themeSystem": {
+    "description": "Theme option: follow the OS setting."
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Theme option: light."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Theme option: dark."
+  },
+  "settingsLanguageSection": "Language",
+  "@settingsLanguageSection": {
+    "description": "Section header for language selection."
+  },
+  "languageSystem": "System language",
+  "@languageSystem": {
+    "description": "Language option: follow the OS language."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Native name of English. Same in every locale."
+  },
+  "languageRussian": "Русский",
+  "@languageRussian": {
+    "description": "Native name of Russian. Same in every locale."
+  },
+  "languageKazakh": "Қазақша",
+  "@languageKazakh": {
+    "description": "Native name of Kazakh. Same in every locale."
+  }
+}
