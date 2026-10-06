@@ -8,6 +8,8 @@ environment:
 
 dependencies:
   dio: ^5.11.1
+  drift: ">=2.34.0 <2.35.0"
+  drift_flutter: ^0.3.1
   equatable: ^3.0.0
   flutter:
     sdk: flutter
@@ -27,6 +29,7 @@ dependencies:
 dev_dependencies:
   bloc_test: ^10.0.0
   build_runner: ^2.15.1
+  drift_dev: 2.34.0
   flutter_test:
     sdk: flutter
   freezed: ^3.2.5
