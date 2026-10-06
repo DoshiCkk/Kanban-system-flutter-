@@ -1,55 +1,197 @@
 {
   "@@locale": "en",
   "appTitle": "FlowBoard",
-  "@appTitle": {
-    "description": "Application name shown in the task switcher and app bar."
-  },
-  "homeEmptyTitle": "No boards yet",
-  "@homeEmptyTitle": {
-    "description": "Title of the home screen empty state."
-  },
-  "homeEmptyBody": "Boards will appear here soon.",
-  "@homeEmptyBody": {
-    "description": "Body text of the home screen empty state."
-  },
+  "@appTitle": {"description": "Application name shown in the task switcher and app bar."},
+
+  "commonCancel": "Cancel",
+  "@commonCancel": {"description": "Generic cancel button."},
+  "commonCreate": "Create",
+  "@commonCreate": {"description": "Generic create button."},
+  "commonContinue": "Continue",
+  "@commonContinue": {"description": "Generic continue button."},
+  "commonRetry": "Try again",
+  "@commonRetry": {"description": "Retry button on error states."},
+  "commonCopy": "Copy link",
+  "@commonCopy": {"description": "Button that copies a link to the clipboard."},
+  "commonCopied": "Link copied",
+  "@commonCopied": {"description": "Snackbar after copying a link."},
+  "commonRemove": "Remove",
+  "@commonRemove": {"description": "Destructive confirm button: remove."},
+  "commonLeave": "Leave",
+  "@commonLeave": {"description": "Destructive confirm button: leave."},
+
   "settingsTitle": "Settings",
-  "@settingsTitle": {
-    "description": "Settings screen title and settings button tooltip."
-  },
+  "@settingsTitle": {"description": "Settings screen title and settings button tooltip."},
   "settingsThemeSection": "Theme",
-  "@settingsThemeSection": {
-    "description": "Section header for theme selection."
-  },
+  "@settingsThemeSection": {"description": "Section header for theme selection."},
   "themeSystem": "System",
-  "@themeSystem": {
-    "description": "Theme option: follow the OS setting."
-  },
+  "@themeSystem": {"description": "Theme option: follow the OS setting."},
   "themeLight": "Light",
-  "@themeLight": {
-    "description": "Theme option: light."
-  },
+  "@themeLight": {"description": "Theme option: light."},
   "themeDark": "Dark",
-  "@themeDark": {
-    "description": "Theme option: dark."
-  },
+  "@themeDark": {"description": "Theme option: dark."},
   "settingsLanguageSection": "Language",
-  "@settingsLanguageSection": {
-    "description": "Section header for language selection."
-  },
+  "@settingsLanguageSection": {"description": "Section header for language selection."},
   "languageSystem": "System language",
-  "@languageSystem": {
-    "description": "Language option: follow the OS language."
-  },
+  "@languageSystem": {"description": "Language option: follow the OS language."},
   "languageEnglish": "English",
-  "@languageEnglish": {
-    "description": "Native name of English. Same in every locale."
-  },
+  "@languageEnglish": {"description": "Native name of English. Same in every locale."},
   "languageRussian": "Русский",
-  "@languageRussian": {
-    "description": "Native name of Russian. Same in every locale."
-  },
+  "@languageRussian": {"description": "Native name of Russian. Same in every locale."},
   "languageKazakh": "Қазақша",
-  "@languageKazakh": {
-    "description": "Native name of Kazakh. Same in every locale."
-  }
+  "@languageKazakh": {"description": "Native name of Kazakh. Same in every locale."},
+  "settingsAccountSection": "Account",
+  "@settingsAccountSection": {"description": "Section header for the signed-in account."},
+  "settingsLogout": "Sign out",
+  "@settingsLogout": {"description": "Sign out button in settings."},
+
+  "authLoginTitle": "Welcome back",
+  "@authLoginTitle": {"description": "Login screen headline."},
+  "authLoginSubtitle": "Sign in to get to your team's boards",
+  "@authLoginSubtitle": {"description": "Login screen subtitle."},
+  "authRegisterTitle": "Create an account",
+  "@authRegisterTitle": {"description": "Registration screen headline."},
+  "authRegisterSubtitle": "Plan work together, even offline",
+  "@authRegisterSubtitle": {"description": "Registration screen subtitle."},
+  "authNameLabel": "Your name",
+  "@authNameLabel": {"description": "Name field label."},
+  "authEmailLabel": "Email",
+  "@authEmailLabel": {"description": "Email field label."},
+  "authPasswordLabel": "Password",
+  "@authPasswordLabel": {"description": "Password field label."},
+  "authShowPassword": "Show password",
+  "@authShowPassword": {"description": "Tooltip of the button revealing the password."},
+  "authHidePassword": "Hide password",
+  "@authHidePassword": {"description": "Tooltip of the button hiding the password."},
+  "authSignIn": "Sign in",
+  "@authSignIn": {"description": "Primary button on the login screen."},
+  "authSignUp": "Create account",
+  "@authSignUp": {"description": "Primary button on the registration screen."},
+  "authNoAccount": "No account yet? Create one",
+  "@authNoAccount": {"description": "Link from login to registration."},
+  "authHaveAccount": "Already have an account? Sign in",
+  "@authHaveAccount": {"description": "Link from registration to login."},
+
+  "validationNameRequired": "Enter your name",
+  "@validationNameRequired": {"description": "Validation: name is empty."},
+  "validationEmailInvalid": "Enter a valid email",
+  "@validationEmailInvalid": {"description": "Validation: email is malformed."},
+  "validationPasswordRequired": "Enter your password",
+  "@validationPasswordRequired": {"description": "Validation: password is empty."},
+  "validationPasswordTooShort": "Use at least {min} characters",
+  "@validationPasswordTooShort": {
+    "description": "Validation: password shorter than the minimum.",
+    "placeholders": {"min": {"type": "int"}}
+  },
+  "validationWorkspaceNameRequired": "Enter a name",
+  "@validationWorkspaceNameRequired": {"description": "Validation: workspace name is empty."},
+
+  "errorNetwork": "No connection to the server. Check the internet and try again.",
+  "@errorNetwork": {"description": "Error: request failed because of connectivity."},
+  "errorInvalidCredentials": "Wrong email or password",
+  "@errorInvalidCredentials": {"description": "Error: login failed."},
+  "errorEmailTaken": "This email is already registered",
+  "@errorEmailTaken": {"description": "Error: registration with an existing email."},
+  "errorSessionExpired": "Your session has expired. Please sign in again.",
+  "@errorSessionExpired": {"description": "Shown on the login screen after the server ended the session."},
+  "errorRateLimited": "Too many attempts. Wait a minute and try again.",
+  "@errorRateLimited": {"description": "Error: HTTP 429."},
+  "errorForbidden": "You don't have permission to do that",
+  "@errorForbidden": {"description": "Error: HTTP 403."},
+  "errorNotFound": "Not found. It may have been deleted.",
+  "@errorNotFound": {"description": "Error: HTTP 404."},
+  "errorInviteInvalid": "This invite link is invalid or has expired",
+  "@errorInviteInvalid": {"description": "Error: invite token rejected."},
+  "errorOwnerRoleLocked": "The owner's role can't be changed",
+  "@errorOwnerRoleLocked": {"description": "Error: attempt to change or remove the owner."},
+  "errorValidation": "Check the entered data",
+  "@errorValidation": {"description": "Error: server-side validation failed."},
+  "errorServer": "Server error. Try again later.",
+  "@errorServer": {"description": "Error: HTTP 5xx."},
+  "errorUnknown": "Something went wrong",
+  "@errorUnknown": {"description": "Fallback error message."},
+
+  "workspacesTitle": "Workspaces",
+  "@workspacesTitle": {"description": "Workspace list screen title."},
+  "workspacesEmptyTitle": "No workspaces yet",
+  "@workspacesEmptyTitle": {"description": "Empty state title of the workspace list."},
+  "workspacesEmptyBody": "Create a workspace for your team or join one with an invite link.",
+  "@workspacesEmptyBody": {"description": "Empty state body of the workspace list."},
+  "workspacesCreate": "New workspace",
+  "@workspacesCreate": {"description": "Button/FAB that creates a workspace."},
+  "workspacesJoin": "Join by link",
+  "@workspacesJoin": {"description": "Button that opens the join-by-invite dialog."},
+  "workspaceNameLabel": "Workspace name",
+  "@workspaceNameLabel": {"description": "Workspace name field label."},
+  "workspaceMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@workspaceMemberCount": {
+    "description": "Number of members in a workspace.",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "roleOwner": "Owner",
+  "@roleOwner": {"description": "Workspace role: owner."},
+  "roleAdmin": "Admin",
+  "@roleAdmin": {"description": "Workspace role: admin."},
+  "roleMember": "Member",
+  "@roleMember": {"description": "Workspace role: member."},
+
+  "membersTitle": "Members",
+  "@membersTitle": {"description": "Workspace members screen title."},
+  "membersInvite": "Invite people",
+  "@membersInvite": {"description": "Button that creates an invite link."},
+  "memberYou": "{name} (you)",
+  "@memberYou": {
+    "description": "Marks the current user in the member list.",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "memberActions": "Member actions",
+  "@memberActions": {"description": "Tooltip of the member overflow menu."},
+  "memberMakeAdmin": "Make admin",
+  "@memberMakeAdmin": {"description": "Menu action: promote to admin."},
+  "memberMakeMember": "Make regular member",
+  "@memberMakeMember": {"description": "Menu action: demote to member."},
+  "memberRemove": "Remove from workspace",
+  "@memberRemove": {"description": "Menu action: remove a member."},
+  "memberLeave": "Leave workspace",
+  "@memberLeave": {"description": "Action: leave the workspace."},
+  "memberRemoveConfirm": "Remove {name} from the workspace?",
+  "@memberRemoveConfirm": {
+    "description": "Confirmation dialog title for removing a member.",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "memberLeaveConfirm": "Leave {workspace}?",
+  "@memberLeaveConfirm": {
+    "description": "Confirmation dialog title for leaving a workspace.",
+    "placeholders": {"workspace": {"type": "String"}}
+  },
+
+  "inviteSheetTitle": "Invite link",
+  "@inviteSheetTitle": {"description": "Title of the invite link bottom sheet."},
+  "inviteSheetBody": "Anyone with this link can join until {date}.",
+  "@inviteSheetBody": {
+    "description": "Explains invite link validity.",
+    "placeholders": {"date": {"type": "DateTime", "format": "yMMMd"}}
+  },
+
+  "joinTitle": "Join workspace",
+  "@joinTitle": {"description": "Join-by-invite screen title."},
+  "joinInvitedTo": "You're invited to",
+  "@joinInvitedTo": {"description": "Label above the workspace name on the join screen."},
+  "joinButton": "Join workspace",
+  "@joinButton": {"description": "Accept invite button."},
+  "joinAlreadyMember": "You're already a member of this workspace",
+  "@joinAlreadyMember": {"description": "Shown when the invite is for a workspace the user is in."},
+  "joinOpenWorkspaces": "Go to workspaces",
+  "@joinOpenWorkspaces": {"description": "Button leaving the join screen."},
+  "joinedSnack": "You joined {workspace}",
+  "@joinedSnack": {
+    "description": "Snackbar after accepting an invite.",
+    "placeholders": {"workspace": {"type": "String"}}
+  },
+  "joinLinkDialogTitle": "Join by invite link",
+  "@joinLinkDialogTitle": {"description": "Dialog title for pasting an invite link."},
+  "joinLinkLabel": "Invite link",
+  "@joinLinkLabel": {"description": "Invite link field label."},
+  "joinLinkInvalid": "This doesn't look like an invite link",
+  "@joinLinkInvalid": {"description": "Validation: pasted text is not an invite link."}
 }
