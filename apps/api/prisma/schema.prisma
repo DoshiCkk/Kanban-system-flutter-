@@ -21,6 +21,12 @@ enum AppLocale {
   kk
 }
 
+enum CardPriority {
+  low
+  medium
+  high
+}
+
 model User {
   id           String    @id @default(uuid()) @db.Uuid
   /// Always stored lowercased.
@@ -35,6 +41,7 @@ model User {
   memberships    Membership[]
   refreshTokens  RefreshToken[]
   invitesCreated Invite[]
+  comments       Comment[]
 
   @@map("users")
 }
@@ -49,6 +56,7 @@ model Workspace {
 
   memberships Membership[]
   invites     Invite[]
+  boards      Board[]
 
   @@map("workspaces")
 }
@@ -101,4 +109,135 @@ model RefreshToken {
   @@index([userId])
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+// ---------------------------------------------------------------------------
+// Synced entities (docs/sync.md). Ids come from the client. A trigger
+// (see the sync migration) sets seq, version and updated_at on every write;
+// never set them from application code. position columns use COLLATE "C".
+// ---------------------------------------------------------------------------
+
+model Board {
+  id          String    @id @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  title       String
+  templateKey String?   @map("template_key")
+  createdAt   DateTime  @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  version     Int       @default(0)
+  seq         BigInt    @default(0)
+
+  workspace Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  columns   BoardColumn[]
+  cards     Card[]
+
+  @@index([workspaceId, seq])
+  @@map("boards")
+}
+
+model BoardColumn {
+  id          String    @id @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  boardId     String    @map("board_id") @db.Uuid
+  title       String
+  position    String
+  wipLimit    Int?      @map("wip_limit")
+  createdAt   DateTime  @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  version     Int       @default(0)
+  seq         BigInt    @default(0)
+
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards Card[]
+
+  @@index([workspaceId, seq])
+  @@index([boardId])
+  @@map("board_columns")
+}
+
+model Card {
+  id          String       @id @db.Uuid
+  workspaceId String       @map("workspace_id") @db.Uuid
+  boardId     String       @map("board_id") @db.Uuid
+  columnId    String       @map("column_id") @db.Uuid
+  title       String
+  description String       @default("")
+  /// Plain user id without a foreign key: the assignee may leave the workspace.
+  assigneeId  String?      @map("assignee_id") @db.Uuid
+  dueDate     DateTime?    @map("due_date")
+  priority    CardPriority @default(medium)
+  labels      String[]     @default([])
+  position    String
+  createdAt   DateTime     @map("created_at")
+  updatedAt   DateTime     @default(now()) @map("updated_at")
+  deletedAt   DateTime?    @map("deleted_at")
+  version     Int          @default(0)
+  seq         BigInt       @default(0)
+
+  board          Board           @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  column         BoardColumn     @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  checklistItems ChecklistItem[]
+  comments       Comment[]
+
+  @@index([workspaceId, seq])
+  @@index([columnId])
+  @@index([boardId])
+  @@map("cards")
+}
+
+model ChecklistItem {
+  id          String    @id @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  cardId      String    @map("card_id") @db.Uuid
+  text        String
+  done        Boolean   @default(false)
+  position    String
+  createdAt   DateTime  @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  version     Int       @default(0)
+  seq         BigInt    @default(0)
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, seq])
+  @@index([cardId])
+  @@map("checklist_items")
+}
+
+model Comment {
+  id          String    @id @db.Uuid
+  workspaceId String    @map("workspace_id") @db.Uuid
+  cardId      String    @map("card_id") @db.Uuid
+  authorId    String    @map("author_id") @db.Uuid
+  text        String
+  /// Mentioned user ids.
+  mentions    String[]  @default([])
+  createdAt   DateTime  @map("created_at")
+  updatedAt   DateTime  @default(now()) @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+  version     Int       @default(0)
+  seq         BigInt    @default(0)
+
+  card   Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, seq])
+  @@index([cardId])
+  @@map("comments")
+}
+
+/// Idempotency record of a pushed op (kept 30 days).
+model SyncAppliedOp {
+  opId      String   @id @map("op_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  status    String
+  code      String?
+  version   Int?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("sync_applied_ops")
 }
