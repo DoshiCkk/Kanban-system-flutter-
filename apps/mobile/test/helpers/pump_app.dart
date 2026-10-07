@@ -1,8 +1,13 @@
+import 'package:drift/drift.dart';
+import 'package:drift/native.dart';
 import 'package:flowboard/app.dart';
+import 'package:flowboard/core/db/app_database.dart';
 import 'package:flowboard/core/di/injector.dart';
 import 'package:flowboard/core/router/app_router.dart';
 import 'package:flowboard/features/auth/domain/auth_repository.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:flowboard/features/boards/data/drift_boards_repository.dart';
+import 'package:flowboard/features/boards/domain/boards_repository.dart';
 import 'package:flowboard/features/settings/domain/app_settings.dart';
 import 'package:flowboard/features/workspaces/domain/workspaces_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +23,7 @@ class TestApp {
     required this.settings,
     required this.authCubit,
     required this.router,
+    required this.boards,
   });
 
   final FakeAuthRepository auth;
@@ -25,6 +31,7 @@ class TestApp {
   final InMemorySettingsRepository settings;
   final AuthCubit authCubit;
   final GoRouter router;
+  final DriftBoardsRepository boards;
 }
 
 /// Pumps the full app (real router + cubits) on top of fake repositories.
@@ -39,9 +46,19 @@ Future<TestApp> pumpFlowBoard(
   final settings = InMemorySettingsRepository(
     const AppSettings(language: AppLanguage.en),
   );
+  // Synchronous stream closing keeps drift timers off the fake test clock.
+  final db = AppDatabase(
+    DatabaseConnection(
+      NativeDatabase.memory(),
+      closeStreamsSynchronously: true,
+    ),
+  );
+  final boards = DriftBoardsRepository(db);
   getIt
     ..registerSingleton<AuthRepository>(auth)
-    ..registerSingleton<WorkspacesRepository>(workspaces);
+    ..registerSingleton<WorkspacesRepository>(workspaces)
+    ..registerSingleton<BoardsRepository>(boards)
+    ..registerSingleton<CardRepository>(boards);
 
   final authCubit = AuthCubit(auth);
   final router = createRouter(authCubit);
@@ -49,6 +66,7 @@ Future<TestApp> pumpFlowBoard(
     router.dispose();
     await authCubit.close();
     await getIt.reset();
+    await db.close();
   });
   if (initialLocation != null) router.go(initialLocation);
 
@@ -66,5 +84,6 @@ Future<TestApp> pumpFlowBoard(
     settings: settings,
     authCubit: authCubit,
     router: router,
+    boards: boards,
   );
 }
