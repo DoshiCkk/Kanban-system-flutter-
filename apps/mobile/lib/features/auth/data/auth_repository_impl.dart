@@ -12,11 +12,16 @@ class AuthRepositoryImpl implements AuthRepository {
     required this._api,
     required this._tokens,
     required this._storage,
+    this._prepareLocalData,
   });
 
   final AuthApi _api;
   final TokenStore _tokens;
   final SessionStorage _storage;
+
+  /// Called with the user id after sign-in, before the user is published,
+  /// so local data of a different account can be wiped first.
+  final Future<void> Function(String userId)? _prepareLocalData;
   final _controller = StreamController<User?>.broadcast();
 
   User? _user;
@@ -99,6 +104,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   Future<User> _start(AuthResult result) async {
+    await _prepareLocalData?.call(result.user.id);
     await _tokens.save(result.tokens);
     await _setUser(result.user);
     return result.user;
