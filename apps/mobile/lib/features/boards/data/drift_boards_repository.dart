@@ -1,24 +1,29 @@
 import 'package:drift/drift.dart';
 import 'package:flowboard/core/db/app_database.dart';
 import 'package:flowboard/core/ordering/fractional_index.dart';
+import 'package:flowboard/core/sync/outbox.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/domain/boards_repository.dart';
 import 'package:uuid/uuid.dart';
 
 /// Drift-backed implementation of both board and card repositories.
 ///
-/// Deletes are soft (`deletedAt`) so they can be synced as tombstones.
-/// Ordering uses fractional index keys with `id` as a tie-breaker.
+/// Every mutation writes the row and its outbox op in one transaction
+/// (docs/sync.md §3). Deletes are soft (`deletedAt`) so they can be synced
+/// as tombstones. Ordering uses fractional index keys with `id` as a
+/// tie-breaker.
 class DriftBoardsRepository implements BoardsRepository, CardRepository {
   DriftBoardsRepository(
     this._db, {
     this._uuid = const Uuid(),
     DateTime Function()? clock,
-  }) : _clock = clock ?? DateTime.now;
+  }) : _clock = clock ?? DateTime.now,
+       _outbox = OutboxWriter(_db, uuid: _uuid, clock: clock);
 
   final AppDatabase _db;
   final Uuid _uuid;
   final DateTime Function() _clock;
+  final OutboxWriter _outbox;
 
   DateTime _now() => _clock().toUtc();
 
@@ -51,35 +56,71 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
       updatedAt: now,
     );
     final row = await _db.into(_db.boards).insertReturning(board);
+    await _outbox.enqueue(SyncEntity.board, row.id, SyncOperation.create, {
+      'workspaceId': row.workspaceId,
+      'title': row.title,
+      'templateKey': row.templateKey,
+      'createdAt': wireDate(now),
+    });
     final keys = generateNKeysBetween(null, null, columnTitles.length);
     for (var i = 0; i < columnTitles.length; i++) {
-      await _db
-          .into(_db.boardColumns)
-          .insert(
-            BoardColumnsCompanion.insert(
-              id: _newId(),
-              boardId: row.id,
-              title: columnTitles[i],
-              position: keys[i],
-              createdAt: now,
-              updatedAt: now,
-            ),
-          );
+      await _insertColumn(row.id, columnTitles[i], keys[i], now);
     }
     return _toBoard(row);
   });
 
-  @override
-  Future<void> renameBoard(String boardId, String title) =>
-      (_db.update(_db.boards)..where((b) => b.id.equals(boardId))).write(
-        BoardsCompanion(title: Value(title.trim()), updatedAt: Value(_now())),
-      );
+  Future<ColumnRow> _insertColumn(
+    String boardId,
+    String title,
+    String position,
+    DateTime now,
+  ) async {
+    final row = await _db
+        .into(_db.boardColumns)
+        .insertReturning(
+          BoardColumnsCompanion.insert(
+            id: _newId(),
+            boardId: boardId,
+            title: title,
+            position: position,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        );
+    await _outbox.enqueue(SyncEntity.column, row.id, SyncOperation.create, {
+      'boardId': boardId,
+      'title': title,
+      'position': position,
+      'createdAt': wireDate(now),
+    });
+    return row;
+  }
 
   @override
-  Future<void> deleteBoard(String boardId) =>
-      (_db.update(_db.boards)..where((b) => b.id.equals(boardId))).write(
-        BoardsCompanion(deletedAt: Value(_now()), updatedAt: Value(_now())),
+  Future<void> renameBoard(String boardId, String title) => _db.transaction(
+    () async {
+      final value = title.trim();
+      await (_db.update(_db.boards)..where((b) => b.id.equals(boardId))).write(
+        BoardsCompanion(title: Value(value), updatedAt: Value(_now())),
       );
+      await _outbox.enqueue(
+        SyncEntity.board,
+        boardId,
+        SyncOperation.update,
+        {'title': value},
+      );
+    },
+  );
+
+  /// The server cascades the delete to the board's children; locally they
+  /// are hidden because every query goes through the live board.
+  @override
+  Future<void> deleteBoard(String boardId) => _db.transaction(() async {
+    await (_db.update(_db.boards)..where((b) => b.id.equals(boardId))).write(
+      BoardsCompanion(deletedAt: Value(_now()), updatedAt: Value(_now())),
+    );
+    await _outbox.enqueue(SyncEntity.board, boardId, SyncOperation.delete);
+  });
 
   @override
   Stream<BoardContent?> watchBoard(String boardId) => _db
@@ -157,33 +198,37 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
   Future<BoardColumn> addColumn(String boardId, String title) =>
       _db.transaction(() async {
         final columns = await _liveColumns(boardId);
-        final now = _now();
-        final row = await _db
-            .into(_db.boardColumns)
-            .insertReturning(
-              BoardColumnsCompanion.insert(
-                id: _newId(),
-                boardId: boardId,
-                title: title.trim(),
-                position: generateKeyBetween(
-                  columns.isEmpty ? null : columns.last.position,
-                  null,
-                ),
-                createdAt: now,
-                updatedAt: now,
-              ),
-            );
+        final row = await _insertColumn(
+          boardId,
+          title.trim(),
+          generateKeyBetween(
+            columns.isEmpty ? null : columns.last.position,
+            null,
+          ),
+          _now(),
+        );
         return _toColumn(row);
       });
 
   @override
   Future<void> renameColumn(String columnId, String title) =>
-      (_db.update(_db.boardColumns)..where((c) => c.id.equals(columnId))).write(
-        BoardColumnsCompanion(
-          title: Value(title.trim()),
-          updatedAt: Value(_now()),
-        ),
-      );
+      _db.transaction(() async {
+        final value = title.trim();
+        await (_db.update(
+          _db.boardColumns,
+        )..where((c) => c.id.equals(columnId))).write(
+          BoardColumnsCompanion(
+            title: Value(value),
+            updatedAt: Value(_now()),
+          ),
+        );
+        await _outbox.enqueue(
+          SyncEntity.column,
+          columnId,
+          SyncOperation.update,
+          {'title': value},
+        );
+      });
 
   @override
   Future<void> deleteColumn(String columnId) => _db.transaction(() async {
@@ -193,9 +238,11 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
     )..where((c) => c.id.equals(columnId))).write(
       BoardColumnsCompanion(deletedAt: Value(now), updatedAt: Value(now)),
     );
+    // Local mirror of the server-side cascade; the cards need no ops.
     await (_db.update(_db.cards)
           ..where((c) => c.columnId.equals(columnId) & c.deletedAt.isNull()))
         .write(CardsCompanion(deletedAt: Value(now), updatedAt: Value(now)));
+    await _outbox.enqueue(SyncEntity.column, columnId, SyncOperation.delete);
   });
 
   Future<List<ColumnRow>> _liveColumns(String boardId) =>
@@ -233,6 +280,16 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
                 updatedAt: now,
               ),
             );
+        await _outbox.enqueue(SyncEntity.card, row.id, SyncOperation.create, {
+          'boardId': row.boardId,
+          'columnId': row.columnId,
+          'title': row.title,
+          'description': row.description,
+          'priority': row.priority.name,
+          'labels': row.labels,
+          'position': row.position,
+          'createdAt': wireDate(now),
+        });
         return _toSummary(row, 0, 0);
       });
 
@@ -267,13 +324,18 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
       others = await _rebalance(others);
     }
 
+    final position = generateKeyBetween(before(), after());
     await (_db.update(_db.cards)..where((c) => c.id.equals(cardId))).write(
       CardsCompanion(
         columnId: Value(toColumnId),
-        position: Value(generateKeyBetween(before(), after())),
+        position: Value(position),
         updatedAt: Value(_now()),
       ),
     );
+    await _outbox.enqueue(SyncEntity.card, cardId, SyncOperation.update, {
+      'columnId': toColumnId,
+      'position': position,
+    });
   });
 
   Future<List<CardRow>> _rebalance(List<CardRow> cards) async {
@@ -285,6 +347,12 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
         _db.cards,
       )..where((c) => c.id.equals(cards[i].id))).write(
         CardsCompanion(position: Value(keys[i]), updatedAt: Value(now)),
+      );
+      await _outbox.enqueue(
+        SyncEntity.card,
+        cards[i].id,
+        SyncOperation.update,
+        {'position': keys[i]},
       );
       result.add(cards[i].copyWith(position: keys[i]));
     }
@@ -362,29 +430,47 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
 
   @override
   Future<void> updateCard(String cardId, CardPatch patch) =>
-      (_db.update(_db.cards)..where((c) => c.id.equals(cardId))).write(
-        CardsCompanion(
-          title: patch.title == null
-              ? const Value.absent()
-              : Value(patch.title!.trim()),
-          description: Value.absentIfNull(patch.description),
-          priority: Value.absentIfNull(patch.priority),
-          labels: Value.absentIfNull(patch.labels),
-          dueDate: patch.clearDueDate
-              ? const Value(null)
-              : Value.absentIfNull(patch.dueDate),
-          assigneeId: patch.clearAssignee
-              ? const Value(null)
-              : Value.absentIfNull(patch.assigneeId),
-          updatedAt: Value(_now()),
-        ),
-      );
+      _db.transaction(() async {
+        final title = patch.title?.trim();
+        final dueDate = patch.dueDate?.toUtc();
+        await (_db.update(_db.cards)..where((c) => c.id.equals(cardId))).write(
+          CardsCompanion(
+            title: Value.absentIfNull(title),
+            description: Value.absentIfNull(patch.description),
+            priority: Value.absentIfNull(patch.priority),
+            labels: Value.absentIfNull(patch.labels),
+            dueDate: patch.clearDueDate
+                ? const Value(null)
+                : Value.absentIfNull(dueDate),
+            assigneeId: patch.clearAssignee
+                ? const Value(null)
+                : Value.absentIfNull(patch.assigneeId),
+            updatedAt: Value(_now()),
+          ),
+        );
+        await _outbox.enqueue(SyncEntity.card, cardId, SyncOperation.update, {
+          'title': ?title,
+          'description': ?patch.description,
+          'priority': ?patch.priority?.name,
+          'labels': ?patch.labels,
+          if (patch.clearDueDate)
+            'dueDate': null
+          else if (dueDate != null)
+            'dueDate': wireDate(dueDate),
+          if (patch.clearAssignee)
+            'assigneeId': null
+          else if (patch.assigneeId != null)
+            'assigneeId': patch.assigneeId,
+        });
+      });
 
   @override
-  Future<void> deleteCard(String cardId) =>
-      (_db.update(_db.cards)..where((c) => c.id.equals(cardId))).write(
-        CardsCompanion(deletedAt: Value(_now()), updatedAt: Value(_now())),
-      );
+  Future<void> deleteCard(String cardId) => _db.transaction(() async {
+    await (_db.update(_db.cards)..where((c) => c.id.equals(cardId))).write(
+      CardsCompanion(deletedAt: Value(_now()), updatedAt: Value(_now())),
+    );
+    await _outbox.enqueue(SyncEntity.card, cardId, SyncOperation.delete);
+  });
 
   // ------------------------------------------------------------- checklist
 
@@ -412,6 +498,18 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
                 updatedAt: now,
               ),
             );
+        await _outbox.enqueue(
+          SyncEntity.checklistItem,
+          row.id,
+          SyncOperation.create,
+          {
+            'cardId': cardId,
+            'text': row.content,
+            'done': row.done,
+            'position': row.position,
+            'createdAt': wireDate(now),
+          },
+        );
         return ChecklistItem(
           id: row.id,
           text: row.content,
@@ -422,22 +520,41 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
 
   @override
   Future<void> updateChecklistItem(String itemId, {String? text, bool? done}) =>
-      (_db.update(_db.checklistItems)..where((i) => i.id.equals(itemId))).write(
-        ChecklistItemsCompanion(
-          content: text == null ? const Value.absent() : Value(text.trim()),
-          done: Value.absentIfNull(done),
-          updatedAt: Value(_now()),
-        ),
-      );
+      _db.transaction(() async {
+        final value = text?.trim();
+        await (_db.update(
+          _db.checklistItems,
+        )..where((i) => i.id.equals(itemId))).write(
+          ChecklistItemsCompanion(
+            content: Value.absentIfNull(value),
+            done: Value.absentIfNull(done),
+            updatedAt: Value(_now()),
+          ),
+        );
+        await _outbox.enqueue(
+          SyncEntity.checklistItem,
+          itemId,
+          SyncOperation.update,
+          {'text': ?value, 'done': ?done},
+        );
+      });
 
   @override
-  Future<void> deleteChecklistItem(String itemId) =>
-      (_db.update(_db.checklistItems)..where((i) => i.id.equals(itemId))).write(
-        ChecklistItemsCompanion(
-          deletedAt: Value(_now()),
-          updatedAt: Value(_now()),
-        ),
-      );
+  Future<void> deleteChecklistItem(String itemId) => _db.transaction(() async {
+    await (_db.update(
+      _db.checklistItems,
+    )..where((i) => i.id.equals(itemId))).write(
+      ChecklistItemsCompanion(
+        deletedAt: Value(_now()),
+        updatedAt: Value(_now()),
+      ),
+    );
+    await _outbox.enqueue(
+      SyncEntity.checklistItem,
+      itemId,
+      SyncOperation.delete,
+    );
+  });
 
   // --------------------------------------------------------------- mapping
 

@@ -7,9 +7,12 @@ import 'package:flowboard/features/boards/domain/board_models.dart'
 export 'package:flowboard/features/boards/domain/board_models.dart'
     show CardPriority;
 
-/// Fields shared by every synced entity (see docs/architecture.md):
+/// Fields shared by every synced entity (see docs/sync.md):
 /// client-generated UUID v4 id, timestamps, soft delete and a server-owned
 /// version (0 = never acknowledged by the server).
+///
+/// Synced tables have no foreign keys: pulled pages may deliver a child
+/// before its parent. Queries join through live parents instead.
 mixin SyncedEntity on Table {
   TextColumn get id => text()();
 
@@ -48,7 +51,7 @@ class Boards extends Table with SyncedEntity {
 
 @DataClassName('ColumnRow')
 class BoardColumns extends Table with SyncedEntity {
-  TextColumn get boardId => text().references(Boards, #id)();
+  TextColumn get boardId => text()();
 
   TextColumn get title => text()();
 
@@ -61,10 +64,10 @@ class BoardColumns extends Table with SyncedEntity {
 
 @DataClassName('CardRow')
 class Cards extends Table with SyncedEntity {
-  TextColumn get columnId => text().references(BoardColumns, #id)();
+  TextColumn get columnId => text()();
 
   /// Denormalized from the column so a board loads with one query.
-  TextColumn get boardId => text().references(Boards, #id)();
+  TextColumn get boardId => text()();
 
   TextColumn get title => text()();
 
@@ -87,7 +90,7 @@ class Cards extends Table with SyncedEntity {
 
 @DataClassName('ChecklistItemRow')
 class ChecklistItems extends Table with SyncedEntity {
-  TextColumn get cardId => text().references(Cards, #id)();
+  TextColumn get cardId => text()();
 
   TextColumn get content => text().named('text')();
 
@@ -99,7 +102,7 @@ class ChecklistItems extends Table with SyncedEntity {
 /// Filled in phase 5 (comments and @mentions).
 @DataClassName('CommentRow')
 class Comments extends Table with SyncedEntity {
-  TextColumn get cardId => text().references(Cards, #id)();
+  TextColumn get cardId => text()();
 
   TextColumn get authorId => text()();
 
@@ -114,7 +117,7 @@ class Comments extends Table with SyncedEntity {
 // (id, cardId, fileName, mimeType, size, remoteUrl, localPath) — no schema
 // changes to cards are needed.
 
-/// Pending local mutations, pushed by the SyncEngine (phase 4).
+/// Pending local mutations, pushed by the SyncEngine (docs/sync.md §3).
 @DataClassName('OutboxRow')
 class Outbox extends Table {
   TextColumn get opId => text()();

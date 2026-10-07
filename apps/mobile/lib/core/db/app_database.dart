@@ -26,31 +26,43 @@ class AppDatabase extends _$AppDatabase {
   static const _ownerKey = 'ownerUserId';
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
-      await customStatement(
-        'CREATE INDEX idx_columns_board ON board_columns (board_id, position)',
-      );
-      await customStatement(
-        'CREATE INDEX idx_cards_column ON cards (column_id, position)',
-      );
-      await customStatement('CREATE INDEX idx_cards_board ON cards (board_id)');
-      await customStatement(
-        'CREATE INDEX idx_checklist_card '
-        'ON checklist_items (card_id, position)',
-      );
-      await customStatement(
-        'CREATE INDEX idx_boards_workspace ON boards (workspace_id)',
-      );
+      await _createIndexes();
     },
-    beforeOpen: (details) async {
-      await customStatement('PRAGMA foreign_keys = ON');
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        // v2 drops foreign keys between synced tables (docs/sync.md §6).
+        // alterTable recreates each table and copies its rows.
+        for (final table in <TableInfo<Table, Object?>>[
+          boardColumns,
+          cards,
+          checklistItems,
+          comments,
+        ]) {
+          await m.alterTable(TableMigration(table));
+        }
+        await _createIndexes();
+      }
     },
   );
+
+  Future<void> _createIndexes() async {
+    for (final sql in const [
+      'idx_columns_board ON board_columns (board_id, position)',
+      'idx_cards_column ON cards (column_id, position)',
+      'idx_cards_board ON cards (board_id)',
+      'idx_checklist_card ON checklist_items (card_id, position)',
+      'idx_boards_workspace ON boards (workspace_id)',
+      'idx_outbox_entity ON outbox (entity, entity_id)',
+    ]) {
+      await customStatement('CREATE INDEX IF NOT EXISTS $sql');
+    }
+  }
 
   /// Local data belongs to one account. Signing in as someone else wipes it;
   /// the same user signing back in keeps (possibly unsynced) data.
@@ -66,7 +78,6 @@ class AppDatabase extends _$AppDatabase {
   });
 
   Future<void> _wipe() async {
-    // Children first because of foreign keys.
     for (final table in <TableInfo<Table, Object?>>[
       comments,
       checklistItems,
