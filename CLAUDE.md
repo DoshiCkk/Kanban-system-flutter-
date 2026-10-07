@@ -43,7 +43,10 @@ Checks (run from `apps/api`):
 npm run lint; npm run format:check; npm run typecheck; npm test; npm run test:e2e
 ```
 
-## Sync invariants (details in `docs/sync.md`, written in phase 4)
+## Sync invariants (details in `docs/sync.md`)
 - Client generates UUID v4 ids. Every synced entity has `createdAt, updatedAt, deletedAt, version`.
 - Ordering uses fractional index string keys — moving a card updates one row.
-- Every local mutation is written to Drift and the outbox in the same transaction.
+- Every local mutation is written to Drift and the outbox (`OutboxWriter`, changed fields only, wire names) in the same transaction. Only `SyncEngine`/`SyncStore` read the outbox or call `/sync/*`.
+- Client synced tables have no foreign keys; queries go through live parents.
+- Server: never set `seq`, `version`, `updated_at` of synced tables in code — the `sync_touch` trigger does. Each pushed op runs in its own transaction under `pg_advisory_xact_lock(hashtext(workspaceId))`.
+- A new synced entity needs: Prisma model + trigger, API handler + payload DTOs, Drift table, `SyncStore._upsert`, fake sync server in tests.

@@ -16,7 +16,10 @@ Items deferred from the current phase or out of MVP scope. Every `TODO` in code 
 - Pinned `drift >=2.34.0 <2.35.0` / `drift_dev 2.34.0`: newer drift_dev needs analyzer ≥ 13, which conflicts with freezed 3.x. Unpin together with the freezed 4.x upgrade.
 - Postgres must sort `position` with `COLLATE "C"` (byte order) to match the client's fractional-index ordering (phase 4 schema).
 - Drag and drop: auto-scroll a long column vertically while a card is held near its top/bottom edge (horizontal edge paging is done).
-- Board list/board/card screens are local-only until phase 4 sync: boards created on one device do not reach teammates yet.
+- Sync: coalesce outbox ops for the same row before pushing (fewer requests after long offline sessions).
+- Sync: boards created before phase 4 (no outbox ops) never reach the server; acceptable because phase 3 was never released.
+- Sync: replace the full re-pull after a rejected update with a per-entity fetch if rejections become frequent.
+- Sync: offline creation of workspaces (they stay online-only by design, docs/sync.md §1).
 - Send the chosen UI language to the server (`PATCH /users/me { locale }`) so push notifications use it (phase 6).
 - Refresh token grace window: accept the just-rotated token for a few seconds to survive a lost refresh response.
 - HTTPS + real domain for release builds (debug uses cleartext to `10.0.2.2`).

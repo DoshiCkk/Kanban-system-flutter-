@@ -89,6 +89,19 @@ dart run build_runner build --delete-conflicting-outputs
 ```
 (If `dart` on your PATH is not Flutter's own, call it explicitly, e.g. `& "$((Get-Command flutter).Source | Split-Path)\dart.bat" run build_runner build`.)
 
+## Offline sync: manual check
+Design: [docs/sync.md](docs/sync.md). The cloud icon in the board's app bar shows the state (synced / syncing / `n` changes waiting / error); tap it to sync now.
+1. Turn on airplane mode on the emulator.
+2. Create a board, add a few cards and move two of them. The icon shows the number of queued changes.
+3. Kill the app (swipe it away), start it again: everything is still there.
+4. Turn the network back on: within a couple of seconds the icon turns into a check mark.
+5. Sign in as a second user of the same workspace (another emulator, or `flutter run -d <device>` on a second device) and open the board: it has the same columns and cards.
+
+Inspect what the server has (PowerShell, after logging in as in the snippet above):
+```powershell
+Invoke-RestMethod "$api/sync/pull?workspaceId=$($ws.id)&since=0" -Headers $ha | ConvertTo-Json -Depth 5
+```
+
 ## iOS
 iOS cannot be built on Windows. The code avoids Android-only APIs; iOS builds will run on a macOS CI runner (phase 7). On the iOS simulator use `API_BASE_URL=http://localhost:3000`.
 

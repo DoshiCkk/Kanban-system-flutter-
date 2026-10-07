@@ -1,6 +1,6 @@
 # Sync design
 
-Status: **draft for review** (phase 4). No sync code is written until this document is approved.
+Status: **approved and implemented** (phase 4). Implementation notes that refine the draft are marked *Implemented:*.
 
 ## 1. Goals and non-goals
 
@@ -47,6 +47,7 @@ Every synced row has:
 The phase plan said "change_log with a global seq cursor". I propose a compacted variant of it:
 - A single Postgres sequence `sync_seq`.
 - Every write to a synced row sets `row.seq = nextval('sync_seq')` in the same transaction.
+  *Implemented:* a `BEFORE INSERT OR UPDATE` trigger (`sync_touch`) sets `seq`, `version` and `updated_at`, so no code path (cascades included) can forget it.
 - Tombstones are ordinary rows with `deletedAt` set, so deletes are pulled like any other change.
 
 Why not a separate `change_log` table:
@@ -84,7 +85,7 @@ Outbox record (table `outbox`, already created in phase 3):
 Examples:
 - Moving a card writes `update card {columnId, position}`.
 - Toggling a checklist item writes `update checklistItem {done}`.
-- Deleting a column writes `delete column` plus `delete card` for each card that the local repository soft-deleted with it. The server applies the same cascade itself, so these extra ops are idempotent no-ops there.
+- Deleting a column writes a single `delete column`. The local repository soft-deletes the column's cards as well, and the server applies the same cascade, so no per-card ops are needed.
 
 Ops are not coalesced in the MVP. Batches are small (a person edits a few cards), and keeping each op makes debugging easier.
 
@@ -126,7 +127,7 @@ Response:
 |---|---|---|
 | `applied` | Change written | Delete op from the outbox |
 | `duplicate` | `opId` seen before; the stored result is returned | Delete op from the outbox |
-| `rejected` | Permanently invalid (see §5) | Delete op; the next pull restores the server truth |
+| `rejected` | Permanently invalid (see §5) | Delete op. A rejected `create` hides the local row (the server never had it). Any other rejection resets the cursors, so the next pull is a full one and restores the server's version |
 
 Server processing:
 - Ops are applied **in order, each in its own savepoint**, so one rejected op does not roll back the others.
@@ -152,6 +153,8 @@ Server processing:
 - A non-member gets 404 (existing `WorkspaceMemberGuard`). The client then treats the workspace as lost (§6).
 
 One workspace per request keeps the permission check trivial. A user rarely has more than a handful of workspaces.
+
+*Implemented:* the server reads all five tables inside one `REPEATABLE READ` transaction. Otherwise a commit between two of the table queries could move the cursor past a row that an earlier query did not see.
 
 ## 5. Conflict resolution
 
@@ -183,7 +186,7 @@ For every pulled row, inside one Drift transaction per page:
 1. **No pending outbox ops** for this entity: overwrite the local row with the server row.
 2. **Pending ops exist** (local changes not yet pushed): write the server values **except** for the fields that pending ops change. The local intent is kept and will reach the server with the next push. This is the client-side mirror of field-level LWW.
 3. **The server row is a tombstone:** delete locally (soft delete) and drop the pending ops for this entity and its children. Delete wins (§5).
-4. **Unknown parent** (for example a card whose board has not arrived yet in this page): insert anyway. Foreign keys are satisfied because the pull orders entities parent-first within a page (boards, columns, cards, checklist items, comments). Rows whose parent is missing on the client are kept and become visible once the parent arrives.
+4. **Unknown parent** (for example a card whose column was renamed later and so arrives on a later page): insert anyway. *Implemented:* the client tables have no foreign keys (schema v2 dropped them), because pages are ordered by `seq`, not parent-first. Rows whose parent is missing are kept and become visible once the parent arrives, since every query goes through live parents.
 
 **Losing access.** If pull returns 404 for a workspace (the user was removed), the client deletes that workspace's boards, cards, outbox ops and cursor, and the workspaces list refreshes.
 
@@ -208,7 +211,7 @@ Triggers (all coalesced into "run one more cycle when the current one ends"):
 Errors:
 - **Network or 5xx:** exponential backoff of 1 s, 2 s, 4 s … capped at 5 min, with jitter. `attempts` is incremented for the ops that were sent.
 - **401 that the auth interceptor cannot refresh:** the session ends (existing behaviour) and the engine stops.
-- **4xx on the whole request** (for example a malformed batch, which would be a bug): the batch is logged and its ops are marked rejected so the queue never gets stuck.
+- **4xx on the whole request** (for example a malformed batch, which would be a bug): the batch is logged, its ops are dropped and the cursors are reset, so the queue never gets stuck.
 
 Status for the UI (`SyncStatus`):
 
@@ -237,7 +240,8 @@ The indicator is in the board and boards app bars, with a semantic label for scr
   - `SyncController` exposes push and pull, with DTO validation per entity.
   - `SyncService` holds the transaction and advisory lock.
   - One `EntityHandler` per entity covers payload whitelist, parent checks and cascade.
-- `sync_seq` is a Postgres sequence. `nextval` is called through `$queryRaw` inside the push transaction.
+- `sync_seq` is a Postgres sequence, read by the `sync_touch` trigger.
+- Each op runs in its own transaction: look up the row, take the workspace advisory lock, re-read, apply, record the `opId`. One transaction per op avoids savepoints and lock-order deadlocks between workspaces.
 - After a push commits, the service emits `board.changed(boardIds)` internally. Phase 5 forwards that event to Socket.IO rooms.
 
 ## 10. Testing plan
