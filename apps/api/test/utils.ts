@@ -27,7 +27,7 @@ export async function createTestApp(): Promise<TestApp> {
 export async function resetState(app: TestApp): Promise<void> {
   const prisma = app.get(PrismaService);
   await prisma.$executeRawUnsafe(
-    'TRUNCATE TABLE refresh_tokens, invites, memberships, workspaces, users CASCADE',
+    'TRUNCATE TABLE sync_applied_ops, comments, checklist_items, cards, board_columns, boards, refresh_tokens, invites, memberships, workspaces, users CASCADE',
   );
   await app.get<Redis>(REDIS).flushdb();
 }
