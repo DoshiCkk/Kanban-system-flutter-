@@ -5,6 +5,12 @@ import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_form_cubit.dart';
 import 'package:flowboard/features/auth/presentation/login_page.dart';
 import 'package:flowboard/features/auth/presentation/register_page.dart';
+import 'package:flowboard/features/boards/presentation/board_page.dart';
+import 'package:flowboard/features/boards/presentation/boards_page.dart';
+import 'package:flowboard/features/boards/presentation/card_page.dart';
+import 'package:flowboard/features/boards/presentation/cubit/board_cubit.dart';
+import 'package:flowboard/features/boards/presentation/cubit/boards_cubit.dart';
+import 'package:flowboard/features/boards/presentation/cubit/card_cubit.dart';
 import 'package:flowboard/features/settings/presentation/settings_page.dart';
 import 'package:flowboard/features/workspaces/presentation/cubit/join_workspace_cubit.dart';
 import 'package:flowboard/features/workspaces/presentation/cubit/members_cubit.dart';
@@ -23,6 +29,9 @@ abstract final class AppRoutes {
   static const settings = 'settings';
   static const members = 'members';
   static const join = 'join';
+  static const boards = 'boards';
+  static const board = 'board';
+  static const card = 'card';
 }
 
 const _authPaths = {'/login', '/register'};
@@ -93,15 +102,53 @@ GoRouter createRouter(AuthCubit auth) => GoRouter(
           builder: (context, state) => const SettingsPage(),
         ),
         GoRoute(
-          path: 'workspaces/:workspaceId/members',
-          name: AppRoutes.members,
+          path: 'workspaces/:workspaceId',
+          name: AppRoutes.boards,
           builder: (context, state) => BlocProvider(
-            create: (_) => _loading(
-              MembersCubit(getIt(), state.pathParameters['workspaceId']!),
-              (c) => c.load(),
+            create: (_) => BoardsCubit(
+              getIt(),
+              getIt(),
+              state.pathParameters['workspaceId']!,
             ),
-            child: const MembersPage(),
+            child: const BoardsPage(),
           ),
+          routes: [
+            GoRoute(
+              path: 'members',
+              name: AppRoutes.members,
+              builder: (context, state) => BlocProvider(
+                create: (_) => _loading(
+                  MembersCubit(getIt(), state.pathParameters['workspaceId']!),
+                  (c) => c.load(),
+                ),
+                child: const MembersPage(),
+              ),
+            ),
+            GoRoute(
+              path: 'boards/:boardId',
+              name: AppRoutes.board,
+              builder: (context, state) => BlocProvider(
+                create: (_) =>
+                    BoardCubit(getIt(), state.pathParameters['boardId']!),
+                child: const BoardPage(),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'cards/:cardId',
+                  name: AppRoutes.card,
+                  builder: (context, state) => BlocProvider(
+                    create: (_) => CardCubit(
+                      cardId: state.pathParameters['cardId']!,
+                      cards: getIt(),
+                      boards: getIt(),
+                      workspaces: getIt(),
+                    ),
+                    child: const CardPage(),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),

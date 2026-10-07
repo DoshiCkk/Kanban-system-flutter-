@@ -1,197 +1,675 @@
 {
   "@@locale": "en",
   "appTitle": "FlowBoard",
-  "@appTitle": {"description": "Application name shown in the task switcher and app bar."},
-
+  "@appTitle": {
+    "description": "Application name shown in the task switcher and app bar."
+  },
   "commonCancel": "Cancel",
-  "@commonCancel": {"description": "Generic cancel button."},
+  "@commonCancel": {
+    "description": "Generic cancel button."
+  },
   "commonCreate": "Create",
-  "@commonCreate": {"description": "Generic create button."},
+  "@commonCreate": {
+    "description": "Generic create button."
+  },
   "commonContinue": "Continue",
-  "@commonContinue": {"description": "Generic continue button."},
+  "@commonContinue": {
+    "description": "Generic continue button."
+  },
   "commonRetry": "Try again",
-  "@commonRetry": {"description": "Retry button on error states."},
+  "@commonRetry": {
+    "description": "Retry button on error states."
+  },
   "commonCopy": "Copy link",
-  "@commonCopy": {"description": "Button that copies a link to the clipboard."},
+  "@commonCopy": {
+    "description": "Button that copies a link to the clipboard."
+  },
   "commonCopied": "Link copied",
-  "@commonCopied": {"description": "Snackbar after copying a link."},
+  "@commonCopied": {
+    "description": "Snackbar after copying a link."
+  },
   "commonRemove": "Remove",
-  "@commonRemove": {"description": "Destructive confirm button: remove."},
+  "@commonRemove": {
+    "description": "Destructive confirm button: remove."
+  },
   "commonLeave": "Leave",
-  "@commonLeave": {"description": "Destructive confirm button: leave."},
-
+  "@commonLeave": {
+    "description": "Destructive confirm button: leave."
+  },
   "settingsTitle": "Settings",
-  "@settingsTitle": {"description": "Settings screen title and settings button tooltip."},
+  "@settingsTitle": {
+    "description": "Settings screen title and settings button tooltip."
+  },
   "settingsThemeSection": "Theme",
-  "@settingsThemeSection": {"description": "Section header for theme selection."},
+  "@settingsThemeSection": {
+    "description": "Section header for theme selection."
+  },
   "themeSystem": "System",
-  "@themeSystem": {"description": "Theme option: follow the OS setting."},
+  "@themeSystem": {
+    "description": "Theme option: follow the OS setting."
+  },
   "themeLight": "Light",
-  "@themeLight": {"description": "Theme option: light."},
+  "@themeLight": {
+    "description": "Theme option: light."
+  },
   "themeDark": "Dark",
-  "@themeDark": {"description": "Theme option: dark."},
+  "@themeDark": {
+    "description": "Theme option: dark."
+  },
   "settingsLanguageSection": "Language",
-  "@settingsLanguageSection": {"description": "Section header for language selection."},
+  "@settingsLanguageSection": {
+    "description": "Section header for language selection."
+  },
   "languageSystem": "System language",
-  "@languageSystem": {"description": "Language option: follow the OS language."},
+  "@languageSystem": {
+    "description": "Language option: follow the OS language."
+  },
   "languageEnglish": "English",
-  "@languageEnglish": {"description": "Native name of English. Same in every locale."},
+  "@languageEnglish": {
+    "description": "Native name of English. Same in every locale."
+  },
   "languageRussian": "Русский",
-  "@languageRussian": {"description": "Native name of Russian. Same in every locale."},
+  "@languageRussian": {
+    "description": "Native name of Russian. Same in every locale."
+  },
   "languageKazakh": "Қазақша",
-  "@languageKazakh": {"description": "Native name of Kazakh. Same in every locale."},
+  "@languageKazakh": {
+    "description": "Native name of Kazakh. Same in every locale."
+  },
   "settingsAccountSection": "Account",
-  "@settingsAccountSection": {"description": "Section header for the signed-in account."},
+  "@settingsAccountSection": {
+    "description": "Section header for the signed-in account."
+  },
   "settingsLogout": "Sign out",
-  "@settingsLogout": {"description": "Sign out button in settings."},
-
+  "@settingsLogout": {
+    "description": "Sign out button in settings."
+  },
   "authLoginTitle": "Welcome back",
-  "@authLoginTitle": {"description": "Login screen headline."},
+  "@authLoginTitle": {
+    "description": "Login screen headline."
+  },
   "authLoginSubtitle": "Sign in to get to your team's boards",
-  "@authLoginSubtitle": {"description": "Login screen subtitle."},
+  "@authLoginSubtitle": {
+    "description": "Login screen subtitle."
+  },
   "authRegisterTitle": "Create an account",
-  "@authRegisterTitle": {"description": "Registration screen headline."},
+  "@authRegisterTitle": {
+    "description": "Registration screen headline."
+  },
   "authRegisterSubtitle": "Plan work together, even offline",
-  "@authRegisterSubtitle": {"description": "Registration screen subtitle."},
+  "@authRegisterSubtitle": {
+    "description": "Registration screen subtitle."
+  },
   "authNameLabel": "Your name",
-  "@authNameLabel": {"description": "Name field label."},
+  "@authNameLabel": {
+    "description": "Name field label."
+  },
   "authEmailLabel": "Email",
-  "@authEmailLabel": {"description": "Email field label."},
+  "@authEmailLabel": {
+    "description": "Email field label."
+  },
   "authPasswordLabel": "Password",
-  "@authPasswordLabel": {"description": "Password field label."},
+  "@authPasswordLabel": {
+    "description": "Password field label."
+  },
   "authShowPassword": "Show password",
-  "@authShowPassword": {"description": "Tooltip of the button revealing the password."},
+  "@authShowPassword": {
+    "description": "Tooltip of the button revealing the password."
+  },
   "authHidePassword": "Hide password",
-  "@authHidePassword": {"description": "Tooltip of the button hiding the password."},
+  "@authHidePassword": {
+    "description": "Tooltip of the button hiding the password."
+  },
   "authSignIn": "Sign in",
-  "@authSignIn": {"description": "Primary button on the login screen."},
+  "@authSignIn": {
+    "description": "Primary button on the login screen."
+  },
   "authSignUp": "Create account",
-  "@authSignUp": {"description": "Primary button on the registration screen."},
+  "@authSignUp": {
+    "description": "Primary button on the registration screen."
+  },
   "authNoAccount": "No account yet? Create one",
-  "@authNoAccount": {"description": "Link from login to registration."},
+  "@authNoAccount": {
+    "description": "Link from login to registration."
+  },
   "authHaveAccount": "Already have an account? Sign in",
-  "@authHaveAccount": {"description": "Link from registration to login."},
-
+  "@authHaveAccount": {
+    "description": "Link from registration to login."
+  },
   "validationNameRequired": "Enter your name",
-  "@validationNameRequired": {"description": "Validation: name is empty."},
+  "@validationNameRequired": {
+    "description": "Validation: name is empty."
+  },
   "validationEmailInvalid": "Enter a valid email",
-  "@validationEmailInvalid": {"description": "Validation: email is malformed."},
+  "@validationEmailInvalid": {
+    "description": "Validation: email is malformed."
+  },
   "validationPasswordRequired": "Enter your password",
-  "@validationPasswordRequired": {"description": "Validation: password is empty."},
+  "@validationPasswordRequired": {
+    "description": "Validation: password is empty."
+  },
   "validationPasswordTooShort": "Use at least {min} characters",
   "@validationPasswordTooShort": {
     "description": "Validation: password shorter than the minimum.",
-    "placeholders": {"min": {"type": "int"}}
+    "placeholders": {
+      "min": {
+        "type": "int"
+      }
+    }
   },
   "validationWorkspaceNameRequired": "Enter a name",
-  "@validationWorkspaceNameRequired": {"description": "Validation: workspace name is empty."},
-
+  "@validationWorkspaceNameRequired": {
+    "description": "Validation: workspace name is empty."
+  },
   "errorNetwork": "No connection to the server. Check the internet and try again.",
-  "@errorNetwork": {"description": "Error: request failed because of connectivity."},
+  "@errorNetwork": {
+    "description": "Error: request failed because of connectivity."
+  },
   "errorInvalidCredentials": "Wrong email or password",
-  "@errorInvalidCredentials": {"description": "Error: login failed."},
+  "@errorInvalidCredentials": {
+    "description": "Error: login failed."
+  },
   "errorEmailTaken": "This email is already registered",
-  "@errorEmailTaken": {"description": "Error: registration with an existing email."},
+  "@errorEmailTaken": {
+    "description": "Error: registration with an existing email."
+  },
   "errorSessionExpired": "Your session has expired. Please sign in again.",
-  "@errorSessionExpired": {"description": "Shown on the login screen after the server ended the session."},
+  "@errorSessionExpired": {
+    "description": "Shown on the login screen after the server ended the session."
+  },
   "errorRateLimited": "Too many attempts. Wait a minute and try again.",
-  "@errorRateLimited": {"description": "Error: HTTP 429."},
+  "@errorRateLimited": {
+    "description": "Error: HTTP 429."
+  },
   "errorForbidden": "You don't have permission to do that",
-  "@errorForbidden": {"description": "Error: HTTP 403."},
+  "@errorForbidden": {
+    "description": "Error: HTTP 403."
+  },
   "errorNotFound": "Not found. It may have been deleted.",
-  "@errorNotFound": {"description": "Error: HTTP 404."},
+  "@errorNotFound": {
+    "description": "Error: HTTP 404."
+  },
   "errorInviteInvalid": "This invite link is invalid or has expired",
-  "@errorInviteInvalid": {"description": "Error: invite token rejected."},
+  "@errorInviteInvalid": {
+    "description": "Error: invite token rejected."
+  },
   "errorOwnerRoleLocked": "The owner's role can't be changed",
-  "@errorOwnerRoleLocked": {"description": "Error: attempt to change or remove the owner."},
+  "@errorOwnerRoleLocked": {
+    "description": "Error: attempt to change or remove the owner."
+  },
   "errorValidation": "Check the entered data",
-  "@errorValidation": {"description": "Error: server-side validation failed."},
+  "@errorValidation": {
+    "description": "Error: server-side validation failed."
+  },
   "errorServer": "Server error. Try again later.",
-  "@errorServer": {"description": "Error: HTTP 5xx."},
+  "@errorServer": {
+    "description": "Error: HTTP 5xx."
+  },
   "errorUnknown": "Something went wrong",
-  "@errorUnknown": {"description": "Fallback error message."},
-
+  "@errorUnknown": {
+    "description": "Fallback error message."
+  },
   "workspacesTitle": "Workspaces",
-  "@workspacesTitle": {"description": "Workspace list screen title."},
+  "@workspacesTitle": {
+    "description": "Workspace list screen title."
+  },
   "workspacesEmptyTitle": "No workspaces yet",
-  "@workspacesEmptyTitle": {"description": "Empty state title of the workspace list."},
+  "@workspacesEmptyTitle": {
+    "description": "Empty state title of the workspace list."
+  },
   "workspacesEmptyBody": "Create a workspace for your team or join one with an invite link.",
-  "@workspacesEmptyBody": {"description": "Empty state body of the workspace list."},
+  "@workspacesEmptyBody": {
+    "description": "Empty state body of the workspace list."
+  },
   "workspacesCreate": "New workspace",
-  "@workspacesCreate": {"description": "Button/FAB that creates a workspace."},
+  "@workspacesCreate": {
+    "description": "Button/FAB that creates a workspace."
+  },
   "workspacesJoin": "Join by link",
-  "@workspacesJoin": {"description": "Button that opens the join-by-invite dialog."},
+  "@workspacesJoin": {
+    "description": "Button that opens the join-by-invite dialog."
+  },
   "workspaceNameLabel": "Workspace name",
-  "@workspaceNameLabel": {"description": "Workspace name field label."},
+  "@workspaceNameLabel": {
+    "description": "Workspace name field label."
+  },
   "workspaceMemberCount": "{count, plural, =1{1 member} other{{count} members}}",
   "@workspaceMemberCount": {
     "description": "Number of members in a workspace.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "roleOwner": "Owner",
-  "@roleOwner": {"description": "Workspace role: owner."},
+  "@roleOwner": {
+    "description": "Workspace role: owner."
+  },
   "roleAdmin": "Admin",
-  "@roleAdmin": {"description": "Workspace role: admin."},
+  "@roleAdmin": {
+    "description": "Workspace role: admin."
+  },
   "roleMember": "Member",
-  "@roleMember": {"description": "Workspace role: member."},
-
+  "@roleMember": {
+    "description": "Workspace role: member."
+  },
   "membersTitle": "Members",
-  "@membersTitle": {"description": "Workspace members screen title."},
+  "@membersTitle": {
+    "description": "Workspace members screen title."
+  },
   "membersInvite": "Invite people",
-  "@membersInvite": {"description": "Button that creates an invite link."},
+  "@membersInvite": {
+    "description": "Button that creates an invite link."
+  },
   "memberYou": "{name} (you)",
   "@memberYou": {
     "description": "Marks the current user in the member list.",
-    "placeholders": {"name": {"type": "String"}}
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "memberActions": "Member actions",
-  "@memberActions": {"description": "Tooltip of the member overflow menu."},
+  "@memberActions": {
+    "description": "Tooltip of the member overflow menu."
+  },
   "memberMakeAdmin": "Make admin",
-  "@memberMakeAdmin": {"description": "Menu action: promote to admin."},
+  "@memberMakeAdmin": {
+    "description": "Menu action: promote to admin."
+  },
   "memberMakeMember": "Make regular member",
-  "@memberMakeMember": {"description": "Menu action: demote to member."},
+  "@memberMakeMember": {
+    "description": "Menu action: demote to member."
+  },
   "memberRemove": "Remove from workspace",
-  "@memberRemove": {"description": "Menu action: remove a member."},
+  "@memberRemove": {
+    "description": "Menu action: remove a member."
+  },
   "memberLeave": "Leave workspace",
-  "@memberLeave": {"description": "Action: leave the workspace."},
+  "@memberLeave": {
+    "description": "Action: leave the workspace."
+  },
   "memberRemoveConfirm": "Remove {name} from the workspace?",
   "@memberRemoveConfirm": {
     "description": "Confirmation dialog title for removing a member.",
-    "placeholders": {"name": {"type": "String"}}
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "memberLeaveConfirm": "Leave {workspace}?",
   "@memberLeaveConfirm": {
     "description": "Confirmation dialog title for leaving a workspace.",
-    "placeholders": {"workspace": {"type": "String"}}
+    "placeholders": {
+      "workspace": {
+        "type": "String"
+      }
+    }
   },
-
   "inviteSheetTitle": "Invite link",
-  "@inviteSheetTitle": {"description": "Title of the invite link bottom sheet."},
+  "@inviteSheetTitle": {
+    "description": "Title of the invite link bottom sheet."
+  },
   "inviteSheetBody": "Anyone with this link can join until {date}.",
   "@inviteSheetBody": {
     "description": "Explains invite link validity.",
-    "placeholders": {"date": {"type": "DateTime", "format": "yMMMd"}}
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd"
+      }
+    }
   },
-
   "joinTitle": "Join workspace",
-  "@joinTitle": {"description": "Join-by-invite screen title."},
+  "@joinTitle": {
+    "description": "Join-by-invite screen title."
+  },
   "joinInvitedTo": "You're invited to",
-  "@joinInvitedTo": {"description": "Label above the workspace name on the join screen."},
+  "@joinInvitedTo": {
+    "description": "Label above the workspace name on the join screen."
+  },
   "joinButton": "Join workspace",
-  "@joinButton": {"description": "Accept invite button."},
+  "@joinButton": {
+    "description": "Accept invite button."
+  },
   "joinAlreadyMember": "You're already a member of this workspace",
-  "@joinAlreadyMember": {"description": "Shown when the invite is for a workspace the user is in."},
+  "@joinAlreadyMember": {
+    "description": "Shown when the invite is for a workspace the user is in."
+  },
   "joinOpenWorkspaces": "Go to workspaces",
-  "@joinOpenWorkspaces": {"description": "Button leaving the join screen."},
+  "@joinOpenWorkspaces": {
+    "description": "Button leaving the join screen."
+  },
   "joinedSnack": "You joined {workspace}",
   "@joinedSnack": {
     "description": "Snackbar after accepting an invite.",
-    "placeholders": {"workspace": {"type": "String"}}
+    "placeholders": {
+      "workspace": {
+        "type": "String"
+      }
+    }
   },
   "joinLinkDialogTitle": "Join by invite link",
-  "@joinLinkDialogTitle": {"description": "Dialog title for pasting an invite link."},
+  "@joinLinkDialogTitle": {
+    "description": "Dialog title for pasting an invite link."
+  },
   "joinLinkLabel": "Invite link",
-  "@joinLinkLabel": {"description": "Invite link field label."},
+  "@joinLinkLabel": {
+    "description": "Invite link field label."
+  },
   "joinLinkInvalid": "This doesn't look like an invite link",
-  "@joinLinkInvalid": {"description": "Validation: pasted text is not an invite link."}
+  "@joinLinkInvalid": {
+    "description": "Validation: pasted text is not an invite link."
+  },
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Generic save button."
+  },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "Generic delete button."
+  },
+  "commonRename": "Rename",
+  "@commonRename": {
+    "description": "Generic rename action."
+  },
+  "commonMoreActions": "More actions",
+  "@commonMoreActions": {
+    "description": "Tooltip of overflow menus."
+  },
+  "boardsTitle": "Boards",
+  "@boardsTitle": {
+    "description": "Board list screen title."
+  },
+  "boardsEmptyTitle": "No boards yet",
+  "@boardsEmptyTitle": {
+    "description": "Empty state title of the board list."
+  },
+  "boardsEmptyBody": "Create a board from a template to start planning.",
+  "@boardsEmptyBody": {
+    "description": "Empty state body of the board list."
+  },
+  "boardsCreate": "New board",
+  "@boardsCreate": {
+    "description": "FAB that creates a board."
+  },
+  "boardTitleLabel": "Board title",
+  "@boardTitleLabel": {
+    "description": "Board title field label."
+  },
+  "boardTemplateLabel": "Template",
+  "@boardTemplateLabel": {
+    "description": "Section header for template choice."
+  },
+  "templateBasic": "Basic",
+  "@templateBasic": {
+    "description": "Template name: basic."
+  },
+  "templateDevelopment": "Development",
+  "@templateDevelopment": {
+    "description": "Template name: development."
+  },
+  "templateEmpty": "Empty",
+  "@templateEmpty": {
+    "description": "Template name: empty board."
+  },
+  "templateEmptyColumns": "No columns, add your own",
+  "@templateEmptyColumns": {
+    "description": "Description of the empty template."
+  },
+  "columnTodo": "To do",
+  "@columnTodo": {
+    "description": "Basic template column 1."
+  },
+  "columnInProgress": "In progress",
+  "@columnInProgress": {
+    "description": "Basic template column 2."
+  },
+  "columnDone": "Done",
+  "@columnDone": {
+    "description": "Basic template column 3."
+  },
+  "columnDevBacklog": "Backlog",
+  "@columnDevBacklog": {
+    "description": "Development template column 1 (kept in English by convention)."
+  },
+  "columnDevTodo": "To Do",
+  "@columnDevTodo": {
+    "description": "Development template column 2."
+  },
+  "columnDevInProgress": "In Progress",
+  "@columnDevInProgress": {
+    "description": "Development template column 3."
+  },
+  "columnDevReview": "Review",
+  "@columnDevReview": {
+    "description": "Development template column 4."
+  },
+  "columnDevDone": "Done",
+  "@columnDevDone": {
+    "description": "Development template column 5."
+  },
+  "boardMembers": "Members",
+  "@boardMembers": {
+    "description": "Action opening the members screen."
+  },
+  "boardRename": "Rename board",
+  "@boardRename": {
+    "description": "Menu action."
+  },
+  "boardDelete": "Delete board",
+  "@boardDelete": {
+    "description": "Menu action."
+  },
+  "boardDeleteConfirm": "Delete the board “{title}”?",
+  "@boardDeleteConfirm": {
+    "description": "Confirmation dialog title.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "boardNotFound": "This board was deleted",
+  "@boardNotFound": {
+    "description": "Shown when an open board disappears."
+  },
+  "boardAddColumn": "Add column",
+  "@boardAddColumn": {
+    "description": "Menu action / button."
+  },
+  "boardNoColumnsTitle": "No columns yet",
+  "@boardNoColumnsTitle": {
+    "description": "Empty board state title."
+  },
+  "boardNoColumnsBody": "Add the first column to start.",
+  "@boardNoColumnsBody": {
+    "description": "Empty board state body."
+  },
+  "columnTitleLabel": "Column title",
+  "@columnTitleLabel": {
+    "description": "Column title field label."
+  },
+  "columnRename": "Rename column",
+  "@columnRename": {
+    "description": "Menu action."
+  },
+  "columnDelete": "Delete column",
+  "@columnDelete": {
+    "description": "Menu action."
+  },
+  "columnDeleteConfirm": "Delete the column “{title}” with all its tasks?",
+  "@columnDeleteConfirm": {
+    "description": "Confirmation dialog title.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "columnSemantics": "{title}, {count, plural, =0{no tasks} =1{1 task} other{{count} tasks}}",
+  "@columnSemantics": {
+    "description": "Screen reader label of a column tab.",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "columnEmpty": "No tasks here yet",
+  "@columnEmpty": {
+    "description": "Empty column title."
+  },
+  "columnEmptyHint": "Add one with “+ Task” or drag a card here.",
+  "@columnEmptyHint": {
+    "description": "Empty column hint."
+  },
+  "addTask": "Task",
+  "@addTask": {
+    "description": "FAB label next to a plus icon: + Task."
+  },
+  "quickTaskTitle": "New task",
+  "@quickTaskTitle": {
+    "description": "Quick create sheet title."
+  },
+  "quickTaskHint": "What needs to be done?",
+  "@quickTaskHint": {
+    "description": "Quick create field hint."
+  },
+  "cardDragHint": "Long press to move",
+  "@cardDragHint": {
+    "description": "Screen reader hint on a card."
+  },
+  "cardChecklistBadge": "{done} of {total}",
+  "@cardChecklistBadge": {
+    "description": "Checklist progress on a card.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cardStatus": "Status",
+  "@cardStatus": {
+    "description": "Card field: column."
+  },
+  "cardAssignee": "Assignee",
+  "@cardAssignee": {
+    "description": "Card field."
+  },
+  "cardUnassigned": "Unassigned",
+  "@cardUnassigned": {
+    "description": "No assignee."
+  },
+  "cardMembersUnavailable": "Members are unavailable offline",
+  "@cardMembersUnavailable": {
+    "description": "Assignee picker without cached members."
+  },
+  "cardDueDate": "Due date",
+  "@cardDueDate": {
+    "description": "Card field."
+  },
+  "cardNoDueDate": "No due date",
+  "@cardNoDueDate": {
+    "description": "No due date set."
+  },
+  "cardClearDueDate": "Remove due date",
+  "@cardClearDueDate": {
+    "description": "Action clearing the due date."
+  },
+  "cardPriority": "Priority",
+  "@cardPriority": {
+    "description": "Card field."
+  },
+  "priorityLow": "Low",
+  "@priorityLow": {
+    "description": "Priority value."
+  },
+  "priorityMedium": "Medium",
+  "@priorityMedium": {
+    "description": "Priority value."
+  },
+  "priorityHigh": "High",
+  "@priorityHigh": {
+    "description": "Priority value."
+  },
+  "cardLabels": "Labels",
+  "@cardLabels": {
+    "description": "Card field."
+  },
+  "cardAddLabel": "Add label",
+  "@cardAddLabel": {
+    "description": "Button/dialog title."
+  },
+  "cardLabelHint": "Label name",
+  "@cardLabelHint": {
+    "description": "Label field hint."
+  },
+  "cardRemoveLabel": "Remove label {label}",
+  "@cardRemoveLabel": {
+    "description": "Screen reader action on a label chip.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "cardDescription": "Description",
+  "@cardDescription": {
+    "description": "Card field."
+  },
+  "cardDescriptionHint": "Add details…",
+  "@cardDescriptionHint": {
+    "description": "Description placeholder."
+  },
+  "cardChecklist": "Checklist",
+  "@cardChecklist": {
+    "description": "Card section."
+  },
+  "checklistAddHint": "Add an item",
+  "@checklistAddHint": {
+    "description": "Checklist input hint."
+  },
+  "checklistDeleteItem": "Delete item",
+  "@checklistDeleteItem": {
+    "description": "Checklist item action."
+  },
+  "cardMoveNext": "Move to “{column}”",
+  "@cardMoveNext": {
+    "description": "Big bottom button.",
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "cardInLastColumn": "Already in the last column",
+  "@cardInLastColumn": {
+    "description": "Disabled bottom button."
+  },
+  "cardDelete": "Delete task",
+  "@cardDelete": {
+    "description": "Menu action."
+  },
+  "cardDeleteConfirm": "Delete this task?",
+  "@cardDeleteConfirm": {
+    "description": "Confirmation dialog title."
+  },
+  "cardNotFound": "This task was deleted",
+  "@cardNotFound": {
+    "description": "Shown when an open card disappears."
+  },
+  "cardTitleLabel": "Title",
+  "@cardTitleLabel": {
+    "description": "Card title field label."
+  }
 }

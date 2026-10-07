@@ -117,7 +117,7 @@ class _WorkspaceTile extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right),
         onTap: () async {
           await context.pushNamed(
-            AppRoutes.members,
+            AppRoutes.boards,
             pathParameters: {'workspaceId': workspace.id},
           );
           if (context.mounted) await context.read<WorkspacesCubit>().load();
