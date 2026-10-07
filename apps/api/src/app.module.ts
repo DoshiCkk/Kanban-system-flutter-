@@ -13,6 +13,7 @@ import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { RedisThrottlerStorage } from './redis/redis-throttler.storage.js';
 import { REDIS, RedisModule } from './redis/redis.module.js';
+import { SyncModule } from './sync/sync.module.js';
 import { UsersModule } from './users/users.module.js';
 import { WorkspacesModule } from './workspaces/workspaces.module.js';
 
@@ -53,6 +54,7 @@ const MINUTE_MS = 60_000;
     AuthModule,
     UsersModule,
     WorkspacesModule,
+    SyncModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
