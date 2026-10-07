@@ -149,5 +149,14 @@
   "cardDelete": "Удалить задачу",
   "cardDeleteConfirm": "Удалить эту задачу?",
   "cardNotFound": "Эта задача удалена",
-  "cardTitleLabel": "Название"
+  "cardTitleLabel": "Название",
+  "syncSynced": "Все изменения синхронизированы",
+  "syncSyncing": "Синхронизация…",
+  "syncPending": "{count, plural, one{{count} изменение ждёт сети} few{{count} изменения ждут сети} many{{count} изменений ждут сети} other{{count} изменения ждут сети}}",
+  "syncError": "Ошибка синхронизации. Нажмите, чтобы повторить.",
+  "logoutUnsyncedTitle": "{count, plural, one{{count} изменение ещё не синхронизировано} few{{count} изменения ещё не синхронизированы} many{{count} изменений ещё не синхронизированы} other{{count} изменения ещё не синхронизированы}}",
+  "logoutUnsyncedBody": "Если выйти, а на этом устройстве войдёт другой пользователь, эти изменения пропадут.",
+  "logoutSyncAndSignOut": "Синхронизировать и выйти",
+  "logoutAnyway": "Всё равно выйти",
+  "logoutSyncFailed": "Не удалось синхронизировать. Проверьте подключение и попробуйте снова."
 }

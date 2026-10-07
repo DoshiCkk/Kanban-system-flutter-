@@ -6,6 +6,11 @@ import 'package:flowboard/core/db/app_database.dart';
 import 'package:flowboard/core/network/api_client.dart';
 import 'package:flowboard/core/network/session_storage.dart';
 import 'package:flowboard/core/router/app_router.dart';
+import 'package:flowboard/core/sync/sync_api.dart';
+import 'package:flowboard/core/sync/sync_cubit.dart';
+import 'package:flowboard/core/sync/sync_engine.dart';
+import 'package:flowboard/core/sync/sync_store.dart';
+import 'package:flowboard/core/sync/sync_triggers.dart';
 import 'package:flowboard/features/auth/data/auth_api.dart';
 import 'package:flowboard/features/auth/data/auth_repository_impl.dart';
 import 'package:flowboard/features/auth/domain/auth_repository.dart';
@@ -50,6 +55,15 @@ Future<void> configureDependencies(AppConfig config) async {
   final authCubit = AuthCubit(authRepository);
   unawaited(authCubit.refreshProfile());
 
+  final syncEngine = SyncEngine(store: SyncStore(db), api: DioSyncApi(dio));
+  final syncTriggers = platformSyncTriggers();
+  // Sync runs only while signed in; claimFor already prepared the data.
+  void followSession(AuthState state) => state.isAuthenticated
+      ? syncEngine.start(triggers: syncTriggers)
+      : unawaited(syncEngine.stop());
+  followSession(authCubit.state);
+  authCubit.stream.listen(followSession);
+
   getIt
     ..registerSingleton<AppConfig>(config)
     ..registerSingleton<SettingsRepository>(PrefsSettingsRepository(prefs))
@@ -62,5 +76,7 @@ Future<void> configureDependencies(AppConfig config) async {
     ..registerSingleton<BoardsRepository>(boards)
     ..registerSingleton<CardRepository>(boards)
     ..registerSingleton<AuthCubit>(authCubit)
+    ..registerSingleton<SyncEngine>(syncEngine)
+    ..registerSingleton<SyncCubit>(SyncCubit(syncEngine))
     ..registerSingleton<GoRouter>(createRouter(authCubit));
 }

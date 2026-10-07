@@ -1,5 +1,6 @@
 import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/router/app_router.dart';
+import 'package:flowboard/core/sync/sync_indicator.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/presentation/cubit/boards_cubit.dart';
@@ -32,6 +33,7 @@ class BoardsPage extends StatelessWidget {
           appBar: AppBar(
             title: Text(state.workspace?.name ?? l10n.boardsTitle),
             actions: [
+              const SyncIndicator(),
               IconButton(
                 tooltip: l10n.boardMembers,
                 icon: const Icon(Icons.group_outlined),

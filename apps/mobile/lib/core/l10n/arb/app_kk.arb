@@ -149,5 +149,14 @@
   "cardDelete": "Тапсырманы жою",
   "cardDeleteConfirm": "Бұл тапсырманы жоясыз ба?",
   "cardNotFound": "Бұл тапсырма жойылған",
-  "cardTitleLabel": "Атауы"
+  "cardTitleLabel": "Атауы",
+  "syncSynced": "Барлық өзгерістер синхрондалды",
+  "syncSyncing": "Синхрондалуда…",
+  "syncPending": "{count, plural, other{{count} өзгеріс желіні күтуде}}",
+  "syncError": "Синхрондау сәтсіз аяқталды. Қайталау үшін түртіңіз.",
+  "logoutUnsyncedTitle": "{count, plural, other{{count} өзгеріс әлі синхрондалмаған}}",
+  "logoutUnsyncedBody": "Шығып кетсеңіз және осы құрылғыға басқа адам кірсе, бұл өзгерістер жоғалады.",
+  "logoutSyncAndSignOut": "Синхрондап, шығу",
+  "logoutAnyway": "Бәрібір шығу",
+  "logoutSyncFailed": "Синхрондау мүмкін болмады. Байланысты тексеріп, қайталап көріңіз."
 }

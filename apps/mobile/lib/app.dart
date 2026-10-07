@@ -1,4 +1,5 @@
 import 'package:flowboard/core/l10n/l10n.dart';
+import 'package:flowboard/core/sync/sync_cubit.dart';
 import 'package:flowboard/core/theme/app_theme.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/settings/domain/app_settings.dart';
@@ -12,12 +13,14 @@ class FlowBoardApp extends StatelessWidget {
   const FlowBoardApp({
     required this.settingsRepository,
     required this.authCubit,
+    required this.syncCubit,
     required this.router,
     super.key,
   });
 
   final SettingsRepository settingsRepository;
   final AuthCubit authCubit;
+  final SyncCubit syncCubit;
   final GoRouter router;
 
   @override
@@ -26,6 +29,7 @@ class FlowBoardApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => SettingsCubit(settingsRepository)),
         BlocProvider.value(value: authCubit),
+        BlocProvider.value(value: syncCubit),
       ],
       child: BlocBuilder<SettingsCubit, AppSettings>(
         builder: (context, settings) => MaterialApp.router(

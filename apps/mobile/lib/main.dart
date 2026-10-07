@@ -10,6 +10,7 @@ Future<void> main() async {
     FlowBoardApp(
       settingsRepository: getIt(),
       authCubit: getIt(),
+      syncCubit: getIt(),
       router: getIt(),
     ),
   );

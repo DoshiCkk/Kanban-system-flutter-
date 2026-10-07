@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/router/app_router.dart';
+import 'package:flowboard/core/sync/sync_indicator.dart';
 import 'package:flowboard/core/widgets/dialogs.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
@@ -196,6 +197,7 @@ class _BoardPageState extends State<BoardPage> {
           appBar: AppBar(
             title: Text(state.content!.board.title),
             actions: [
+              const SyncIndicator(),
               PopupMenuButton<_BoardAction>(
                 tooltip: l10n.commonMoreActions,
                 onSelected: (action) => _onAction(action, state),

@@ -671,5 +671,51 @@
   "cardTitleLabel": "Title",
   "@cardTitleLabel": {
     "description": "Card title field label."
+  },
+  "syncSynced": "All changes synced",
+  "@syncSynced": {
+    "description": "Sync indicator: everything reached the server."
+  },
+  "syncSyncing": "Syncing…",
+  "@syncSyncing": {
+    "description": "Sync indicator: a sync cycle is running."
+  },
+  "syncPending": "{count, plural, =1{1 change waiting for the network} other{{count} changes waiting for the network}}",
+  "@syncPending": {
+    "description": "Sync indicator: changes saved on the device but not on the server yet.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "syncError": "Sync failed. Tap to retry.",
+  "@syncError": {
+    "description": "Sync indicator: the server returned an error."
+  },
+  "logoutUnsyncedTitle": "{count, plural, =1{1 change is not synced yet} other{{count} changes are not synced yet}}",
+  "@logoutUnsyncedTitle": {
+    "description": "Sign-out dialog title when the outbox is not empty.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "logoutUnsyncedBody": "If you sign out and someone else signs in on this device, these changes will be lost.",
+  "@logoutUnsyncedBody": {
+    "description": "Sign-out dialog body when the outbox is not empty."
+  },
+  "logoutSyncAndSignOut": "Sync and sign out",
+  "@logoutSyncAndSignOut": {
+    "description": "Sign-out dialog: sync first, then sign out."
+  },
+  "logoutAnyway": "Sign out anyway",
+  "@logoutAnyway": {
+    "description": "Sign-out dialog: sign out without syncing."
+  },
+  "logoutSyncFailed": "Could not sync. Check the connection and try again.",
+  "@logoutSyncFailed": {
+    "description": "Snackbar when \"Sync and sign out\" could not reach the server."
   }
 }
