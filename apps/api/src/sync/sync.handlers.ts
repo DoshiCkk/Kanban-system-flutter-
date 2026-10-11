@@ -391,6 +391,25 @@ const checklistItems: EntityHandler = {
   },
 };
 
+/**
+ * Keeps mentioned ids that are members of the workspace, deduplicated, in
+ * order. Dropping (not rejecting) keeps a comment written offline when a
+ * mentioned teammate left meanwhile.
+ */
+async function memberMentions(
+  tx: Tx,
+  workspaceId: string,
+  mentions: string[],
+): Promise<string[]> {
+  if (mentions.length === 0) return [];
+  const members = await tx.membership.findMany({
+    where: { workspaceId, userId: { in: mentions } },
+    select: { userId: true },
+  });
+  const ids = new Set(members.map((m) => m.userId));
+  return [...new Set(mentions)].filter((id) => ids.has(id));
+}
+
 const comments: EntityHandler = {
   async find(tx, id) {
     const row = await tx.comment.findUnique({
@@ -420,7 +439,11 @@ const comments: EntityHandler = {
             cardId: p.cardId,
             authorId: userId,
             text: p.text,
-            mentions: p.mentions ?? [],
+            mentions: await memberMentions(
+              tx,
+              card.workspaceId,
+              p.mentions ?? [],
+            ),
             createdAt: new Date(p.createdAt),
           },
           select: { version: true },
@@ -435,7 +458,12 @@ const comments: EntityHandler = {
     const p = parse(CommentUpdate, payload);
     const row = await tx.comment.update({
       where: { id },
-      data: { text: p.text },
+      data: {
+        text: p.text,
+        mentions:
+          p.mentions &&
+          (await memberMentions(tx, current.workspaceId, p.mentions)),
+      },
       select: { version: true },
     });
     return { version: row.version, boardId: current.boardId };

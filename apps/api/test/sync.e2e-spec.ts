@@ -371,6 +371,40 @@ describe('Sync (e2e)', () => {
     expect(result.code).toBe('SYNC_FORBIDDEN');
   });
 
+  it('keeps only workspace members in comment mentions', async () => {
+    const eve = await registerUser(app, 'Eve');
+    const { boardId, todo } = await seedBoard(alice);
+    const cardId = await createCard(alice, boardId, todo);
+    const commentId = randomUUID();
+    await push(alice, [
+      op('comment', 'create', commentId, {
+        cardId,
+        text: '@Bob @Eve',
+        mentions: [bob.id, eve.id, bob.id],
+        createdAt: now(),
+      }),
+    ]);
+    let page = await pull(alice);
+    expect(page.comments[0].mentions).toEqual([bob.id]);
+
+    await push(alice, [
+      op('comment', 'update', commentId, {
+        text: '@Alice',
+        mentions: [alice.id],
+      }),
+    ]);
+    page = await pull(alice);
+    expect(page.comments[0]).toMatchObject({
+      text: '@Alice',
+      mentions: [alice.id],
+    });
+
+    const [invalid] = await push(alice, [
+      op('comment', 'update', commentId, { mentions: null }),
+    ]);
+    expect(invalid.code).toBe('SYNC_INVALID_OP');
+  });
+
   it('pages by seq without losing or repeating rows', async () => {
     const { boardId, todo } = await seedBoard(alice);
     for (let i = 0; i < 5; i += 1) {

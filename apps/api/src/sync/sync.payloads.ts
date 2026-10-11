@@ -110,21 +110,23 @@ export class ChecklistItemUpdate {
   @Sent() @OrderKey() position?: string;
 }
 
+/** Mentioned user ids. Non-members are dropped when the op is applied. */
+const Mentions = (): PropertyDecorator => (target, key) => {
+  IsArray()(target, key);
+  ArrayMaxSize(20)(target, key);
+  IsUUID('all', { each: true })(target, key);
+};
+
 export class CommentCreate {
   @IsUUID() cardId!: string;
   @IsString() @Length(1, 2000) text!: string;
-
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(20)
-  @IsUUID('all', { each: true })
-  mentions?: string[];
-
+  @IsOptional() @Mentions() mentions?: string[];
   @IsISO8601() createdAt!: string;
 }
 
 export class CommentUpdate {
   @Sent() @IsString() @Length(1, 2000) text?: string;
+  @Sent() @Mentions() mentions?: string[];
 }
 
 /**
@@ -168,5 +170,5 @@ export const UPDATE_KEYS = {
     'position',
   ],
   checklistItem: ['text', 'done', 'position'],
-  comment: ['text'],
+  comment: ['text', 'mentions'],
 } as const;
