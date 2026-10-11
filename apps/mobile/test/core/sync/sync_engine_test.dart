@@ -1,65 +1,9 @@
-import 'dart:math';
-
-import 'package:drift/native.dart';
-import 'package:flowboard/core/db/app_database.dart';
 import 'package:flowboard/core/sync/sync_engine.dart';
-import 'package:flowboard/core/sync/sync_store.dart';
-import 'package:flowboard/features/boards/data/drift_boards_repository.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/device.dart';
 import '../../helpers/fake_sync_server.dart';
-
-const ws = 'w1';
-
-/// One device: its own database, repository, engine and network switch.
-class Device {
-  Device(FakeSyncServer server, String userId)
-    : db = AppDatabase(NativeDatabase.memory()),
-      api = FakeSyncApi(server, userId) {
-    repo = DriftBoardsRepository(db);
-    store = SyncStore(db);
-    engine = SyncEngine(
-      store: store,
-      api: api,
-      debounce: const Duration(milliseconds: 10),
-      random: Random(1),
-    );
-  }
-
-  final AppDatabase db;
-  final FakeSyncApi api;
-  late final DriftBoardsRepository repo;
-  late final SyncStore store;
-  late final SyncEngine engine;
-
-  Future<void> join() => db
-      .into(db.cachedWorkspaces)
-      .insert(
-        CachedWorkspacesCompanion.insert(
-          id: ws,
-          name: 'Team',
-          role: 'member',
-          memberCount: 2,
-        ),
-      );
-
-  /// Starts the engine (first cycle) and waits until it settles.
-  Future<SyncStatus> sync() async {
-    if (!engine.isStarted) {
-      engine.start();
-    }
-    await engine.syncNow();
-    return engine.status;
-  }
-
-  Future<BoardContent?> board(String id) => repo.watchBoard(id).first;
-
-  Future<void> close() async {
-    await engine.dispose();
-    await db.close();
-  }
-}
 
 void main() {
   late FakeSyncServer server;

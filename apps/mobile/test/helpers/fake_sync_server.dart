@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flowboard/core/db/app_database.dart';
@@ -22,6 +23,11 @@ class FakeSyncServer {
   int pushCalls = 0;
   int pullCalls = 0;
 
+  final _boardChanges = StreamController<String>.broadcast();
+
+  /// Ids of boards changed by each push, like the API's `board:changed`.
+  Stream<String> get boardChanges => _boardChanges.stream;
+
   static const _kindOf = {
     'board': 'boards',
     'column': 'columns',
@@ -44,7 +50,7 @@ class FakeSyncServer {
       'position',
     ],
     'checklistItem': ['text', 'done', 'position'],
-    'comment': ['text'],
+    'comment': ['text', 'mentions'],
   };
 
   static const Map<String, Map<String, Object?>> _defaults = {
@@ -79,12 +85,31 @@ class FakeSyncServer {
 
   List<PushResult> push(String userId, List<OutboxRow> ops) {
     pushCalls++;
-    return [
+    final changed = <String>{};
+    final results = [
       for (final op in ops)
-        _results[op.opId] != null
-            ? PushResult(opId: op.opId, status: PushStatus.duplicate)
-            : _results[op.opId] = _apply(userId, op),
+        if (_results[op.opId] != null)
+          PushResult(opId: op.opId, status: PushStatus.duplicate)
+        else
+          _results[op.opId] = _apply(userId, op),
     ];
+    for (final (i, op) in ops.indexed) {
+      if (results[i].status != PushStatus.applied) continue;
+      final boardId = _boardIdOf(op.entity, op.entityId);
+      if (boardId != null) changed.add(boardId);
+    }
+    changed.forEach(_boardChanges.add);
+    return results;
+  }
+
+  String? _boardIdOf(String entity, String id) {
+    final row = rows[entity]![id];
+    return switch (entity) {
+      _ when row == null => null,
+      'board' => id,
+      'column' || 'card' => row['boardId'] as String?,
+      _ => rows['card']![row['cardId']]?['boardId'] as String?,
+    };
   }
 
   PushResult _apply(String userId, OutboxRow op) {

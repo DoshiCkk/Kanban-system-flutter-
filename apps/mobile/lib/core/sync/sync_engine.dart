@@ -84,16 +84,17 @@ class SyncEngine {
   }
 
   /// Starts syncing for the signed-in user. [triggers] fire an immediate
-  /// cycle (network back, app resumed).
-  void start({Stream<void>? triggers}) {
+  /// cycle (network back, app resumed, real-time event).
+  void start({Iterable<Stream<void>> triggers = const []}) {
     if (_started) return;
     _started = true;
     _subscriptions
       ..add(_store.watchPendingCount().listen(_onPending))
-      ..add(_store.watchWorkspaceIds().skip(1).listen((_) => _schedule()));
-    if (triggers != null) {
-      _subscriptions.add(triggers.listen((_) => unawaited(syncNow())));
-    }
+      ..add(_store.watchWorkspaceIds().skip(1).listen((_) => _schedule()))
+      ..addAll([
+        for (final trigger in triggers)
+          trigger.listen((_) => unawaited(syncNow())),
+      ]);
     _periodicTimer = Timer.periodic(period, (_) {
       if (_running == null) unawaited(syncNow());
     });

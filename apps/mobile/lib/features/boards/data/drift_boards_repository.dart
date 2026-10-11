@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:flowboard/core/db/app_database.dart';
 import 'package:flowboard/core/ordering/fractional_index.dart';
 import 'package:flowboard/core/sync/outbox.dart';
+import 'package:flowboard/core/sync/realtime.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/domain/boards_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -16,12 +17,14 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
   DriftBoardsRepository(
     this._db, {
     this._uuid = const Uuid(),
+    this._watchRoom = noBoardRoom,
     DateTime Function()? clock,
   }) : _clock = clock ?? DateTime.now,
        _outbox = OutboxWriter(_db, uuid: _uuid, clock: clock);
 
   final AppDatabase _db;
   final Uuid _uuid;
+  final WatchBoardRoom _watchRoom;
   final DateTime Function() _clock;
   final OutboxWriter _outbox;
 
@@ -122,20 +125,39 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
     await _outbox.enqueue(SyncEntity.board, boardId, SyncOperation.delete);
   });
 
+  /// While listened to, the board's real-time room stays joined, so
+  /// teammates' changes arrive within a second (docs/realtime.md).
   @override
-  Stream<BoardContent?> watchBoard(String boardId) => _db
-      .customSelect(
-        'SELECT 1',
-        readsFrom: {
-          _db.boards,
-          _db.boardColumns,
-          _db.cards,
-          _db.checklistItems,
-        },
-      )
-      .watch()
-      .asyncMap((_) => _loadBoard(boardId))
-      .distinct();
+  Stream<BoardContent?> watchBoard(String boardId) {
+    final content = _db
+        .customSelect(
+          'SELECT 1',
+          readsFrom: {
+            _db.boards,
+            _db.boardColumns,
+            _db.cards,
+            _db.checklistItems,
+          },
+        )
+        .watch()
+        .asyncMap((_) => _loadBoard(boardId))
+        .distinct();
+    return Stream.multi((controller) {
+      final leave = _watchRoom(boardId);
+      final subscription = content.listen(
+        controller.addSync,
+        onError: controller.addErrorSync,
+        onDone: controller.closeSync,
+      );
+      controller
+        ..onPause = subscription.pause
+        ..onResume = subscription.resume
+        ..onCancel = () {
+          leave();
+          return subscription.cancel();
+        };
+    });
+  }
 
   Future<BoardContent?> _loadBoard(String boardId) async {
     final board =

@@ -59,7 +59,7 @@ class AuthInterceptor extends Interceptor {
     if (current != null && usedHeader != 'Bearer $current') {
       access = current;
     } else {
-      access = await _refreshSingleFlight();
+      access = await refreshAccessToken();
     }
     if (access == null) return handler.next(err);
 
@@ -73,7 +73,9 @@ class AuthInterceptor extends Interceptor {
     }
   }
 
-  Future<String?> _refreshSingleFlight() =>
+  /// Refreshes the session once for all concurrent callers (also used by
+  /// the real-time socket). Returns the new access token, or `null`.
+  Future<String?> refreshAccessToken() =>
       _inflightRefresh ??= _refresh().whenComplete(
         () => _inflightRefresh = null,
       );

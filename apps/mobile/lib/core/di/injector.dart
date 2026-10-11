@@ -3,9 +3,12 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flowboard/core/config/app_config.dart';
 import 'package:flowboard/core/db/app_database.dart';
+import 'package:flowboard/core/network/access_token.dart';
 import 'package:flowboard/core/network/api_client.dart';
 import 'package:flowboard/core/network/session_storage.dart';
 import 'package:flowboard/core/router/app_router.dart';
+import 'package:flowboard/core/sync/realtime.dart';
+import 'package:flowboard/core/sync/socket_io_transport.dart';
 import 'package:flowboard/core/sync/sync_api.dart';
 import 'package:flowboard/core/sync/sync_cubit.dart';
 import 'package:flowboard/core/sync/sync_engine.dart';
@@ -38,18 +41,23 @@ Future<void> configureDependencies(AppConfig config) async {
   final sessionStorage = SecureSessionStorage();
   final tokens = TokenStore(sessionStorage);
   late final AuthRepositoryImpl authRepository;
-  final dio = createApiClient(
+  final api = createApiClient(
     config: config,
     tokens: tokens,
     onSessionExpired: () => unawaited(authRepository.onSessionExpired()),
   );
+  final dio = api.dio;
   authRepository = AuthRepositoryImpl(
     api: AuthApi(dio),
     tokens: tokens,
     storage: sessionStorage,
     prepareLocalData: db.claimFor,
   );
-  final boards = DriftBoardsRepository(db);
+  final realtime = RealtimeClient(
+    transport: SocketIoTransport(config.apiBaseUrl),
+    token: AccessTokenSource(tokens, api.auth.refreshAccessToken).call,
+  );
+  final boards = DriftBoardsRepository(db, watchRoom: realtime.watch);
   // Restores from secure storage only, so startup works offline.
   await authRepository.restore();
   final authCubit = AuthCubit(authRepository);
@@ -57,12 +65,24 @@ Future<void> configureDependencies(AppConfig config) async {
 
   final syncEngine = SyncEngine(store: SyncStore(db), api: DioSyncApi(dio));
   final syncTriggers = platformSyncTriggers();
-  // Sync runs only while signed in; claimFor already prepared the data.
-  void followSession(AuthState state) => state.isAuthenticated
-      ? syncEngine.start(triggers: syncTriggers)
-      : unawaited(syncEngine.stop());
+  // Sync and live updates run only while signed in; claimFor already
+  // prepared the data.
+  void followSession(AuthState state) {
+    if (state.isAuthenticated) {
+      realtime.start();
+      syncEngine.start(triggers: [syncTriggers, realtime.changes]);
+    } else {
+      unawaited(realtime.stop());
+      unawaited(syncEngine.stop());
+    }
+  }
+
   followSession(authCubit.state);
   authCubit.stream.listen(followSession);
+  // A board created offline can be joined only after a sync pushed it.
+  syncEngine.statusChanges
+      .where((s) => s.phase == SyncPhase.idle)
+      .listen((_) => realtime.retryFailedJoins());
 
   getIt
     ..registerSingleton<AppConfig>(config)
