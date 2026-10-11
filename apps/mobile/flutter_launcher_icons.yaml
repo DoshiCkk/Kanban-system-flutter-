@@ -1,0 +1,16 @@
+# App icon (Android + iOS). Sources: tool/generate_branding.dart.
+#   dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/branding/icon.png"
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+  adaptive_icon_background: "#FF7A45"
+  adaptive_icon_foreground: "assets/branding/icon_foreground.png"
+  adaptive_icon_monochrome: "assets/branding/icon_monochrome.png"
+  web:
+    generate: false
+  windows:
+    generate: false
+  macos:
+    generate: false

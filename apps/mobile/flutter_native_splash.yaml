@@ -1,0 +1,13 @@
+# Native splash (Android + iOS). Sources: tool/generate_branding.dart.
+#   dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#F4F2EC"
+  color_dark: "#14171F"
+  image: assets/branding/splash.png
+  android_12:
+    image: assets/branding/splash_android12.png
+    icon_background_color: "#FF7A45"
+    color: "#F4F2EC"
+    icon_background_color_dark: "#FF7A45"
+    color_dark: "#14171F"
+  web: false
