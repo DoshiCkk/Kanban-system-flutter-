@@ -592,9 +592,6 @@ class $BoardColumnsTable extends BoardColumns
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES boards (id)',
-    ),
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
@@ -1156,9 +1153,6 @@ class $CardsTable extends Cards with TableInfo<$CardsTable, CardRow> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES board_columns (id)',
-    ),
   );
   static const VerificationMeta _boardIdMeta = const VerificationMeta(
     'boardId',
@@ -1170,9 +1164,6 @@ class $CardsTable extends Cards with TableInfo<$CardsTable, CardRow> {
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES boards (id)',
-    ),
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
@@ -1971,9 +1962,6 @@ class $ChecklistItemsTable extends ChecklistItems
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES cards (id)',
-    ),
   );
   static const VerificationMeta _contentMeta = const VerificationMeta(
     'content',
@@ -2531,9 +2519,6 @@ class $CommentsTable extends Comments
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES cards (id)',
-    ),
   );
   static const VerificationMeta _authorIdMeta = const VerificationMeta(
     'authorId',
@@ -4525,48 +4510,6 @@ typedef $$BoardsTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
-final class $$BoardsTableReferences
-    extends BaseReferences<_$AppDatabase, $BoardsTable, BoardRow> {
-  $$BoardsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static MultiTypedResultKey<$BoardColumnsTable, List<ColumnRow>>
-  _boardColumnsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.boardColumns,
-    aliasName: 'boards__id__board_columns__board_id',
-  );
-
-  $$BoardColumnsTableProcessedTableManager get boardColumnsRefs {
-    final manager = $$BoardColumnsTableTableManager(
-      $_db,
-      $_db.boardColumns,
-    ).filter((f) => f.boardId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_boardColumnsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$CardsTable, List<CardRow>> _cardsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.cards,
-    aliasName: 'boards__id__cards__board_id',
-  );
-
-  $$CardsTableProcessedTableManager get cardsRefs {
-    final manager = $$CardsTableTableManager(
-      $_db,
-      $_db.cards,
-    ).filter((f) => f.boardId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_cardsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
 class $$BoardsTableFilterComposer
     extends Composer<_$AppDatabase, $BoardsTable> {
   $$BoardsTableFilterComposer({
@@ -4615,56 +4558,6 @@ class $$BoardsTableFilterComposer
     column: $table.templateKey,
     builder: (column) => ColumnFilters(column),
   );
-
-  Expression<bool> boardColumnsRefs(
-    Expression<bool> Function($$BoardColumnsTableFilterComposer f) f,
-  ) {
-    final $$BoardColumnsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.boardColumns,
-      getReferencedColumn: (t) => t.boardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardColumnsTableFilterComposer(
-            $db: $db,
-            $table: $db.boardColumns,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> cardsRefs(
-    Expression<bool> Function($$CardsTableFilterComposer f) f,
-  ) {
-    final $$CardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.boardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableFilterComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$BoardsTableOrderingComposer
@@ -4753,56 +4646,6 @@ class $$BoardsTableAnnotationComposer
     column: $table.templateKey,
     builder: (column) => column,
   );
-
-  Expression<T> boardColumnsRefs<T extends Object>(
-    Expression<T> Function($$BoardColumnsTableAnnotationComposer a) f,
-  ) {
-    final $$BoardColumnsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.boardColumns,
-      getReferencedColumn: (t) => t.boardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardColumnsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.boardColumns,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<T> cardsRefs<T extends Object>(
-    Expression<T> Function($$CardsTableAnnotationComposer a) f,
-  ) {
-    final $$CardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.boardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$BoardsTableTableManager
@@ -4816,9 +4659,9 @@ class $$BoardsTableTableManager
           $$BoardsTableAnnotationComposer,
           $$BoardsTableCreateCompanionBuilder,
           $$BoardsTableUpdateCompanionBuilder,
-          (BoardRow, $$BoardsTableReferences),
+          (BoardRow, BaseReferences<_$AppDatabase, $BoardsTable, BoardRow>),
           BoardRow,
-          PrefetchHooks Function({bool boardColumnsRefs, bool cardsRefs})
+          PrefetchHooks Function()
         > {
   $$BoardsTableTableManager(_$AppDatabase db, $BoardsTable table)
     : super(
@@ -4876,64 +4719,9 @@ class $$BoardsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) =>
-                    (e.readTable(table), $$BoardsTableReferences(db, table, e)),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback:
-              ({boardColumnsRefs = false, cardsRefs = false}) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (boardColumnsRefs) db.boardColumns,
-                    if (cardsRefs) db.cards,
-                  ],
-                  addJoins: null,
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (boardColumnsRefs)
-                        await $_getPrefetchedData<
-                          BoardRow,
-                          $BoardsTable,
-                          ColumnRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$BoardsTableReferences
-                              ._boardColumnsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$BoardsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).boardColumnsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.boardId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (cardsRefs)
-                        await $_getPrefetchedData<
-                          BoardRow,
-                          $BoardsTable,
-                          CardRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$BoardsTableReferences
-                              ._cardsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$BoardsTableReferences(db, table, p0).cardsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.boardId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -4948,9 +4736,9 @@ typedef $$BoardsTableProcessedTableManager =
       $$BoardsTableAnnotationComposer,
       $$BoardsTableCreateCompanionBuilder,
       $$BoardsTableUpdateCompanionBuilder,
-      (BoardRow, $$BoardsTableReferences),
+      (BoardRow, BaseReferences<_$AppDatabase, $BoardsTable, BoardRow>),
       BoardRow,
-      PrefetchHooks Function({bool boardColumnsRefs, bool cardsRefs})
+      PrefetchHooks Function()
     >;
 typedef $$BoardColumnsTableCreateCompanionBuilder =
     BoardColumnsCompanion Function({
@@ -4978,47 +4766,6 @@ typedef $$BoardColumnsTableUpdateCompanionBuilder =
       Value<int?> wipLimit,
       Value<int> rowid,
     });
-
-final class $$BoardColumnsTableReferences
-    extends BaseReferences<_$AppDatabase, $BoardColumnsTable, ColumnRow> {
-  $$BoardColumnsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $BoardsTable _boardIdTable(_$AppDatabase db) =>
-      db.boards.createAlias('board_columns__board_id__boards__id');
-
-  $$BoardsTableProcessedTableManager get boardId {
-    final $_column = $_itemColumn<String>('board_id')!;
-
-    final manager = $$BoardsTableTableManager(
-      $_db,
-      $_db.boards,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_boardIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$CardsTable, List<CardRow>> _cardsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.cards,
-    aliasName: 'board_columns__id__cards__column_id',
-  );
-
-  $$CardsTableProcessedTableManager get cardsRefs {
-    final manager = $$CardsTableTableManager(
-      $_db,
-      $_db.cards,
-    ).filter((f) => f.columnId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_cardsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
 
 class $$BoardColumnsTableFilterComposer
     extends Composer<_$AppDatabase, $BoardColumnsTable> {
@@ -5054,6 +4801,11 @@ class $$BoardColumnsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get boardId => $composableBuilder(
+    column: $table.boardId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get title => $composableBuilder(
     column: $table.title,
     builder: (column) => ColumnFilters(column),
@@ -5068,54 +4820,6 @@ class $$BoardColumnsTableFilterComposer
     column: $table.wipLimit,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$BoardsTableFilterComposer get boardId {
-    final $$BoardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.boardId,
-      referencedTable: $db.boards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardsTableFilterComposer(
-            $db: $db,
-            $table: $db.boards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<bool> cardsRefs(
-    Expression<bool> Function($$CardsTableFilterComposer f) f,
-  ) {
-    final $$CardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.columnId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableFilterComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$BoardColumnsTableOrderingComposer
@@ -5152,6 +4856,11 @@ class $$BoardColumnsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get boardId => $composableBuilder(
+    column: $table.boardId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get title => $composableBuilder(
     column: $table.title,
     builder: (column) => ColumnOrderings(column),
@@ -5166,29 +4875,6 @@ class $$BoardColumnsTableOrderingComposer
     column: $table.wipLimit,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$BoardsTableOrderingComposer get boardId {
-    final $$BoardsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.boardId,
-      referencedTable: $db.boards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardsTableOrderingComposer(
-            $db: $db,
-            $table: $db.boards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$BoardColumnsTableAnnotationComposer
@@ -5215,6 +4901,9 @@ class $$BoardColumnsTableAnnotationComposer
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
 
+  GeneratedColumn<String> get boardId =>
+      $composableBuilder(column: $table.boardId, builder: (column) => column);
+
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
@@ -5223,54 +4912,6 @@ class $$BoardColumnsTableAnnotationComposer
 
   GeneratedColumn<int> get wipLimit =>
       $composableBuilder(column: $table.wipLimit, builder: (column) => column);
-
-  $$BoardsTableAnnotationComposer get boardId {
-    final $$BoardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.boardId,
-      referencedTable: $db.boards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.boards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<T> cardsRefs<T extends Object>(
-    Expression<T> Function($$CardsTableAnnotationComposer a) f,
-  ) {
-    final $$CardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.columnId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$BoardColumnsTableTableManager
@@ -5284,9 +4925,12 @@ class $$BoardColumnsTableTableManager
           $$BoardColumnsTableAnnotationComposer,
           $$BoardColumnsTableCreateCompanionBuilder,
           $$BoardColumnsTableUpdateCompanionBuilder,
-          (ColumnRow, $$BoardColumnsTableReferences),
+          (
+            ColumnRow,
+            BaseReferences<_$AppDatabase, $BoardColumnsTable, ColumnRow>,
+          ),
           ColumnRow,
-          PrefetchHooks Function({bool boardId, bool cardsRefs})
+          PrefetchHooks Function()
         > {
   $$BoardColumnsTableTableManager(_$AppDatabase db, $BoardColumnsTable table)
     : super(
@@ -5348,74 +4992,9 @@ class $$BoardColumnsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$BoardColumnsTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({boardId = false, cardsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (cardsRefs) db.cards],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (boardId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.boardId,
-                                referencedTable: $$BoardColumnsTableReferences
-                                    ._boardIdTable(db),
-                                referencedColumn: $$BoardColumnsTableReferences
-                                    ._boardIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (cardsRefs)
-                    await $_getPrefetchedData<
-                      ColumnRow,
-                      $BoardColumnsTable,
-                      CardRow
-                    >(
-                      currentTable: table,
-                      referencedTable: $$BoardColumnsTableReferences
-                          ._cardsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$BoardColumnsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).cardsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.columnId == item.id),
-                      typedResults: items,
-                    ),
-                ];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -5430,9 +5009,9 @@ typedef $$BoardColumnsTableProcessedTableManager =
       $$BoardColumnsTableAnnotationComposer,
       $$BoardColumnsTableCreateCompanionBuilder,
       $$BoardColumnsTableUpdateCompanionBuilder,
-      (ColumnRow, $$BoardColumnsTableReferences),
+      (ColumnRow, BaseReferences<_$AppDatabase, $BoardColumnsTable, ColumnRow>),
       ColumnRow,
-      PrefetchHooks Function({bool boardId, bool cardsRefs})
+      PrefetchHooks Function()
     >;
 typedef $$CardsTableCreateCompanionBuilder =
     CardsCompanion Function({
@@ -5471,81 +5050,6 @@ typedef $$CardsTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
-final class $$CardsTableReferences
-    extends BaseReferences<_$AppDatabase, $CardsTable, CardRow> {
-  $$CardsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $BoardColumnsTable _columnIdTable(_$AppDatabase db) =>
-      db.boardColumns.createAlias('cards__column_id__board_columns__id');
-
-  $$BoardColumnsTableProcessedTableManager get columnId {
-    final $_column = $_itemColumn<String>('column_id')!;
-
-    final manager = $$BoardColumnsTableTableManager(
-      $_db,
-      $_db.boardColumns,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_columnIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static $BoardsTable _boardIdTable(_$AppDatabase db) =>
-      db.boards.createAlias('cards__board_id__boards__id');
-
-  $$BoardsTableProcessedTableManager get boardId {
-    final $_column = $_itemColumn<String>('board_id')!;
-
-    final manager = $$BoardsTableTableManager(
-      $_db,
-      $_db.boards,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_boardIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-
-  static MultiTypedResultKey<$ChecklistItemsTable, List<ChecklistItemRow>>
-  _checklistItemsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.checklistItems,
-    aliasName: 'cards__id__checklist_items__card_id',
-  );
-
-  $$ChecklistItemsTableProcessedTableManager get checklistItemsRefs {
-    final manager = $$ChecklistItemsTableTableManager(
-      $_db,
-      $_db.checklistItems,
-    ).filter((f) => f.cardId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_checklistItemsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-
-  static MultiTypedResultKey<$CommentsTable, List<CommentRow>>
-  _commentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
-    db.comments,
-    aliasName: 'cards__id__comments__card_id',
-  );
-
-  $$CommentsTableProcessedTableManager get commentsRefs {
-    final manager = $$CommentsTableTableManager(
-      $_db,
-      $_db.comments,
-    ).filter((f) => f.cardId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_commentsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
-}
-
 class $$CardsTableFilterComposer extends Composer<_$AppDatabase, $CardsTable> {
   $$CardsTableFilterComposer({
     required super.$db,
@@ -5576,6 +5080,16 @@ class $$CardsTableFilterComposer extends Composer<_$AppDatabase, $CardsTable> {
 
   ColumnFilters<int> get version => $composableBuilder(
     column: $table.version,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get columnId => $composableBuilder(
+    column: $table.columnId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get boardId => $composableBuilder(
+    column: $table.boardId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5615,102 +5129,6 @@ class $$CardsTableFilterComposer extends Composer<_$AppDatabase, $CardsTable> {
     column: $table.position,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$BoardColumnsTableFilterComposer get columnId {
-    final $$BoardColumnsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.columnId,
-      referencedTable: $db.boardColumns,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardColumnsTableFilterComposer(
-            $db: $db,
-            $table: $db.boardColumns,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$BoardsTableFilterComposer get boardId {
-    final $$BoardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.boardId,
-      referencedTable: $db.boards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardsTableFilterComposer(
-            $db: $db,
-            $table: $db.boards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<bool> checklistItemsRefs(
-    Expression<bool> Function($$ChecklistItemsTableFilterComposer f) f,
-  ) {
-    final $$ChecklistItemsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.checklistItems,
-      getReferencedColumn: (t) => t.cardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ChecklistItemsTableFilterComposer(
-            $db: $db,
-            $table: $db.checklistItems,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> commentsRefs(
-    Expression<bool> Function($$CommentsTableFilterComposer f) f,
-  ) {
-    final $$CommentsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.comments,
-      getReferencedColumn: (t) => t.cardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CommentsTableFilterComposer(
-            $db: $db,
-            $table: $db.comments,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$CardsTableOrderingComposer
@@ -5744,6 +5162,16 @@ class $$CardsTableOrderingComposer
 
   ColumnOrderings<int> get version => $composableBuilder(
     column: $table.version,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get columnId => $composableBuilder(
+    column: $table.columnId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get boardId => $composableBuilder(
+    column: $table.boardId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -5781,52 +5209,6 @@ class $$CardsTableOrderingComposer
     column: $table.position,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$BoardColumnsTableOrderingComposer get columnId {
-    final $$BoardColumnsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.columnId,
-      referencedTable: $db.boardColumns,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardColumnsTableOrderingComposer(
-            $db: $db,
-            $table: $db.boardColumns,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$BoardsTableOrderingComposer get boardId {
-    final $$BoardsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.boardId,
-      referencedTable: $db.boards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardsTableOrderingComposer(
-            $db: $db,
-            $table: $db.boards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$CardsTableAnnotationComposer
@@ -5853,6 +5235,12 @@ class $$CardsTableAnnotationComposer
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
 
+  GeneratedColumn<String> get columnId =>
+      $composableBuilder(column: $table.columnId, builder: (column) => column);
+
+  GeneratedColumn<String> get boardId =>
+      $composableBuilder(column: $table.boardId, builder: (column) => column);
+
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
@@ -5877,102 +5265,6 @@ class $$CardsTableAnnotationComposer
 
   GeneratedColumn<String> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
-
-  $$BoardColumnsTableAnnotationComposer get columnId {
-    final $$BoardColumnsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.columnId,
-      referencedTable: $db.boardColumns,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardColumnsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.boardColumns,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  $$BoardsTableAnnotationComposer get boardId {
-    final $$BoardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.boardId,
-      referencedTable: $db.boards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$BoardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.boards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
-
-  Expression<T> checklistItemsRefs<T extends Object>(
-    Expression<T> Function($$ChecklistItemsTableAnnotationComposer a) f,
-  ) {
-    final $$ChecklistItemsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.checklistItems,
-      getReferencedColumn: (t) => t.cardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$ChecklistItemsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.checklistItems,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<T> commentsRefs<T extends Object>(
-    Expression<T> Function($$CommentsTableAnnotationComposer a) f,
-  ) {
-    final $$CommentsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.comments,
-      getReferencedColumn: (t) => t.cardId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CommentsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.comments,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$CardsTableTableManager
@@ -5986,14 +5278,9 @@ class $$CardsTableTableManager
           $$CardsTableAnnotationComposer,
           $$CardsTableCreateCompanionBuilder,
           $$CardsTableUpdateCompanionBuilder,
-          (CardRow, $$CardsTableReferences),
+          (CardRow, BaseReferences<_$AppDatabase, $CardsTable, CardRow>),
           CardRow,
-          PrefetchHooks Function({
-            bool columnId,
-            bool boardId,
-            bool checklistItemsRefs,
-            bool commentsRefs,
-          })
+          PrefetchHooks Function()
         > {
   $$CardsTableTableManager(_$AppDatabase db, $CardsTable table)
     : super(
@@ -6075,117 +5362,9 @@ class $$CardsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) =>
-                    (e.readTable(table), $$CardsTableReferences(db, table, e)),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback:
-              ({
-                columnId = false,
-                boardId = false,
-                checklistItemsRefs = false,
-                commentsRefs = false,
-              }) {
-                return PrefetchHooks(
-                  db: db,
-                  explicitlyWatchedTables: [
-                    if (checklistItemsRefs) db.checklistItems,
-                    if (commentsRefs) db.comments,
-                  ],
-                  addJoins:
-                      <
-                        T extends TableManagerState<
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic,
-                          dynamic
-                        >
-                      >(state) {
-                        if (columnId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.columnId,
-                                    referencedTable: $$CardsTableReferences
-                                        ._columnIdTable(db),
-                                    referencedColumn: $$CardsTableReferences
-                                        ._columnIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
-                        if (boardId) {
-                          state =
-                              state.withJoin(
-                                    currentTable: table,
-                                    currentColumn: table.boardId,
-                                    referencedTable: $$CardsTableReferences
-                                        ._boardIdTable(db),
-                                    referencedColumn: $$CardsTableReferences
-                                        ._boardIdTable(db)
-                                        .id,
-                                  )
-                                  as T;
-                        }
-
-                        return state;
-                      },
-                  getPrefetchedDataCallback: (items) async {
-                    return [
-                      if (checklistItemsRefs)
-                        await $_getPrefetchedData<
-                          CardRow,
-                          $CardsTable,
-                          ChecklistItemRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CardsTableReferences
-                              ._checklistItemsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CardsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).checklistItemsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.cardId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                      if (commentsRefs)
-                        await $_getPrefetchedData<
-                          CardRow,
-                          $CardsTable,
-                          CommentRow
-                        >(
-                          currentTable: table,
-                          referencedTable: $$CardsTableReferences
-                              ._commentsRefsTable(db),
-                          managerFromTypedResult: (p0) =>
-                              $$CardsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).commentsRefs,
-                          referencedItemsForCurrentItem:
-                              (item, referencedItems) => referencedItems.where(
-                                (e) => e.cardId == item.id,
-                              ),
-                          typedResults: items,
-                        ),
-                    ];
-                  },
-                );
-              },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -6200,14 +5379,9 @@ typedef $$CardsTableProcessedTableManager =
       $$CardsTableAnnotationComposer,
       $$CardsTableCreateCompanionBuilder,
       $$CardsTableUpdateCompanionBuilder,
-      (CardRow, $$CardsTableReferences),
+      (CardRow, BaseReferences<_$AppDatabase, $CardsTable, CardRow>),
       CardRow,
-      PrefetchHooks Function({
-        bool columnId,
-        bool boardId,
-        bool checklistItemsRefs,
-        bool commentsRefs,
-      })
+      PrefetchHooks Function()
     >;
 typedef $$ChecklistItemsTableCreateCompanionBuilder =
     ChecklistItemsCompanion Function({
@@ -6235,33 +5409,6 @@ typedef $$ChecklistItemsTableUpdateCompanionBuilder =
       Value<String> position,
       Value<int> rowid,
     });
-
-final class $$ChecklistItemsTableReferences
-    extends
-        BaseReferences<_$AppDatabase, $ChecklistItemsTable, ChecklistItemRow> {
-  $$ChecklistItemsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
-
-  static $CardsTable _cardIdTable(_$AppDatabase db) =>
-      db.cards.createAlias('checklist_items__card_id__cards__id');
-
-  $$CardsTableProcessedTableManager get cardId {
-    final $_column = $_itemColumn<String>('card_id')!;
-
-    final manager = $$CardsTableTableManager(
-      $_db,
-      $_db.cards,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
 
 class $$ChecklistItemsTableFilterComposer
     extends Composer<_$AppDatabase, $ChecklistItemsTable> {
@@ -6297,6 +5444,11 @@ class $$ChecklistItemsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get cardId => $composableBuilder(
+    column: $table.cardId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get content => $composableBuilder(
     column: $table.content,
     builder: (column) => ColumnFilters(column),
@@ -6311,29 +5463,6 @@ class $$ChecklistItemsTableFilterComposer
     column: $table.position,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$CardsTableFilterComposer get cardId {
-    final $$CardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableFilterComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$ChecklistItemsTableOrderingComposer
@@ -6370,6 +5499,11 @@ class $$ChecklistItemsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get cardId => $composableBuilder(
+    column: $table.cardId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get content => $composableBuilder(
     column: $table.content,
     builder: (column) => ColumnOrderings(column),
@@ -6384,29 +5518,6 @@ class $$ChecklistItemsTableOrderingComposer
     column: $table.position,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$CardsTableOrderingComposer get cardId {
-    final $$CardsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableOrderingComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$ChecklistItemsTableAnnotationComposer
@@ -6433,6 +5544,9 @@ class $$ChecklistItemsTableAnnotationComposer
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
 
+  GeneratedColumn<String> get cardId =>
+      $composableBuilder(column: $table.cardId, builder: (column) => column);
+
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
 
@@ -6441,29 +5555,6 @@ class $$ChecklistItemsTableAnnotationComposer
 
   GeneratedColumn<String> get position =>
       $composableBuilder(column: $table.position, builder: (column) => column);
-
-  $$CardsTableAnnotationComposer get cardId {
-    final $$CardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$ChecklistItemsTableTableManager
@@ -6477,9 +5568,16 @@ class $$ChecklistItemsTableTableManager
           $$ChecklistItemsTableAnnotationComposer,
           $$ChecklistItemsTableCreateCompanionBuilder,
           $$ChecklistItemsTableUpdateCompanionBuilder,
-          (ChecklistItemRow, $$ChecklistItemsTableReferences),
+          (
+            ChecklistItemRow,
+            BaseReferences<
+              _$AppDatabase,
+              $ChecklistItemsTable,
+              ChecklistItemRow
+            >,
+          ),
           ChecklistItemRow,
-          PrefetchHooks Function({bool cardId})
+          PrefetchHooks Function()
         > {
   $$ChecklistItemsTableTableManager(
     _$AppDatabase db,
@@ -6543,55 +5641,9 @@ class $$ChecklistItemsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$ChecklistItemsTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({cardId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (cardId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.cardId,
-                                referencedTable: $$ChecklistItemsTableReferences
-                                    ._cardIdTable(db),
-                                referencedColumn:
-                                    $$ChecklistItemsTableReferences
-                                        ._cardIdTable(db)
-                                        .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -6606,9 +5658,12 @@ typedef $$ChecklistItemsTableProcessedTableManager =
       $$ChecklistItemsTableAnnotationComposer,
       $$ChecklistItemsTableCreateCompanionBuilder,
       $$ChecklistItemsTableUpdateCompanionBuilder,
-      (ChecklistItemRow, $$ChecklistItemsTableReferences),
+      (
+        ChecklistItemRow,
+        BaseReferences<_$AppDatabase, $ChecklistItemsTable, ChecklistItemRow>,
+      ),
       ChecklistItemRow,
-      PrefetchHooks Function({bool cardId})
+      PrefetchHooks Function()
     >;
 typedef $$CommentsTableCreateCompanionBuilder =
     CommentsCompanion Function({
@@ -6636,28 +5691,6 @@ typedef $$CommentsTableUpdateCompanionBuilder =
       Value<List<String>> mentions,
       Value<int> rowid,
     });
-
-final class $$CommentsTableReferences
-    extends BaseReferences<_$AppDatabase, $CommentsTable, CommentRow> {
-  $$CommentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $CardsTable _cardIdTable(_$AppDatabase db) =>
-      db.cards.createAlias('comments__card_id__cards__id');
-
-  $$CardsTableProcessedTableManager get cardId {
-    final $_column = $_itemColumn<String>('card_id')!;
-
-    final manager = $$CardsTableTableManager(
-      $_db,
-      $_db.cards,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
-}
 
 class $$CommentsTableFilterComposer
     extends Composer<_$AppDatabase, $CommentsTable> {
@@ -6693,6 +5726,11 @@ class $$CommentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get cardId => $composableBuilder(
+    column: $table.cardId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get authorId => $composableBuilder(
     column: $table.authorId,
     builder: (column) => ColumnFilters(column),
@@ -6708,29 +5746,6 @@ class $$CommentsTableFilterComposer
     column: $table.mentions,
     builder: (column) => ColumnWithTypeConverterFilters(column),
   );
-
-  $$CardsTableFilterComposer get cardId {
-    final $$CardsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableFilterComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$CommentsTableOrderingComposer
@@ -6767,6 +5782,11 @@ class $$CommentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get cardId => $composableBuilder(
+    column: $table.cardId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get authorId => $composableBuilder(
     column: $table.authorId,
     builder: (column) => ColumnOrderings(column),
@@ -6781,29 +5801,6 @@ class $$CommentsTableOrderingComposer
     column: $table.mentions,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$CardsTableOrderingComposer get cardId {
-    final $$CardsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableOrderingComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$CommentsTableAnnotationComposer
@@ -6830,6 +5827,9 @@ class $$CommentsTableAnnotationComposer
   GeneratedColumn<int> get version =>
       $composableBuilder(column: $table.version, builder: (column) => column);
 
+  GeneratedColumn<String> get cardId =>
+      $composableBuilder(column: $table.cardId, builder: (column) => column);
+
   GeneratedColumn<String> get authorId =>
       $composableBuilder(column: $table.authorId, builder: (column) => column);
 
@@ -6838,29 +5838,6 @@ class $$CommentsTableAnnotationComposer
 
   GeneratedColumnWithTypeConverter<List<String>, String> get mentions =>
       $composableBuilder(column: $table.mentions, builder: (column) => column);
-
-  $$CardsTableAnnotationComposer get cardId {
-    final $$CardsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.cardId,
-      referencedTable: $db.cards,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CardsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.cards,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 }
 
 class $$CommentsTableTableManager
@@ -6874,9 +5851,12 @@ class $$CommentsTableTableManager
           $$CommentsTableAnnotationComposer,
           $$CommentsTableCreateCompanionBuilder,
           $$CommentsTableUpdateCompanionBuilder,
-          (CommentRow, $$CommentsTableReferences),
+          (
+            CommentRow,
+            BaseReferences<_$AppDatabase, $CommentsTable, CommentRow>,
+          ),
           CommentRow,
-          PrefetchHooks Function({bool cardId})
+          PrefetchHooks Function()
         > {
   $$CommentsTableTableManager(_$AppDatabase db, $CommentsTable table)
     : super(
@@ -6938,54 +5918,9 @@ class $$CommentsTableTableManager
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
-              .map(
-                (e) => (
-                  e.readTable(table),
-                  $$CommentsTableReferences(db, table, e),
-                ),
-              )
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({cardId = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (cardId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.cardId,
-                                referencedTable: $$CommentsTableReferences
-                                    ._cardIdTable(db),
-                                referencedColumn: $$CommentsTableReferences
-                                    ._cardIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
-
-                    return state;
-                  },
-              getPrefetchedDataCallback: (items) async {
-                return [];
-              },
-            );
-          },
+          prefetchHooksCallback: null,
         ),
       );
 }
@@ -7000,9 +5935,9 @@ typedef $$CommentsTableProcessedTableManager =
       $$CommentsTableAnnotationComposer,
       $$CommentsTableCreateCompanionBuilder,
       $$CommentsTableUpdateCompanionBuilder,
-      (CommentRow, $$CommentsTableReferences),
+      (CommentRow, BaseReferences<_$AppDatabase, $CommentsTable, CommentRow>),
       CommentRow,
-      PrefetchHooks Function({bool cardId})
+      PrefetchHooks Function()
     >;
 typedef $$OutboxTableCreateCompanionBuilder =
     OutboxCompanion Function({
