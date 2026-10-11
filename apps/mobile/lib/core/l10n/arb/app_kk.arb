@@ -169,5 +169,6 @@
   "commentPending": "Желіге қосылуды күтуде",
   "commentUnknownAuthor": "Белгісіз қатысушы",
   "commentActions": "Пікір әрекеттері",
-  "commentMentionSuggestions": "Әріптесті атап өту"
+  "commentMentionSuggestions": "Әріптесті атап өту",
+  "pushOpen": "Ашу"
 }

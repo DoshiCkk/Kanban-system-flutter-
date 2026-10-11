@@ -169,5 +169,6 @@
   "commentPending": "Ждёт подключения к сети",
   "commentUnknownAuthor": "Неизвестный участник",
   "commentActions": "Действия с комментарием",
-  "commentMentionSuggestions": "Упомянуть коллегу"
+  "commentMentionSuggestions": "Упомянуть коллегу",
+  "pushOpen": "Открыть"
 }

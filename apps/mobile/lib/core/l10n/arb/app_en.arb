@@ -761,5 +761,9 @@
   "commentMentionSuggestions": "Mention a teammate",
   "@commentMentionSuggestions": {
     "description": "Semantics label of the @mention suggestion list."
+  },
+  "pushOpen": "Open",
+  "@pushOpen": {
+    "description": "Snackbar action that opens the card of a push received in the foreground."
   }
 }

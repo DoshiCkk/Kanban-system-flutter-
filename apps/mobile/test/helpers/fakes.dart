@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flowboard/core/network/api_exception.dart';
 import 'package:flowboard/core/network/session_storage.dart';
+import 'package:flowboard/core/notifications/notification_service.dart';
 import 'package:flowboard/features/auth/domain/auth_repository.dart';
 import 'package:flowboard/features/auth/domain/user.dart';
 import 'package:flowboard/features/workspaces/domain/workspace.dart';
@@ -183,4 +184,30 @@ class InMemorySessionStorage implements SessionStorage {
     tokens = null;
     userJson = null;
   }
+}
+
+/// Push notifications the test drives by hand.
+class FakeNotificationService implements NotificationService {
+  final openedPushes = StreamController<PushTarget>.broadcast();
+  final foregroundPushes = StreamController<ForegroundPush>.broadcast();
+  final locales = <String>[];
+  bool started = false;
+
+  @override
+  Future<void> start() async => started = true;
+
+  @override
+  Future<void> stop() async => started = false;
+
+  @override
+  void setLocale(String languageCode) => locales.add(languageCode);
+
+  @override
+  Future<void> retryRegistration() async {}
+
+  @override
+  Stream<PushTarget> get opened => openedPushes.stream;
+
+  @override
+  Stream<ForegroundPush> get foreground => foregroundPushes.stream;
 }

@@ -6,6 +6,9 @@ import 'package:flowboard/core/db/app_database.dart';
 import 'package:flowboard/core/network/access_token.dart';
 import 'package:flowboard/core/network/api_client.dart';
 import 'package:flowboard/core/network/session_storage.dart';
+import 'package:flowboard/core/notifications/firebase_push_platform.dart';
+import 'package:flowboard/core/notifications/notification_service.dart';
+import 'package:flowboard/core/notifications/push_notification_service.dart';
 import 'package:flowboard/core/router/app_router.dart';
 import 'package:flowboard/core/sync/realtime.dart';
 import 'package:flowboard/core/sync/socket_io_transport.dart';
@@ -49,11 +52,13 @@ Future<void> configureDependencies(AppConfig config) async {
     onSessionExpired: () => unawaited(authRepository.onSessionExpired()),
   );
   final dio = api.dio;
+  final notifications = await _createNotifications(config, dio);
   authRepository = AuthRepositoryImpl(
     api: AuthApi(dio),
     tokens: tokens,
     storage: sessionStorage,
     prepareLocalData: db.claimFor,
+    beforeLogout: notifications.stop,
   );
   final realtime = RealtimeClient(
     transport: SocketIoTransport(config.apiBaseUrl),
@@ -72,19 +77,32 @@ Future<void> configureDependencies(AppConfig config) async {
   void followSession(AuthState state) {
     if (state.isAuthenticated) {
       realtime.start();
-      syncEngine.start(triggers: [syncTriggers, realtime.changes]);
+      syncEngine.start(
+        triggers: [
+          syncTriggers,
+          realtime.changes,
+          // A push means something changed for this user.
+          notifications.foreground,
+        ],
+      );
+      unawaited(notifications.start());
     } else {
       unawaited(realtime.stop());
       unawaited(syncEngine.stop());
+      unawaited(notifications.stop());
     }
   }
 
   followSession(authCubit.state);
   authCubit.stream.listen(followSession);
   // A board created offline can be joined only after a sync pushed it.
-  syncEngine.statusChanges
-      .where((s) => s.phase == SyncPhase.idle)
-      .listen((_) => realtime.retryFailedJoins());
+  syncEngine.statusChanges.where((s) => s.phase == SyncPhase.idle).listen((
+    _,
+  ) {
+    realtime.retryFailedJoins();
+    // Back online: finish a push registration that failed offline.
+    unawaited(notifications.retryRegistration());
+  });
 
   getIt
     ..registerSingleton<AppConfig>(config)
@@ -99,7 +117,23 @@ Future<void> configureDependencies(AppConfig config) async {
     ..registerSingleton<CardRepository>(boards)
     ..registerSingleton<CommentsRepository>(DriftCommentsRepository(db))
     ..registerSingleton<AuthCubit>(authCubit)
+    ..registerSingleton<NotificationService>(notifications)
     ..registerSingleton<SyncEngine>(syncEngine)
     ..registerSingleton<SyncCubit>(SyncCubit(syncEngine))
     ..registerSingleton<GoRouter>(createRouter(authCubit));
+}
+
+/// Firebase push only when the build asks for it and Firebase starts;
+/// otherwise the app runs without push (docs/push.md).
+Future<NotificationService> _createNotifications(
+  AppConfig config,
+  Dio dio,
+) async {
+  if (!config.pushEnabled) return const NoopNotificationService();
+  final platform = await FirebasePushPlatform.initialize();
+  if (platform == null) return const NoopNotificationService();
+  return PushNotificationService(
+    platform: platform,
+    registry: DioDeviceRegistry(dio),
+  );
 }

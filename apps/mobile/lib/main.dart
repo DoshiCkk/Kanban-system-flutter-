@@ -12,6 +12,7 @@ Future<void> main() async {
       authCubit: getIt(),
       syncCubit: getIt(),
       router: getIt(),
+      notifications: getIt(),
     ),
   );
 }

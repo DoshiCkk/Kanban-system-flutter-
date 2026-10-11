@@ -13,6 +13,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required this._tokens,
     required this._storage,
     this._prepareLocalData,
+    this._beforeLogout,
   });
 
   final AuthApi _api;
@@ -22,6 +23,10 @@ class AuthRepositoryImpl implements AuthRepository {
   /// Called with the user id after sign-in, before the user is published,
   /// so local data of a different account can be wiped first.
   final Future<void> Function(String userId)? _prepareLocalData;
+
+  /// Runs while the session is still valid, e.g. to unregister the push
+  /// token of this device.
+  final Future<void> Function()? _beforeLogout;
   final _controller = StreamController<User?>.broadcast();
 
   User? _user;
@@ -84,6 +89,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    await _beforeLogout?.call();
     final refresh = _tokens.current?.refreshToken;
     if (refresh != null) {
       try {

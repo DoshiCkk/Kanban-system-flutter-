@@ -4,6 +4,12 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Firebase push is optional (docs/push.md): without google-services.json the
+// app builds and runs with push turned off.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "kz.flowboard.flowboard"
     compileSdk = flutter.compileSdkVersion

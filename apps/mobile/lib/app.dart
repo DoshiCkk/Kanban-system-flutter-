@@ -1,4 +1,7 @@
 import 'package:flowboard/core/l10n/l10n.dart';
+import 'package:flowboard/core/notifications/notification_service.dart';
+import 'package:flowboard/core/notifications/push_listener.dart';
+import 'package:flowboard/core/router/app_router.dart';
 import 'package:flowboard/core/sync/sync_cubit.dart';
 import 'package:flowboard/core/theme/app_theme.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
@@ -15,6 +18,7 @@ class FlowBoardApp extends StatelessWidget {
     required this.authCubit,
     required this.syncCubit,
     required this.router,
+    this.notifications = const NoopNotificationService(),
     super.key,
   });
 
@@ -22,6 +26,16 @@ class FlowBoardApp extends StatelessWidget {
   final AuthCubit authCubit;
   final SyncCubit syncCubit;
   final GoRouter router;
+  final NotificationService notifications;
+
+  void _openCard(PushTarget target) => router.goNamed(
+    AppRoutes.card,
+    pathParameters: {
+      'workspaceId': target.workspaceId,
+      'boardId': target.boardId,
+      'cardId': target.cardId,
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +55,11 @@ class FlowBoardApp extends StatelessWidget {
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           routerConfig: router,
+          builder: (context, child) => PushListener(
+            notifications: notifications,
+            onOpen: _openCard,
+            child: child ?? const SizedBox.shrink(),
+          ),
         ),
       ),
     );

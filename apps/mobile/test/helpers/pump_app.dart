@@ -32,6 +32,7 @@ class TestApp {
     required this.boards,
     required this.syncApi,
     required this.syncEngine,
+    required this.notifications,
   });
 
   final FakeAuthRepository auth;
@@ -44,6 +45,7 @@ class TestApp {
 
   /// Not started; tests start it when they exercise sync.
   final SyncEngine syncEngine;
+  final FakeNotificationService notifications;
 }
 
 /// Pumps the full app (real router + cubits) on top of fake repositories.
@@ -76,6 +78,7 @@ Future<TestApp> pumpFlowBoard(
   final syncApi = FakeSyncApi(FakeSyncServer(), testUser.id);
   final syncEngine = SyncEngine(store: SyncStore(db), api: syncApi);
   final syncCubit = SyncCubit(syncEngine);
+  final notifications = FakeNotificationService();
   final authCubit = AuthCubit(auth);
   final router = createRouter(authCubit);
   addTearDown(() async {
@@ -94,6 +97,7 @@ Future<TestApp> pumpFlowBoard(
       authCubit: authCubit,
       syncCubit: syncCubit,
       router: router,
+      notifications: notifications,
     ),
   );
   await tester.pumpAndSettle();
@@ -106,5 +110,6 @@ Future<TestApp> pumpFlowBoard(
     boards: boards,
     syncApi: syncApi,
     syncEngine: syncEngine,
+    notifications: notifications,
   );
 }
