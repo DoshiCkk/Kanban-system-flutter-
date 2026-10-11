@@ -11,6 +11,7 @@ import 'package:flowboard/features/boards/presentation/card_page.dart';
 import 'package:flowboard/features/boards/presentation/cubit/board_cubit.dart';
 import 'package:flowboard/features/boards/presentation/cubit/boards_cubit.dart';
 import 'package:flowboard/features/boards/presentation/cubit/card_cubit.dart';
+import 'package:flowboard/features/comments/presentation/cubit/comments_cubit.dart';
 import 'package:flowboard/features/settings/presentation/settings_page.dart';
 import 'package:flowboard/features/workspaces/presentation/cubit/join_workspace_cubit.dart';
 import 'package:flowboard/features/workspaces/presentation/cubit/members_cubit.dart';
@@ -136,13 +137,25 @@ GoRouter createRouter(AuthCubit auth) => GoRouter(
                 GoRoute(
                   path: 'cards/:cardId',
                   name: AppRoutes.card,
-                  builder: (context, state) => BlocProvider(
-                    create: (_) => CardCubit(
-                      cardId: state.pathParameters['cardId']!,
-                      cards: getIt(),
-                      boards: getIt(),
-                      workspaces: getIt(),
-                    ),
+                  builder: (context, state) => MultiBlocProvider(
+                    providers: [
+                      BlocProvider(
+                        create: (_) => CardCubit(
+                          cardId: state.pathParameters['cardId']!,
+                          cards: getIt(),
+                          boards: getIt(),
+                          workspaces: getIt(),
+                        ),
+                      ),
+                      BlocProvider(
+                        create: (_) => CommentsCubit(
+                          cardId: state.pathParameters['cardId']!,
+                          // Signed in: the redirect guards this route.
+                          currentUserId: auth.state.user?.id ?? '',
+                          comments: getIt(),
+                        ),
+                      ),
+                    ],
                     child: const CardPage(),
                   ),
                 ),

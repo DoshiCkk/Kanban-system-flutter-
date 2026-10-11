@@ -6,6 +6,7 @@ import 'package:flowboard/core/widgets/message_view.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/presentation/cubit/card_cubit.dart';
 import 'package:flowboard/features/boards/presentation/widgets/board_labels.dart';
+import 'package:flowboard/features/comments/presentation/widgets/comments_section.dart';
 import 'package:flowboard/features/workspaces/domain/workspace.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -109,6 +110,10 @@ class CardPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _Checklist(card: card),
+              const SizedBox(height: 16),
+              CommentsSection(
+                members: state.members?.map((m) => m.user).toList(),
+              ),
             ],
           ),
           bottomNavigationBar: SafeArea(

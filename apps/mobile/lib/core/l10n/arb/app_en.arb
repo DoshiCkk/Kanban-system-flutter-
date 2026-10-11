@@ -717,5 +717,49 @@
   "logoutSyncFailed": "Could not sync. Check the connection and try again.",
   "@logoutSyncFailed": {
     "description": "Snackbar when \"Sync and sign out\" could not reach the server."
+  },
+  "commentsTitle": "Comments",
+  "@commentsTitle": {
+    "description": "Card screen: comments section title."
+  },
+  "commentsEmpty": "No comments yet. Type @ to mention a teammate.",
+  "@commentsEmpty": {
+    "description": "Card screen: empty comments list."
+  },
+  "commentHint": "Write a comment",
+  "@commentHint": {
+    "description": "Comment composer hint."
+  },
+  "commentSend": "Send comment",
+  "@commentSend": {
+    "description": "Tooltip of the send button."
+  },
+  "commentEditing": "Editing comment",
+  "@commentEditing": {
+    "description": "Banner above the composer while an own comment is edited."
+  },
+  "commentEdit": "Edit",
+  "@commentEdit": {
+    "description": "Comment menu: edit."
+  },
+  "commentDeleteConfirm": "Delete this comment?",
+  "@commentDeleteConfirm": {
+    "description": "Confirmation before deleting a comment."
+  },
+  "commentPending": "Waiting for the network",
+  "@commentPending": {
+    "description": "Tooltip of the clock icon on a comment not yet on the server."
+  },
+  "commentUnknownAuthor": "Unknown member",
+  "@commentUnknownAuthor": {
+    "description": "Author name when the member list is unavailable or the author left."
+  },
+  "commentActions": "Comment actions",
+  "@commentActions": {
+    "description": "Tooltip of the menu on an own comment."
+  },
+  "commentMentionSuggestions": "Mention a teammate",
+  "@commentMentionSuggestions": {
+    "description": "Semantics label of the @mention suggestion list."
   }
 }

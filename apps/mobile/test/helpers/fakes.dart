@@ -64,6 +64,9 @@ class FakeAuthRepository implements AuthRepository {
 
 class FakeWorkspacesRepository implements WorkspacesRepository {
   final workspaces = <Workspace>[];
+
+  /// Members besides [testUser] (the owner).
+  final teammates = <MemberUser>[];
   ApiErrorCode? failWith;
   var _nextId = 0;
 
@@ -111,6 +114,12 @@ class FakeWorkspacesRepository implements WorkspacesRepository {
         role: WorkspaceRole.owner,
         joinedAt: DateTime(2026),
       ),
+      for (final user in teammates)
+        Member(
+          user: user,
+          role: WorkspaceRole.member,
+          joinedAt: DateTime(2026),
+        ),
     ];
   }
 

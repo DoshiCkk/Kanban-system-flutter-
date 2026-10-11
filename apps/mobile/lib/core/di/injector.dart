@@ -20,6 +20,8 @@ import 'package:flowboard/features/auth/domain/auth_repository.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/boards/data/drift_boards_repository.dart';
 import 'package:flowboard/features/boards/domain/boards_repository.dart';
+import 'package:flowboard/features/comments/data/drift_comments_repository.dart';
+import 'package:flowboard/features/comments/domain/comments_repository.dart';
 import 'package:flowboard/features/settings/data/prefs_settings_repository.dart';
 import 'package:flowboard/features/settings/domain/settings_repository.dart';
 import 'package:flowboard/features/workspaces/data/workspaces_repository_impl.dart';
@@ -95,6 +97,7 @@ Future<void> configureDependencies(AppConfig config) async {
     )
     ..registerSingleton<BoardsRepository>(boards)
     ..registerSingleton<CardRepository>(boards)
+    ..registerSingleton<CommentsRepository>(DriftCommentsRepository(db))
     ..registerSingleton<AuthCubit>(authCubit)
     ..registerSingleton<SyncEngine>(syncEngine)
     ..registerSingleton<SyncCubit>(SyncCubit(syncEngine))

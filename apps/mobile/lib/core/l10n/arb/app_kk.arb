@@ -158,5 +158,16 @@
   "logoutUnsyncedBody": "Шығып кетсеңіз және осы құрылғыға басқа адам кірсе, бұл өзгерістер жоғалады.",
   "logoutSyncAndSignOut": "Синхрондап, шығу",
   "logoutAnyway": "Бәрібір шығу",
-  "logoutSyncFailed": "Синхрондау мүмкін болмады. Байланысты тексеріп, қайталап көріңіз."
+  "logoutSyncFailed": "Синхрондау мүмкін болмады. Байланысты тексеріп, қайталап көріңіз.",
+  "commentsTitle": "Пікірлер",
+  "commentsEmpty": "Әзірге пікір жоқ. Әріптесті атап өту үшін @ теріңіз.",
+  "commentHint": "Пікір жазыңыз",
+  "commentSend": "Пікірді жіберу",
+  "commentEditing": "Пікірді өңдеу",
+  "commentEdit": "Өзгерту",
+  "commentDeleteConfirm": "Пікірді жою керек пе?",
+  "commentPending": "Желіге қосылуды күтуде",
+  "commentUnknownAuthor": "Белгісіз қатысушы",
+  "commentActions": "Пікір әрекеттері",
+  "commentMentionSuggestions": "Әріптесті атап өту"
 }

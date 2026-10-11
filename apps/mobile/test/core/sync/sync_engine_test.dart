@@ -1,5 +1,6 @@
 import 'package:flowboard/core/sync/sync_engine.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
+import 'package:flowboard/features/comments/data/drift_comments_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/device.dart';
@@ -125,6 +126,42 @@ void main() {
 
     final onBob = (await bob.board(content.board.id))!;
     expect(onBob.columns.first.cards.map((c) => c.id), contains(intro));
+  });
+
+  test('comments travel with their author, mentions and edits', () async {
+    final content = await seed();
+    final cardId = content.columns[0].cards.first.id;
+    final aliceComments = DriftCommentsRepository(alice.db);
+    final bobComments = DriftCommentsRepository(bob.db);
+    final comment = await aliceComments.addComment(
+      cardId: cardId,
+      authorId: 'alice',
+      text: '@Bob take a look',
+      mentions: const ['bob'],
+    );
+    await alice.sync();
+    await bob.sync();
+    var onBob = await bobComments.watchComments(cardId).first;
+    expect(onBob.single.authorId, 'alice');
+    expect(onBob.single.mentions, ['bob']);
+    expect(onBob.single.pending, isFalse);
+
+    await aliceComments.editComment(
+      comment.id,
+      text: 'Never mind',
+      mentions: const [],
+    );
+    await alice.sync();
+    await bob.sync();
+    onBob = await bobComments.watchComments(cardId).first;
+    expect(onBob.single.text, 'Never mind');
+    expect(onBob.single.mentions, isEmpty);
+
+    // Deleting the card removes its comments everywhere.
+    await alice.repo.deleteCard(cardId);
+    await alice.sync();
+    await bob.sync();
+    expect(await bobComments.watchComments(cardId).first, isEmpty);
   });
 
   test('losing access forgets the workspace', () async {

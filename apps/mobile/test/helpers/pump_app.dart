@@ -11,6 +11,8 @@ import 'package:flowboard/features/auth/domain/auth_repository.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/boards/data/drift_boards_repository.dart';
 import 'package:flowboard/features/boards/domain/boards_repository.dart';
+import 'package:flowboard/features/comments/data/drift_comments_repository.dart';
+import 'package:flowboard/features/comments/domain/comments_repository.dart';
 import 'package:flowboard/features/settings/domain/app_settings.dart';
 import 'package:flowboard/features/workspaces/domain/workspaces_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,7 +70,8 @@ Future<TestApp> pumpFlowBoard(
     ..registerSingleton<AuthRepository>(auth)
     ..registerSingleton<WorkspacesRepository>(workspaces)
     ..registerSingleton<BoardsRepository>(boards)
-    ..registerSingleton<CardRepository>(boards);
+    ..registerSingleton<CardRepository>(boards)
+    ..registerSingleton<CommentsRepository>(DriftCommentsRepository(db));
 
   final syncApi = FakeSyncApi(FakeSyncServer(), testUser.id);
   final syncEngine = SyncEngine(store: SyncStore(db), api: syncApi);
