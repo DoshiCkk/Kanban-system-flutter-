@@ -29,6 +29,9 @@ const _serverCodes = <String, ApiErrorCode>{
   'CONFLICT': ApiErrorCode.conflict,
   'INVITE_INVALID': ApiErrorCode.inviteInvalid,
   'OWNER_ROLE_LOCKED': ApiErrorCode.ownerRoleLocked,
+  'UNAUTHORIZED': ApiErrorCode.unauthorized,
+  'RATE_LIMITED': ApiErrorCode.rateLimited,
+  'INTERNAL': ApiErrorCode.server,
 };
 
 class ApiException implements Exception {

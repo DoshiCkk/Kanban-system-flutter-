@@ -26,6 +26,7 @@ describe('Rate limiting (e2e)', () => {
     }
     const blocked = await attempt();
     expect(blocked.status).toBe(429);
+    expect(blocked.body.code).toBe('RATE_LIMITED');
     expect(blocked.headers['retry-after-auth']).toBeDefined();
   });
 

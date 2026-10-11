@@ -11,6 +11,11 @@ export enum ErrorCode {
   Conflict = 'CONFLICT',
   InviteInvalid = 'INVITE_INVALID',
   OwnerRoleLocked = 'OWNER_ROLE_LOCKED',
+  // Generic codes for errors not raised as ApiException (ApiExceptionFilter).
+  BadRequest = 'BAD_REQUEST',
+  Unauthorized = 'UNAUTHORIZED',
+  RateLimited = 'RATE_LIMITED',
+  Internal = 'INTERNAL',
 }
 
 export interface ApiErrorBody {

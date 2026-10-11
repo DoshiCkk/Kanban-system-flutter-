@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ApiException, ErrorCode } from './common/api-error.js';
+import { ApiExceptionFilter } from './common/api-exception.filter.js';
 import { RedisIoAdapter } from './realtime/redis-io.adapter.js';
 
 const flattenErrors = (
@@ -36,6 +37,7 @@ export function setupApp(app: INestApplication): void {
         ),
     }),
   );
+  app.useGlobalFilters(new ApiExceptionFilter());
   app.useWebSocketAdapter(new RedisIoAdapter(app));
   app.enableShutdownHooks();
 }
