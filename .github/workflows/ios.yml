@@ -1,0 +1,35 @@
+name: iOS build
+
+# iOS cannot be built on the Windows dev machine. Run it by hand:
+# Actions -> iOS build -> Run workflow.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build iOS (no code signing)
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.7
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      # Unsigned: proves the project, pods and Swift code compile. Signing
+      # and push (GoogleService-Info.plist, APNs) need an Apple account.
+      - run: flutter build ios --release --no-codesign --dart-define-from-file=config/dev.json
+      - run: ditto -c -k --keepParent build/ios/iphoneos/Runner.app Runner.app.zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: flowboard-ios-unsigned
+          path: apps/mobile/Runner.app.zip
+          retention-days: 7
