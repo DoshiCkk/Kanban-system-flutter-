@@ -20,11 +20,15 @@ Items deferred from the current phase or out of MVP scope. Every `TODO` in code 
 - Sync: boards created before phase 4 (no outbox ops) never reach the server; acceptable because phase 3 was never released.
 - Sync: replace the full re-pull after a rejected update with a per-entity fetch if rejections become frequent.
 - Sync: offline creation of workspaces (they stay online-only by design, docs/sync.md §1).
-- Send the chosen UI language to the server (`PATCH /users/me { locale }`) so push notifications use it (phase 6).
 - Refresh token grace window: accept the just-rotated token for a few seconds to survive a lost refresh response.
 - HTTPS + real domain for release builds (debug uses cleartext to `10.0.2.2`).
 - Real-time: disconnect the socket while the app is in the background (battery); today it lives as long as the process.
 - Real-time: live updates for the boards list and the members screen (a `workspace:<id>` room). They refresh on the periodic sync for now; only open boards are live.
 - Real-time: skip `board:changed` for the socket of the device that pushed (saves one empty pull per push).
 - Comments: show an "edited" mark and a comment counter on card tiles.
+- Push: an in-app notifications list (history), per-type mute settings and quiet hours.
+- Push: prune device tokens not refreshed for ~270 days (FCM marks them stale); dead tokens reported by FCM are already removed.
+- Push: opening a pushed card that has not been pulled yet shows "card not found" until the sync brings it (a fraction of a second online); a loading state would be nicer.
+- iOS: the Push Notifications capability, Background Modes and `GoogleService-Info.plist` must be added in Xcode on a Mac (docs/push.md §4.3); the deployment target is already 15.0 for the Firebase SDK.
+- Android: the build (Gradle, google-services plugin 4.5.0 with AGP 9) has not been run on the dev machine — no Android SDK/JDK installed.
 - `npm audit` reports high-severity advisories in Prisma 7's own dependencies (`deepmerge-ts`, `mysql2` via `@prisma/config`); the suggested fix is a downgrade to Prisma 6. Recheck on the next Prisma release.

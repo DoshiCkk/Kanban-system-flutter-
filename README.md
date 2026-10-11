@@ -122,6 +122,9 @@ Remove-Item Env:FLOWBOARD_LIVE_API
 ```
 It prints the measured latency: about 540 ms, 500 ms of which is the deliberate push debounce.
 
+## Push notifications
+Off by default — the API and the app work without a Firebase project. To turn them on (Firebase project, `google-services.json`, service account key, `--dart-define=PUSH_ENABLED=true`) follow [docs/push.md](docs/push.md).
+
 ## iOS
 iOS cannot be built on Windows. The code avoids Android-only APIs; iOS builds will run on a macOS CI runner (phase 7). On the iOS simulator use `API_BASE_URL=http://localhost:3000`.
 

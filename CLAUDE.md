@@ -13,7 +13,7 @@ Mobile-first, offline-first Kanban for small teams. Monorepo:
 - Never commit secrets: only `.env.example` files.
 
 ## Mobile (`apps/mobile`)
-- Feature-first Clean Architecture: `lib/features/<feature>/{data,domain,presentation}`, shared code in `lib/core/{config,db,network,sync,di,theme,l10n,router}`.
+- Feature-first Clean Architecture: `lib/features/<feature>/{data,domain,presentation}`, shared code in `lib/core/{config,db,network,sync,notifications,di,theme,l10n,router}`.
 - Data flow: UI → Bloc/Cubit → Repository → (Drift + SyncEngine). Widgets never call the network or the DB directly.
 - State: flutter_bloc. DI: get_it (`lib/core/di/injector.dart`). Routing: go_router (`lib/core/router/app_router.dart`), navigate by route name.
 - **No hardcoded user-facing strings.** Add keys to `lib/core/l10n/arb/app_en.arb` (with `@key` description) and translate in `app_ru.arb` and `app_kk.arb`. Access via `context.l10n`.
@@ -55,3 +55,8 @@ npm run lint; npm run format:check; npm run typecheck; npm test; npm run test:e2
 - The socket only says *when* to pull; data always goes through `/sync/*`. Server events carry ids, never row data.
 - Sockets authenticate once in the handshake. Global HTTP guards must return early for `context.getType() !== 'http'` (see `JwtAuthGuard`, `skipNonHttp`).
 - Board rooms follow `BoardsRepository.watchBoard` listeners; widgets and cubits never talk to the socket. A new server event must be added to `SocketIoTransport.serverEvents`.
+
+## Push invariants (details in `docs/push.md`)
+- Firebase is optional on both sides: code talks to `NotificationService` (app) / `PushSender` (API); never import `firebase_*` / `firebase-admin` outside `FirebasePushPlatform` / `FcmPushSender`.
+- Push texts are server-side templates in `apps/api/src/notifications/messages.ts` (kk, ru, en); app strings still go through ARB.
+- Notifications come from `SyncService.activity`, published after the op's transaction commits; only workspace members are notified, never the actor.

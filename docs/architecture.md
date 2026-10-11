@@ -12,6 +12,7 @@ Flutter app (Android/iOS)                    NestJS API
 ```
 - **Local-first:** the app reads only from Drift and writes to Drift first. The network is a background concern of the SyncEngine (phase 4).
 - **Real-time:** after applying a push the server notifies the `board:<id>` Socket.IO room; clients in it pull (phase 5, [realtime.md](realtime.md)). Data never travels over the socket.
+- **Push:** assignments, mentions and "due tomorrow" go through FCM behind `PushSender` / `NotificationService`; both sides run without Firebase (phase 6, [push.md](push.md)).
 
 ## Mobile layout
 ```
