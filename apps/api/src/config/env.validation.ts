@@ -66,6 +66,11 @@ export class EnvironmentVariables {
   @IsInt()
   @Min(1)
   THROTTLE_AUTH_LIMIT = 10;
+
+  /** Firebase service account JSON; push is disabled when unset (docs/push.md). */
+  @IsString()
+  @IsOptional()
+  FIREBASE_SERVICE_ACCOUNT_FILE?: string;
 }
 
 export function validateEnv(

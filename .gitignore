@@ -25,6 +25,9 @@ build/
 google-services.json
 GoogleService-Info.plist
 firebase_options.dart
+# Firebase service account key (a real secret)
+apps/api/secrets/
+*firebase-adminsdk*.json
 
 # Claude local settings
 .claude/settings.local.json

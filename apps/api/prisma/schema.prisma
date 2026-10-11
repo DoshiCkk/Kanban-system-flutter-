@@ -42,6 +42,7 @@ model User {
   refreshTokens  RefreshToken[]
   invitesCreated Invite[]
   comments       Comment[]
+  devices        DeviceToken[]
 
   @@map("users")
 }
@@ -180,6 +181,7 @@ model Card {
   column         BoardColumn     @relation(fields: [columnId], references: [id], onDelete: Cascade)
   checklistItems ChecklistItem[]
   comments       Comment[]
+  dueReminders   DueReminder[]
 
   @@index([workspaceId, seq])
   @@index([columnId])
@@ -240,4 +242,37 @@ model SyncAppliedOp {
 
   @@index([createdAt])
   @@map("sync_applied_ops")
+}
+
+enum DevicePlatform {
+  android
+  ios
+}
+
+/// FCM registration token of a signed-in device (docs/push.md).
+model DeviceToken {
+  token     String         @id
+  userId    String         @map("user_id") @db.Uuid
+  platform  DevicePlatform
+  /// UI language of the device; push texts use it.
+  locale    AppLocale      @default(en)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("device_tokens")
+}
+
+/// "Due tomorrow" reminders already sent: one per card and due date.
+model DueReminder {
+  cardId  String   @map("card_id") @db.Uuid
+  dueDate DateTime @map("due_date")
+  sentAt  DateTime @default(now()) @map("sent_at")
+
+  card Card @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, dueDate])
+  @@map("due_reminders")
 }

@@ -10,6 +10,7 @@ import {
   validateEnv,
 } from './config/env.validation.js';
 import { HealthModule } from './health/health.module.js';
+import { NotificationsModule } from './notifications/notifications.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { RealtimeModule } from './realtime/realtime.module.js';
 import { RedisThrottlerStorage } from './redis/redis-throttler.storage.js';
@@ -58,6 +59,7 @@ const MINUTE_MS = 60_000;
     WorkspacesModule,
     SyncModule,
     RealtimeModule,
+    NotificationsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

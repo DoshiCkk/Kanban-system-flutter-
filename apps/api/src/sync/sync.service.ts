@@ -16,6 +16,7 @@ import {
   type PushResultDto,
 } from './sync.dto.js';
 import {
+  type Activity,
   type Applied,
   HANDLERS,
   SyncRejection,
@@ -27,6 +28,13 @@ import { pick, UPDATE_KEYS } from './sync.payloads.js';
 export interface BoardsChanged {
   userId: string;
   boardIds: string[];
+}
+
+/** Emitted after a pushed op committed something worth a notification. */
+export interface SyncActivity {
+  /** Who made the change. */
+  actorId: string;
+  activity: Activity;
 }
 
 const APPLIED_OPS_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -64,6 +72,7 @@ export class SyncService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(SyncService.name);
   private cleanupTimer?: NodeJS.Timeout;
   readonly boardsChanged = new Subject<BoardsChanged>();
+  readonly activity = new Subject<SyncActivity>();
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -77,6 +86,7 @@ export class SyncService implements OnModuleInit, OnModuleDestroy {
   onModuleDestroy(): void {
     clearInterval(this.cleanupTimer);
     this.boardsChanged.complete();
+    this.activity.complete();
   }
 
   async cleanupAppliedOps(): Promise<void> {
@@ -96,9 +106,13 @@ export class SyncService implements OnModuleInit, OnModuleDestroy {
     const results: PushResultDto[] = [];
     const boardIds = new Set<string>();
     for (const op of ops) {
-      const { result, boardId } = await this.pushOne(userId, memberOf, op);
+      const { result, applied } = await this.pushOne(userId, memberOf, op);
       results.push(result);
-      if (boardId) boardIds.add(boardId);
+      if (!applied) continue;
+      boardIds.add(applied.boardId);
+      for (const activity of applied.activity ?? []) {
+        this.activity.next({ actorId: userId, activity });
+      }
     }
     if (boardIds.size > 0) {
       this.boardsChanged.next({ userId, boardIds: [...boardIds] });
@@ -110,7 +124,7 @@ export class SyncService implements OnModuleInit, OnModuleDestroy {
     userId: string,
     memberOf: Set<string>,
     op: PushOpDto,
-  ): Promise<{ result: PushResultDto; boardId?: string }> {
+  ): Promise<{ result: PushResultDto; applied?: Applied }> {
     const { opId } = op;
     const seen = await this.prisma.syncAppliedOp.findUnique({
       where: { opId },
@@ -139,7 +153,7 @@ export class SyncService implements OnModuleInit, OnModuleDestroy {
       });
       return {
         result: { opId, status: 'applied', version: applied.version },
-        boardId: applied.boardId,
+        applied,
       };
     } catch (error) {
       if (error instanceof SyncRejection) {

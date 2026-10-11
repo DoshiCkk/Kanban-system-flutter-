@@ -42,11 +42,19 @@ export interface Current {
   deletedAt: Date | null;
   version: number;
   authorId?: string;
+  assigneeId?: string | null;
+  mentions?: string[];
 }
+
+/** Something a teammate should hear about (phase 6 notifications). */
+export type Activity =
+  | { type: 'assigned'; cardId: string; assigneeId: string }
+  | { type: 'mentioned'; commentId: string; userIds: string[] };
 
 export interface Applied {
   version: number;
   boardId: string;
+  activity?: Activity[];
 }
 
 export interface CreatePlan {
@@ -236,6 +244,7 @@ const cards: EntityHandler = {
         boardId: true,
         deletedAt: true,
         version: true,
+        assigneeId: true,
       },
     });
   },
@@ -272,7 +281,13 @@ const cards: EntityHandler = {
           },
           select: { version: true },
         });
-        return { version: row.version, boardId: p.boardId };
+        return {
+          version: row.version,
+          boardId: p.boardId,
+          activity: p.assigneeId
+            ? [{ type: 'assigned', cardId: id, assigneeId: p.assigneeId }]
+            : [],
+        };
       },
     };
   },
@@ -302,7 +317,15 @@ const cards: EntityHandler = {
       },
       select: { version: true },
     });
-    return { version: row.version, boardId: current.boardId };
+    const { assigneeId } = p;
+    return {
+      version: row.version,
+      boardId: current.boardId,
+      activity:
+        assigneeId && assigneeId !== current.assigneeId
+          ? [{ type: 'assigned', cardId: id, assigneeId }]
+          : [],
+    };
   },
 
   async delete(tx, id, current, _userId, now) {
@@ -410,6 +433,9 @@ async function memberMentions(
   return [...new Set(mentions)].filter((id) => ids.has(id));
 }
 
+const mentioned = (commentId: string, userIds: string[]): Activity[] =>
+  userIds.length > 0 ? [{ type: 'mentioned', commentId, userIds }] : [];
+
 const comments: EntityHandler = {
   async find(tx, id) {
     const row = await tx.comment.findUnique({
@@ -419,6 +445,7 @@ const comments: EntityHandler = {
         deletedAt: true,
         version: true,
         authorId: true,
+        mentions: true,
         card: { select: { boardId: true } },
       },
     });
@@ -432,6 +459,11 @@ const comments: EntityHandler = {
       workspaceId: card.workspaceId,
       apply: async () => {
         await assertCardAlive(tx, p.cardId);
+        const mentions = await memberMentions(
+          tx,
+          card.workspaceId,
+          p.mentions ?? [],
+        );
         const row = await tx.comment.create({
           data: {
             id,
@@ -439,16 +471,16 @@ const comments: EntityHandler = {
             cardId: p.cardId,
             authorId: userId,
             text: p.text,
-            mentions: await memberMentions(
-              tx,
-              card.workspaceId,
-              p.mentions ?? [],
-            ),
+            mentions,
             createdAt: new Date(p.createdAt),
           },
           select: { version: true },
         });
-        return { version: row.version, boardId: card.boardId };
+        return {
+          version: row.version,
+          boardId: card.boardId,
+          activity: mentioned(id, mentions),
+        };
       },
     };
   },
@@ -456,17 +488,23 @@ const comments: EntityHandler = {
   async update(tx, id, payload, current, userId) {
     if (current.authorId !== userId) reject('SYNC_FORBIDDEN');
     const p = parse(CommentUpdate, payload);
+    const mentions =
+      p.mentions && (await memberMentions(tx, current.workspaceId, p.mentions));
     const row = await tx.comment.update({
       where: { id },
-      data: {
-        text: p.text,
-        mentions:
-          p.mentions &&
-          (await memberMentions(tx, current.workspaceId, p.mentions)),
-      },
+      data: { text: p.text, mentions },
       select: { version: true },
     });
-    return { version: row.version, boardId: current.boardId };
+    // Only people added by this edit hear about it.
+    const before = new Set(current.mentions);
+    return {
+      version: row.version,
+      boardId: current.boardId,
+      activity: mentioned(
+        id,
+        (mentions ?? []).filter((m) => !before.has(m)),
+      ),
+    };
   },
 
   async delete(tx, id, current, userId, now) {
