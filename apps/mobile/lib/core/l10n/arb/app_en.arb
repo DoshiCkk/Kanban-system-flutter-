@@ -803,5 +803,9 @@
   "cardHasAssignee": "Has an assignee",
   "@cardHasAssignee": {
     "description": "Screen reader text of the assignee icon on a card."
+  },
+  "errorWidgetMessage": "This part of the screen could not be shown.",
+  "@errorWidgetMessage": {
+    "description": "Replaces a widget that crashed while building (release builds)."
   }
 }

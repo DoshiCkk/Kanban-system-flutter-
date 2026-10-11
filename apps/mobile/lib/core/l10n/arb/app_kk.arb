@@ -175,5 +175,6 @@
   "cardDueSemantics": "Мерзімі: {date}",
   "cardOverdueSemantics": "Мерзімі өтті: {date}",
   "cardChecklistSemantics": "Тексеру тізімі: {total} ішінен {done} орындалды",
-  "cardHasAssignee": "Орындаушы тағайындалған"
+  "cardHasAssignee": "Орындаушы тағайындалған",
+  "errorWidgetMessage": "Экранның бұл бөлігін көрсету мүмкін болмады."
 }

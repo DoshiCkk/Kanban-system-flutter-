@@ -175,5 +175,6 @@
   "cardDueSemantics": "Срок: {date}",
   "cardOverdueSemantics": "Просрочено, срок был {date}",
   "cardChecklistSemantics": "Чек-лист: выполнено {done} из {total}",
-  "cardHasAssignee": "Есть исполнитель"
+  "cardHasAssignee": "Есть исполнитель",
+  "errorWidgetMessage": "Не удалось показать эту часть экрана."
 }

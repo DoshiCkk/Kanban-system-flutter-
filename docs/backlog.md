@@ -26,6 +26,7 @@ Items deferred from the current phase or out of MVP scope. Every `TODO` in code 
 - Real-time: live updates for the boards list and the members screen (a `workspace:<id>` room). They refresh on the periodic sync for now; only open boards are live.
 - Real-time: skip `board:changed` for the socket of the device that pushed (saves one empty pull per push).
 - Comments: show an "edited" mark and a comment counter on card tiles.
+- Crash reporting (Crashlytics or Sentry): uncaught errors are only logged for now (`core/errors/error_handling.dart`).
 - Push: an in-app notifications list (history), per-type mute settings and quiet hours.
 - Push: prune device tokens not refreshed for ~270 days (FCM marks them stale); dead tokens reported by FCM are already removed.
 - Push: opening a pushed card that has not been pulled yet shows "card not found" until the sync brings it (a fraction of a second online); a loading state would be nicer.
