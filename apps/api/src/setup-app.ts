@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ApiException, ErrorCode } from './common/api-error.js';
+import { RedisIoAdapter } from './realtime/redis-io.adapter.js';
 
 const flattenErrors = (
   errors: ValidationError[],
@@ -35,6 +36,7 @@ export function setupApp(app: INestApplication): void {
         ),
     }),
   );
+  app.useWebSocketAdapter(new RedisIoAdapter(app));
   app.enableShutdownHooks();
 }
 

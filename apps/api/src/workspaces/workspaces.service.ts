@@ -1,5 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Subject } from 'rxjs';
 import {
   ApiException,
   ErrorCode,
@@ -26,6 +27,12 @@ import type {
 
 const HOUR_MS = 60 * 60 * 1000;
 
+/** Emitted after a user lost access to a workspace (left or was removed). */
+export interface MembershipRevoked {
+  userId: string;
+  workspaceId: string;
+}
+
 type WorkspaceWithCount = Workspace & { _count: { memberships: number } };
 
 const toWorkspaceDto = (w: WorkspaceWithCount, role: Role): WorkspaceDto => ({
@@ -49,8 +56,9 @@ const inviteInvalid = (): ApiException =>
   );
 
 @Injectable()
-export class WorkspacesService {
+export class WorkspacesService implements OnModuleDestroy {
   private readonly inviteTtlMs: number;
+  readonly membershipRevoked = new Subject<MembershipRevoked>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -58,6 +66,10 @@ export class WorkspacesService {
   ) {
     this.inviteTtlMs =
       config.get('INVITE_TTL_HOURS', { infer: true }) * HOUR_MS;
+  }
+
+  onModuleDestroy(): void {
+    this.membershipRevoked.complete();
   }
 
   async create(userId: string, dto: CreateWorkspaceDto): Promise<WorkspaceDto> {
@@ -193,6 +205,10 @@ export class WorkspacesService {
           workspaceId: actor.workspaceId,
         },
       },
+    });
+    this.membershipRevoked.next({
+      userId: targetUserId,
+      workspaceId: actor.workspaceId,
     });
   }
 

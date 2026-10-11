@@ -10,3 +10,7 @@ export const AuthThrottle = (): ClassDecorator & MethodDecorator =>
 export const skipUnlessAuthThrottled = (context: ExecutionContext): boolean =>
   Reflect.getMetadata(AUTH_THROTTLE_KEY, context.getHandler()) !== true &&
   Reflect.getMetadata(AUTH_THROTTLE_KEY, context.getClass()) !== true;
+
+/** `skipIf` for HTTP throttlers: socket messages have no request to track. */
+export const skipNonHttp = (context: ExecutionContext): boolean =>
+  context.getType() !== 'http';

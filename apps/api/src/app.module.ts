@@ -4,13 +4,14 @@ import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import type { Redis } from 'ioredis';
 import { AuthModule } from './auth/auth.module.js';
-import { skipUnlessAuthThrottled } from './common/throttle.js';
+import { skipNonHttp, skipUnlessAuthThrottled } from './common/throttle.js';
 import {
   type EnvironmentVariables,
   validateEnv,
 } from './config/env.validation.js';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { RealtimeModule } from './realtime/realtime.module.js';
 import { RedisThrottlerStorage } from './redis/redis-throttler.storage.js';
 import { REDIS, RedisModule } from './redis/redis.module.js';
 import { SyncModule } from './sync/sync.module.js';
@@ -39,6 +40,7 @@ const MINUTE_MS = 60_000;
             name: 'default',
             ttl: MINUTE_MS,
             limit: config.get('THROTTLE_LIMIT', { infer: true }),
+            skipIf: skipNonHttp,
           },
           {
             name: 'auth',
@@ -55,6 +57,7 @@ const MINUTE_MS = 60_000;
     UsersModule,
     WorkspacesModule,
     SyncModule,
+    RealtimeModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

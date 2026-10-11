@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { Redis } from 'ioredis';
@@ -20,7 +21,9 @@ export async function createTestApp(): Promise<TestApp> {
   }).compile();
   const app = moduleRef.createNestApplication<INestApplication<App>>();
   setupApp(app);
-  await app.init();
+  // Listening once lets supertest and socket clients share one server
+  // (supertest would otherwise call listen() per request).
+  await app.listen(0);
   return app;
 }
 
@@ -63,3 +66,57 @@ export const bearer = (user: TestUser): [string, string] => [
   'Authorization',
   `Bearer ${user.accessToken}`,
 ];
+
+export interface SyncOp {
+  opId: string;
+  entity: string;
+  entityId: string;
+  operation: 'create' | 'update' | 'delete';
+  payload: Record<string, unknown>;
+}
+
+export const syncOp = (
+  entity: string,
+  operation: SyncOp['operation'],
+  entityId: string,
+  payload: Record<string, unknown> = {},
+): SyncOp => ({ opId: randomUUID(), entity, entityId, operation, payload });
+
+export async function pushOps(
+  app: TestApp,
+  user: TestUser,
+  ops: SyncOp[],
+): Promise<{ status: string; code?: string }[]> {
+  const res = await request(app.getHttpServer())
+    .post('/sync/push')
+    .set(...bearer(user))
+    .send({ ops })
+    .expect(200);
+  return (res.body as { results: { status: string; code?: string }[] }).results;
+}
+
+/** Alice owns a workspace that Bob joined through an invite. */
+export async function createTeam(app: TestApp): Promise<{
+  alice: TestUser;
+  bob: TestUser;
+  workspaceId: string;
+}> {
+  const http = () => request(app.getHttpServer());
+  const alice = await registerUser(app, 'Alice');
+  const bob = await registerUser(app, 'Bob');
+  const ws = await http()
+    .post('/workspaces')
+    .set(...bearer(alice))
+    .send({ name: 'Team' })
+    .expect(201);
+  const workspaceId: string = ws.body.id;
+  const invite = await http()
+    .post(`/workspaces/${workspaceId}/invites`)
+    .set(...bearer(alice))
+    .expect(201);
+  await http()
+    .post(`/invites/${invite.body.token as string}/accept`)
+    .set(...bearer(bob))
+    .expect(200);
+  return { alice, bob, workspaceId };
+}
