@@ -50,3 +50,8 @@ npm run lint; npm run format:check; npm run typecheck; npm test; npm run test:e2
 - Client synced tables have no foreign keys; queries go through live parents.
 - Server: never set `seq`, `version`, `updated_at` of synced tables in code — the `sync_touch` trigger does. Each pushed op runs in its own transaction under `pg_advisory_xact_lock(hashtext(workspaceId))`.
 - A new synced entity needs: Prisma model + trigger, API handler + payload DTOs, Drift table, `SyncStore._upsert`, fake sync server in tests.
+
+## Real-time invariants (details in `docs/realtime.md`)
+- The socket only says *when* to pull; data always goes through `/sync/*`. Server events carry ids, never row data.
+- Sockets authenticate once in the handshake. Global HTTP guards must return early for `context.getType() !== 'http'` (see `JwtAuthGuard`, `skipNonHttp`).
+- Board rooms follow `BoardsRepository.watchBoard` listeners; widgets and cubits never talk to the socket. A new server event must be added to `SocketIoTransport.serverEvents`.

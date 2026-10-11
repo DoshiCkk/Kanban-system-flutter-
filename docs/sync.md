@@ -14,7 +14,7 @@ Goals:
 Non-goals (MVP):
 - Character-level merging of text (no CRDT for descriptions). The last write to a field wins.
 - Offline creation of workspaces, invites and membership changes. They stay online REST calls (phase 2); workspaces and members are only cached for reading.
-- Syncing comments is part of phase 5; the protocol below already covers the `comments` entity.
+- Comments use the same protocol (`comment` entity); *Implemented:* phase 5, see [realtime.md](realtime.md) §4.
 
 ## 2. Data model
 
@@ -206,7 +206,7 @@ Triggers (all coalesced into "run one more cycle when the current one ends"):
 - Network becomes available (`connectivity_plus`).
 - App resumed from background.
 - Every 60 s while in the foreground.
-- Socket.IO "board changed" event (phase 5).
+- Socket.IO "board changed" event (phase 5). *Implemented:* also a socket (re)connect and opening a board; see [realtime.md](realtime.md) §3.
 
 Errors:
 - **Network or 5xx:** exponential backoff of 1 s, 2 s, 4 s … capped at 5 min, with jitter. `attempts` is incremented for the ops that were sent.
@@ -242,7 +242,7 @@ The indicator is in the board and boards app bars, with a semantic label for scr
   - One `EntityHandler` per entity covers payload whitelist, parent checks and cascade.
 - `sync_seq` is a Postgres sequence, read by the `sync_touch` trigger.
 - Each op runs in its own transaction: look up the row, take the workspace advisory lock, re-read, apply, record the `opId`. One transaction per op avoids savepoints and lock-order deadlocks between workspaces.
-- After a push commits, the service emits `board.changed(boardIds)` internally. Phase 5 forwards that event to Socket.IO rooms.
+- After a push commits, the service emits `board.changed(boardIds)` internally. Phase 5 forwards that event to Socket.IO rooms. *Implemented:* `RealtimeGateway` emits `board:changed` to `board:<id>` ([realtime.md](realtime.md) §2).
 
 ## 10. Testing plan
 

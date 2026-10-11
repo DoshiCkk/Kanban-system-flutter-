@@ -102,6 +102,26 @@ Inspect what the server has (PowerShell, after logging in as in the snippet abov
 Invoke-RestMethod "$api/sync/pull?workspaceId=$($ws.id)&since=0" -Headers $ha | ConvertTo-Json -Depth 5
 ```
 
+## Real-time and comments: check
+Design: [docs/realtime.md](docs/realtime.md). Start two emulators (Android Studio → Device Manager) and run the app on each, in two terminals:
+```powershell
+flutter devices   # note both emulator ids
+flutter run -d emulator-5554 --dart-define-from-file=config/dev.json
+flutter run -d emulator-5556 --dart-define-from-file=config/dev.json
+```
+1. Sign in as two users of one workspace (see "Try two users in one workspace").
+2. Open the same board on both and move a card on one: it moves on the other in about a second.
+3. Open a card, type `@` in the comment field, pick the teammate and send: the comment appears on the other device with the name highlighted.
+
+Without emulators, the same round trip runs as a test against the local API — two in-memory "devices" with the real sync and Socket.IO clients. With the API running (section 2):
+```powershell
+cd apps/mobile
+$env:FLOWBOARD_LIVE_API = 'http://localhost:3000'
+flutter test test/live
+Remove-Item Env:FLOWBOARD_LIVE_API
+```
+It prints the measured latency: about 540 ms, 500 ms of which is the deliberate push debounce.
+
 ## iOS
 iOS cannot be built on Windows. The code avoids Android-only APIs; iOS builds will run on a macOS CI runner (phase 7). On the iOS simulator use `API_BASE_URL=http://localhost:3000`.
 

@@ -23,3 +23,8 @@ Items deferred from the current phase or out of MVP scope. Every `TODO` in code 
 - Send the chosen UI language to the server (`PATCH /users/me { locale }`) so push notifications use it (phase 6).
 - Refresh token grace window: accept the just-rotated token for a few seconds to survive a lost refresh response.
 - HTTPS + real domain for release builds (debug uses cleartext to `10.0.2.2`).
+- Real-time: disconnect the socket while the app is in the background (battery); today it lives as long as the process.
+- Real-time: live updates for the boards list and the members screen (a `workspace:<id>` room). They refresh on the periodic sync for now; only open boards are live.
+- Real-time: skip `board:changed` for the socket of the device that pushed (saves one empty pull per push).
+- Comments: show an "edited" mark and a comment counter on card tiles.
+- `npm audit` reports high-severity advisories in Prisma 7's own dependencies (`deepmerge-ts`, `mysql2` via `@prisma/config`); the suggested fix is a downgrade to Prisma 6. Recheck on the next Prisma release.

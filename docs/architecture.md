@@ -11,7 +11,7 @@ Flutter app (Android/iOS)                    NestJS API
 └───────────────────────────┘
 ```
 - **Local-first:** the app reads only from Drift and writes to Drift first. The network is a background concern of the SyncEngine (phase 4).
-- **Real-time:** the server notifies `board:<id>` rooms after applying changes; clients pull (phase 5).
+- **Real-time:** after applying a push the server notifies the `board:<id>` Socket.IO room; clients in it pull (phase 5, [realtime.md](realtime.md)). Data never travels over the socket.
 
 ## Mobile layout
 ```
