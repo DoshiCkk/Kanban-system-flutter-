@@ -5,6 +5,7 @@ import 'package:flowboard/core/router/app_router.dart';
 import 'package:flowboard/core/sync/sync_indicator.dart';
 import 'package:flowboard/core/widgets/dialogs.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
+import 'package:flowboard/core/widgets/skeleton.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/presentation/cubit/board_cubit.dart';
 import 'package:flowboard/features/boards/presentation/widgets/card_tile.dart';
@@ -178,9 +179,7 @@ class _BoardPageState extends State<BoardPage> {
       },
       builder: (context, state) {
         if (state.status == BoardStatus.loading) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return Scaffold(appBar: AppBar(), body: const BoardSkeleton());
         }
         if (state.status == BoardStatus.notFound) {
           return Scaffold(
@@ -263,9 +262,18 @@ class _BoardPageState extends State<BoardPage> {
                   itemBuilder: (context, i) => _ColumnView(
                     key: ValueKey(columns[i].column.id),
                     column: columns[i],
+                    neighbours: [
+                      if (i > 0) columns[i - 1],
+                      if (i < columns.length - 1) columns[i + 1],
+                    ],
                     onOpenCard: _openCard,
                     onDrop: (card, index) =>
                         _moveCard(card, columns[i].column.id, index),
+                    onMoveTo: (card, target) => _moveCard(
+                      card,
+                      target.column.id,
+                      target.cards.length,
+                    ),
                     onDragStarted: _onDragStarted,
                     onDragUpdate: _onDragUpdate,
                     onDragEnd: _onDragEnd,
@@ -382,8 +390,10 @@ class _ColumnTabsState extends State<_ColumnTabs> {
 class _ColumnView extends StatefulWidget {
   const _ColumnView({
     required this.column,
+    required this.neighbours,
     required this.onOpenCard,
     required this.onDrop,
+    required this.onMoveTo,
     required this.onDragStarted,
     required this.onDragUpdate,
     required this.onDragEnd,
@@ -391,8 +401,12 @@ class _ColumnView extends StatefulWidget {
   });
 
   final ColumnWithCards column;
+
+  /// Adjacent columns, offered as move actions to screen readers.
+  final List<ColumnWithCards> neighbours;
   final ValueChanged<CardSummary> onOpenCard;
   final void Function(CardSummary card, int index) onDrop;
+  final void Function(CardSummary card, ColumnWithCards target) onMoveTo;
   final VoidCallback onDragStarted;
   final ValueChanged<Offset> onDragUpdate;
   final VoidCallback onDragEnd;
@@ -485,6 +499,11 @@ class _ColumnViewState extends State<_ColumnView>
                 onDragStarted: widget.onDragStarted,
                 onDragUpdate: widget.onDragUpdate,
                 onDragEnd: widget.onDragEnd,
+                moves: {
+                  for (final target in widget.neighbours)
+                    l10n.cardMoveNext(target.column.title): () =>
+                        widget.onMoveTo(card, target),
+                },
               ),
             ),
           );

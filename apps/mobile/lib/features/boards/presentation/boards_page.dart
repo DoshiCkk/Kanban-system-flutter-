@@ -2,6 +2,7 @@ import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/router/app_router.dart';
 import 'package:flowboard/core/sync/sync_indicator.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
+import 'package:flowboard/core/widgets/skeleton.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/presentation/cubit/boards_cubit.dart';
 import 'package:flowboard/features/boards/presentation/widgets/create_board_sheet.dart';
@@ -47,7 +48,7 @@ class BoardsPage extends StatelessWidget {
             ],
           ),
           body: state.loading
-              ? const Center(child: CircularProgressIndicator())
+              ? const ListSkeleton()
               : state.boards.isEmpty
               ? MessageView(
                   icon: Icons.view_kanban_outlined,

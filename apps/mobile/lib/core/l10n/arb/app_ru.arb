@@ -170,5 +170,10 @@
   "commentUnknownAuthor": "Неизвестный участник",
   "commentActions": "Действия с комментарием",
   "commentMentionSuggestions": "Упомянуть коллегу",
-  "pushOpen": "Открыть"
+  "pushOpen": "Открыть",
+  "commonLoading": "Загрузка",
+  "cardDueSemantics": "Срок: {date}",
+  "cardOverdueSemantics": "Просрочено, срок был {date}",
+  "cardChecklistSemantics": "Чек-лист: выполнено {done} из {total}",
+  "cardHasAssignee": "Есть исполнитель"
 }

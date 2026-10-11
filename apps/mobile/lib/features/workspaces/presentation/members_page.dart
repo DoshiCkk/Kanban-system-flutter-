@@ -2,6 +2,7 @@ import 'package:flowboard/core/l10n/error_messages.dart';
 import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/network/api_exception.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
+import 'package:flowboard/core/widgets/skeleton.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/workspaces/domain/workspace.dart';
 import 'package:flowboard/features/workspaces/presentation/cubit/members_cubit.dart';
@@ -68,7 +69,7 @@ class MembersPage extends StatelessWidget {
           ),
         );
       }
-      return const Center(child: CircularProgressIndicator());
+      return const ListSkeleton();
     }
     final myRole = state.workspace?.role ?? WorkspaceRole.member;
     return RefreshIndicator(

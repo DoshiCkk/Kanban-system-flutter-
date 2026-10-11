@@ -31,11 +31,17 @@ extension BoardL10n on AppLocalizations {
 }
 
 /// Accent per priority; paired with an icon so color is never the only cue.
+/// Theme roles keep the text readable on both backgrounds.
 Color priorityColor(CardPriority p, ColorScheme scheme) => switch (p) {
-  CardPriority.low => scheme.outline,
-  CardPriority.medium => AppColors.secondaryAccent,
-  CardPriority.high => AppColors.accent,
+  CardPriority.low => scheme.onSurfaceVariant,
+  CardPriority.medium => scheme.secondary,
+  CardPriority.high => scheme.primary,
 };
+
+/// "Done" green that stays readable in the light and the dark theme.
+Color successColor(ColorScheme scheme) => scheme.brightness == Brightness.light
+    ? AppColors.successOnLight
+    : AppColors.successOnDark;
 
 IconData priorityIcon(CardPriority p) => switch (p) {
   CardPriority.low => Icons.keyboard_arrow_down,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/widgets/dialogs.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
+import 'package:flowboard/core/widgets/skeleton.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/presentation/cubit/card_cubit.dart';
 import 'package:flowboard/features/boards/presentation/widgets/board_labels.dart';
@@ -45,7 +46,7 @@ class CardPage extends StatelessWidget {
         if (state.status == CardStatus.loading) {
           return Scaffold(
             appBar: AppBar(),
-            body: const Center(child: CircularProgressIndicator()),
+            body: const CardSkeleton(),
           );
         }
         if (state.status == CardStatus.notFound || card == null) {

@@ -170,5 +170,10 @@
   "commentUnknownAuthor": "Белгісіз қатысушы",
   "commentActions": "Пікір әрекеттері",
   "commentMentionSuggestions": "Әріптесті атап өту",
-  "pushOpen": "Ашу"
+  "pushOpen": "Ашу",
+  "commonLoading": "Жүктелуде",
+  "cardDueSemantics": "Мерзімі: {date}",
+  "cardOverdueSemantics": "Мерзімі өтті: {date}",
+  "cardChecklistSemantics": "Тексеру тізімі: {total} ішінен {done} орындалды",
+  "cardHasAssignee": "Орындаушы тағайындалған"
 }

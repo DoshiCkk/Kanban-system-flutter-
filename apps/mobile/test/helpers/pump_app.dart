@@ -14,7 +14,9 @@ import 'package:flowboard/features/boards/domain/boards_repository.dart';
 import 'package:flowboard/features/comments/data/drift_comments_repository.dart';
 import 'package:flowboard/features/comments/domain/comments_repository.dart';
 import 'package:flowboard/features/settings/domain/app_settings.dart';
+import 'package:flowboard/features/workspaces/domain/workspace.dart';
 import 'package:flowboard/features/workspaces/domain/workspaces_repository.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -53,12 +55,15 @@ Future<TestApp> pumpFlowBoard(
   WidgetTester tester, {
   bool signedIn = true,
   String? initialLocation,
+  ThemeMode themeMode = ThemeMode.system,
+  List<Workspace> workspaces = const [],
 }) async {
   await getIt.reset();
   final auth = FakeAuthRepository(user: signedIn ? testUser : null);
-  final workspaces = FakeWorkspacesRepository();
+  final workspacesRepository = FakeWorkspacesRepository()
+    ..workspaces.addAll(workspaces);
   final settings = InMemorySettingsRepository(
-    const AppSettings(language: AppLanguage.en),
+    AppSettings(language: AppLanguage.en, themeMode: themeMode),
   );
   // Synchronous stream closing keeps drift timers off the fake test clock.
   final db = AppDatabase(
@@ -70,7 +75,7 @@ Future<TestApp> pumpFlowBoard(
   final boards = DriftBoardsRepository(db);
   getIt
     ..registerSingleton<AuthRepository>(auth)
-    ..registerSingleton<WorkspacesRepository>(workspaces)
+    ..registerSingleton<WorkspacesRepository>(workspacesRepository)
     ..registerSingleton<BoardsRepository>(boards)
     ..registerSingleton<CardRepository>(boards)
     ..registerSingleton<CommentsRepository>(DriftCommentsRepository(db));
@@ -103,7 +108,7 @@ Future<TestApp> pumpFlowBoard(
   await tester.pumpAndSettle();
   return TestApp(
     auth: auth,
-    workspaces: workspaces,
+    workspaces: workspacesRepository,
     settings: settings,
     authCubit: authCubit,
     router: router,

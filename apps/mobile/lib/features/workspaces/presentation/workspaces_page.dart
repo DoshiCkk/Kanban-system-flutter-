@@ -2,6 +2,7 @@ import 'package:flowboard/core/l10n/error_messages.dart';
 import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/router/app_router.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
+import 'package:flowboard/core/widgets/skeleton.dart';
 import 'package:flowboard/features/workspaces/domain/workspace.dart';
 import 'package:flowboard/features/workspaces/presentation/cubit/workspaces_cubit.dart';
 import 'package:flowboard/features/workspaces/presentation/widgets/create_workspace_sheet.dart';
@@ -50,9 +51,7 @@ class WorkspacesPage extends StatelessWidget {
           final cubit = context.read<WorkspacesCubit>();
           if (state.workspaces.isEmpty) {
             return switch (state.status) {
-              LoadStatus.initial || LoadStatus.loading => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              LoadStatus.initial || LoadStatus.loading => const ListSkeleton(),
               LoadStatus.failure => MessageView(
                 icon: Icons.cloud_off_outlined,
                 title: l10n.apiError(state.error),

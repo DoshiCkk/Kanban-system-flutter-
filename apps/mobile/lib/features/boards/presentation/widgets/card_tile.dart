@@ -2,6 +2,7 @@ import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/presentation/widgets/board_labels.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:intl/intl.dart';
 
 /// Payload of a card drag.
@@ -11,7 +12,8 @@ class DraggedCard {
   final CardSummary card;
 }
 
-/// A card in a column. Tap opens it, long press starts a drag.
+/// A card in a column. Tap opens it, long press starts a drag. Screen
+/// reader users move it with [moves] instead (custom semantics actions).
 class CardTile extends StatelessWidget {
   const CardTile({
     required this.card,
@@ -19,6 +21,7 @@ class CardTile extends StatelessWidget {
     required this.onDragStarted,
     required this.onDragUpdate,
     required this.onDragEnd,
+    this.moves = const {},
     super.key,
   });
 
@@ -27,6 +30,9 @@ class CardTile extends StatelessWidget {
   final VoidCallback onDragStarted;
   final ValueChanged<Offset> onDragUpdate;
   final VoidCallback onDragEnd;
+
+  /// Action label -> move, e.g. "Move to the Done column".
+  final Map<String, VoidCallback> moves;
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +60,14 @@ class CardTile extends StatelessWidget {
       onDragUpdate: (details) => onDragUpdate(details.globalPosition),
       onDragEnd: (_) => onDragEnd(),
       onDraggableCanceled: (_, _) => onDragEnd(),
-      child: Semantics(
-        hint: context.l10n.cardDragHint,
-        child: CardBody(card: card, onTap: onTap),
+      child: CardBody(
+        card: card,
+        onTap: onTap,
+        semanticsHint: context.l10n.cardDragHint,
+        semanticsActions: {
+          for (final MapEntry(key: label, value: move) in moves.entries)
+            CustomSemanticsAction(label: label): move,
+        },
       ),
     );
   }
@@ -67,12 +78,19 @@ class CardBody extends StatelessWidget {
     required this.card,
     this.onTap,
     this.elevated = false,
+    this.semanticsHint,
+    this.semanticsActions = const {},
     super.key,
   });
 
   final CardSummary card;
   final VoidCallback? onTap;
   final bool elevated;
+
+  /// Added to the card's own semantics node (the Card is a container, so
+  /// an annotation outside it would land on a separate node).
+  final String? semanticsHint;
+  final Map<CustomSemanticsAction, VoidCallback> semanticsActions;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +101,9 @@ class CardBody extends StatelessWidget {
     final due = card.dueDate;
     final overdue =
         due != null && due.isBefore(DateUtils.dateOnly(DateTime.now()));
+    final dueText = due == null
+        ? ''
+        : DateFormat.MMMd(locale).format(due.toLocal());
     final meta = <Widget>[
       if (card.priority != CardPriority.medium)
         _Meta(
@@ -93,7 +114,10 @@ class CardBody extends StatelessWidget {
       if (due != null)
         _Meta(
           icon: Icons.event_outlined,
-          text: DateFormat.MMMd(locale).format(due.toLocal()),
+          text: dueText,
+          semanticsLabel: overdue
+              ? l10n.cardOverdueSemantics(dueText)
+              : l10n.cardDueSemantics(dueText),
           color: overdue ? scheme.error : null,
         ),
       if (card.checklistTotal > 0)
@@ -103,54 +127,69 @@ class CardBody extends StatelessWidget {
             card.checklistDone,
             card.checklistTotal,
           ),
+          semanticsLabel: l10n.cardChecklistSemantics(
+            card.checklistDone,
+            card.checklistTotal,
+          ),
           color: card.checklistDone == card.checklistTotal
-              ? Colors.green.shade700
+              ? successColor(scheme)
               : null,
         ),
       if (card.assigneeId != null)
-        const _Meta(icon: Icons.person_outline, text: ''),
+        _Meta(
+          icon: Icons.person_outline,
+          text: '',
+          semanticsLabel: l10n.cardHasAssignee,
+        ),
     ];
 
     return Card(
       margin: EdgeInsets.zero,
       elevation: elevated ? 8 : 1,
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (card.labels.isNotEmpty) ...[
-                Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: [
-                    for (final label in card.labels.take(3))
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: labelColor(label, scheme),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
+      child: Semantics(
+        hint: semanticsHint,
+        customSemanticsActions: semanticsActions,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (card.labels.isNotEmpty) ...[
+                  Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: [
+                      for (final label in card.labels.take(3))
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: labelColor(label, scheme),
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                          child: Text(label, style: theme.textTheme.labelSmall),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            child: Text(
+                              label,
+                              style: theme.textTheme.labelSmall,
+                            ),
+                          ),
                         ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 8),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+                Text(card.title, style: theme.textTheme.bodyLarge),
+                if (meta.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Wrap(spacing: 12, runSpacing: 4, children: meta),
+                ],
               ],
-              Text(card.title, style: theme.textTheme.bodyLarge),
-              if (meta.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                Wrap(spacing: 12, runSpacing: 4, children: meta),
-              ],
-            ],
+            ),
           ),
         ),
       ),
@@ -159,10 +198,18 @@ class CardBody extends StatelessWidget {
 }
 
 class _Meta extends StatelessWidget {
-  const _Meta({required this.icon, required this.text, this.color});
+  const _Meta({
+    required this.icon,
+    required this.text,
+    this.semanticsLabel,
+    this.color,
+  });
 
   final IconData icon;
   final String text;
+
+  /// Spoken instead of [text] when the short form is ambiguous.
+  final String? semanticsLabel;
   final Color? color;
 
   @override
@@ -170,7 +217,7 @@ class _Meta extends StatelessWidget {
     final style = Theme.of(context).textTheme.labelMedium?.copyWith(
       color: color,
     );
-    return Row(
+    final row = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 16, color: color),
@@ -180,5 +227,9 @@ class _Meta extends StatelessWidget {
         ],
       ],
     );
+    final label = semanticsLabel;
+    return label == null
+        ? row
+        : Semantics(label: label, excludeSemantics: true, child: row);
   }
 }

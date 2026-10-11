@@ -3,19 +3,24 @@ import 'package:flutter/material.dart';
 
 /// Material 3 themes built from the brand palette.
 ///
-/// Text on the orange/blue accents is dark, not white: white on #FF7A45
-/// fails WCAG AA contrast, #14171F passes comfortably.
+/// Contrast (WCAG AA, checked by test/accessibility_test.dart):
+/// - Brand orange and blue are fills under dark text (#14171F, ≥ 5.6:1):
+///   filled buttons, FAB, containers. White on #FF7A45 would be 2.6:1.
+/// - As text on the light background they are too pale, so the light
+///   theme's `primary` / `secondary` are darker shades of them.
 abstract final class AppTheme {
   static const double minTapTarget = 48;
 
   static ThemeData light() => _build(
-    ColorScheme.fromSeed(
-      seedColor: AppColors.accent,
-    ).copyWith(
-      primary: AppColors.accent,
-      onPrimary: AppColors.dark,
-      secondary: AppColors.secondaryAccent,
-      onSecondary: AppColors.dark,
+    ColorScheme.fromSeed(seedColor: AppColors.accent).copyWith(
+      primary: AppColors.accentOnLight,
+      onPrimary: Colors.white,
+      primaryContainer: AppColors.accent,
+      onPrimaryContainer: AppColors.dark,
+      secondary: AppColors.secondaryOnLight,
+      onSecondary: Colors.white,
+      secondaryContainer: AppColors.secondaryAccent,
+      onSecondaryContainer: AppColors.dark,
       surface: AppColors.lightBackground,
       onSurface: AppColors.dark,
     ),
@@ -45,8 +50,17 @@ abstract final class AppTheme {
         foregroundColor: scheme.onSurface,
         centerTitle: false,
       ),
+      // Primary actions keep the brand orange in both themes.
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: AppColors.accent,
+        foregroundColor: AppColors.dark,
+      ),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(minimumSize: minSize),
+        style: FilledButton.styleFrom(
+          minimumSize: minSize,
+          backgroundColor: AppColors.accent,
+          foregroundColor: AppColors.dark,
+        ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(minimumSize: minSize),

@@ -765,5 +765,43 @@
   "pushOpen": "Open",
   "@pushOpen": {
     "description": "Snackbar action that opens the card of a push received in the foreground."
+  },
+  "commonLoading": "Loading",
+  "@commonLoading": {
+    "description": "Screen reader label of skeleton placeholders."
+  },
+  "cardDueSemantics": "Due {date}",
+  "@cardDueSemantics": {
+    "description": "Screen reader text of a card's due date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cardOverdueSemantics": "Overdue, was due {date}",
+  "@cardOverdueSemantics": {
+    "description": "Screen reader text of a past due date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cardChecklistSemantics": "Checklist: {done} of {total} done",
+  "@cardChecklistSemantics": {
+    "description": "Screen reader text of checklist progress.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "cardHasAssignee": "Has an assignee",
+  "@cardHasAssignee": {
+    "description": "Screen reader text of the assignee icon on a card."
   }
 }
