@@ -30,6 +30,7 @@ Items deferred from the current phase or out of MVP scope. Every `TODO` in code 
 - Push: an in-app notifications list (history), per-type mute settings and quiet hours.
 - Push: prune device tokens not refreshed for ~270 days (FCM marks them stale); dead tokens reported by FCM are already removed.
 - Push: opening a pushed card that has not been pulled yet shows "card not found" until the sync brings it (a fraction of a second online); a loading state would be nicer.
-- iOS: the Push Notifications capability, Background Modes and `GoogleService-Info.plist` must be added in Xcode on a Mac (docs/push.md §4.3); the deployment target is already 15.0 for the Firebase SDK.
-- Android: the build (Gradle, google-services plugin 4.5.0 with AGP 9) has not been run on the dev machine — no Android SDK/JDK installed.
+- iOS: the Push Notifications capability, Background Modes and `GoogleService-Info.plist` must be added in Xcode on a Mac (docs/push.md §4.3); the deployment target is already 15.0 for the Firebase SDK. The unsigned build runs only on demand (`ios.yml`).
+- Real screenshots for the README (placeholders in `docs/screenshots/`) once the app runs on an emulator.
+- Release signing (Android keystore, iOS certificates) and store listings.
 - `npm audit` reports high-severity advisories in Prisma 7's own dependencies (`deepmerge-ts`, `mysql2` via `@prisma/config`); the suggested fix is a downgrade to Prisma 6. Recheck on the next Prisma release.

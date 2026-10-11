@@ -13,11 +13,12 @@ Mobile-first, offline-first Kanban for small teams. Monorepo:
 - Never commit secrets: only `.env.example` files.
 
 ## Mobile (`apps/mobile`)
-- Feature-first Clean Architecture: `lib/features/<feature>/{data,domain,presentation}`, shared code in `lib/core/{config,db,network,sync,notifications,di,theme,l10n,router}`.
+- Feature-first Clean Architecture: `lib/features/<feature>/{data,domain,presentation}`, shared code in `lib/core/{config,db,network,sync,notifications,errors,widgets,di,theme,l10n,router}`.
 - Data flow: UI → Bloc/Cubit → Repository → (Drift + SyncEngine). Widgets never call the network or the DB directly.
 - State: flutter_bloc. DI: get_it (`lib/core/di/injector.dart`). Routing: go_router (`lib/core/router/app_router.dart`), navigate by route name.
 - **No hardcoded user-facing strings.** Add keys to `lib/core/l10n/arb/app_en.arb` (with `@key` description) and translate in `app_ru.arb` and `app_kk.arb`. Access via `context.l10n`.
-- Colors only from `Theme.of(context).colorScheme` / `AppColors`. Tap targets ≥ 48dp, primary actions in the lower half of the screen.
+- Colors only from `Theme.of(context).colorScheme` / `AppColors`. Text and icons use scheme roles (`primary`, `onSurface`, …): the brand `AppColors.accent` / `secondaryAccent` fail WCAG AA as text on the light background and are only fills under dark text. Tap targets ≥ 48dp, primary actions in the lower half of the screen.
+- Accessibility: every tappable widget needs a label (tooltip or text); loading states use `Skeleton` widgets, not spinners. A new screen goes into `test/accessibility_test.dart` (tap targets, labels, contrast in both themes, 200 % text).
 - API base URL comes from `--dart-define=API_BASE_URL` (`AppConfig`); never hardcode it.
 - Lints: `very_good_analysis`. Code and comments in English.
 - Models: `@freezed` + `json_serializable`; generated `*.freezed.dart` / `*.g.dart` are committed. Regenerate with Flutter's own Dart: `& D:\Devtools\flutter\bin\dart.bat run build_runner build --delete-conflicting-outputs` (the `dart` on PATH on this machine is a standalone SDK).
@@ -26,7 +27,7 @@ Mobile-first, offline-first Kanban for small teams. Monorepo:
 
 Checks (run from `apps/mobile`):
 ```powershell
-flutter gen-l10n; dart format --set-exit-if-changed lib test; flutter analyze; flutter test
+flutter gen-l10n; dart format --set-exit-if-changed lib test tool; flutter analyze; flutter test
 ```
 
 ## API (`apps/api`)
@@ -35,7 +36,7 @@ flutter gen-l10n; dart format --set-exit-if-changed lib test; flutter analyze; f
 - Env is validated in `src/config/env.validation.ts`; add new variables there and to `.env.example` and `.env.test.example`.
 - Prisma 7 (`prisma-client` generator → `src/generated/prisma`, not committed; `postinstall` generates it). DB URL lives in `prisma.config.ts`.
 - All routes require JWT unless `@Public()`. Workspace routes use `WorkspaceMemberGuard` + `@WorkspaceRoles(...)`; non-members get 404.
-- Throw `ApiException(status, ErrorCode.X, message)` — never bare strings; the mobile app relies on `code`.
+- Throw `ApiException(status, ErrorCode.X, message)` — never bare strings; the mobile app relies on `code`. `ApiExceptionFilter` gives framework errors and crashes the same body (crashes as a generic `INTERNAL`).
 - Tests: Vitest (`*.spec.ts` unit next to code, `test/*.e2e-spec.ts` e2e on the `flowboard_test` database). See ADR 0001 for why Vitest instead of Jest.
 
 Checks (run from `apps/api`):

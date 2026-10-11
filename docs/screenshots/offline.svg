@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="270" height="600" viewBox="0 0 270 600" role="img" aria-label="Offline: changes wait in the outbox (placeholder)">
+<rect x="0" y="0" width="270" height="560" rx="32" fill="#14171F" />
+<rect x="10" y="10" width="250" height="540" rx="24" fill="#F4F2EC" />
+<text x="28" y="58" font-family="Segoe UI, Roboto, sans-serif" font-size="17" font-weight="600" fill="#14171F" text-anchor="start">Diploma</text>
+<circle cx="226" cy="52" r="12" fill="none" stroke="#14171F" stroke-width="2"/>
+<circle cx="236" cy="42" r="8" fill="#FF7A45"/>
+<text x="236" y="46" font-family="Segoe UI, Roboto, sans-serif" font-size="10" font-weight="700" fill="#14171F" text-anchor="middle">3</text>
+<rect x="24" y="76" width="78" height="28" rx="14" fill="#D9D5CC" />
+<text x="63.0" y="95" font-family="Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600" fill="#14171F" text-anchor="middle">To do 3</text>
+<rect x="108" y="76" width="78" height="28" rx="14" fill="#FF7A45" />
+<text x="147.0" y="95" font-family="Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600" fill="#14171F" text-anchor="middle">Doing 1</text>
+<rect x="192" y="76" width="78" height="28" rx="14" fill="#D9D5CC" />
+<text x="231.0" y="95" font-family="Segoe UI, Roboto, sans-serif" font-size="12" font-weight="600" fill="#14171F" text-anchor="middle">Done 2</text>
+<rect x="24" y="120" width="222" height="64" rx="10" fill="#FFFFFF" stroke="#D9D5CC"/>
+<text x="36" y="142" font-family="Segoe UI, Roboto, sans-serif" font-size="13" font-weight="normal" fill="#14171F" text-anchor="start">Survey</text>
+<text x="36" y="160" font-family="Segoe UI, Roboto, sans-serif" font-size="11" font-weight="normal" fill="#6B6F78" text-anchor="start">Moved offline</text>
+<rect x="24" y="410" width="222" height="44" rx="10" fill="#14171F" />
+<text x="135.0" y="437" font-family="Segoe UI, Roboto, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">3 changes waiting for the network</text>
+<text x="135.0" y="588" font-family="Segoe UI, Roboto, sans-serif" font-size="13" font-weight="normal" fill="#6B6F78" text-anchor="middle">Offline: changes wait in the outbox — placeholder</text>
+</svg>

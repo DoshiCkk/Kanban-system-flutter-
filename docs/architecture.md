@@ -45,4 +45,4 @@ test/       e2e specs (Vitest + supertest)
 4. Sync (`docs/sync.md` first).
 5. Real-time and comments.
 6. Push notifications.
-7. Polish and CI.
+7. Polish and CI: skeletons, error handling, accessibility (AA contrast, screen reader moves, guideline tests), icon and splash, GitHub Actions.

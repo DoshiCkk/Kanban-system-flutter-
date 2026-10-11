@@ -1,12 +1,50 @@
 # FlowBoard
 
-Mobile-first, offline-first Kanban for small teams. Flutter (Android/iOS) + NestJS + PostgreSQL + Redis.
-Interface languages: Kazakh, Russian, English.
+[![API](https://github.com/DoshiCkk/Kanban-system-flutter-/actions/workflows/api.yml/badge.svg)](https://github.com/DoshiCkk/Kanban-system-flutter-/actions/workflows/api.yml)
+[![Mobile](https://github.com/DoshiCkk/Kanban-system-flutter-/actions/workflows/mobile.yml/badge.svg)](https://github.com/DoshiCkk/Kanban-system-flutter-/actions/workflows/mobile.yml)
+
+Mobile-first, offline-first Kanban for small teams — students, small IT teams, freelancers. Flutter (Android/iOS) + NestJS + PostgreSQL + Redis. Interface languages: Kazakh, Russian, English.
+
+<p align="center">
+  <img src="docs/screenshots/board.svg" width="200" alt="Board: one column per screen">
+  <img src="docs/screenshots/card.svg" width="200" alt="Card with checklist and mentions">
+  <img src="docs/screenshots/workspaces.svg" width="200" alt="Workspaces">
+  <img src="docs/screenshots/offline.svg" width="200" alt="Offline changes waiting to sync">
+</p>
+<p align="center"><sub>Placeholders — replace the files in <code>docs/screenshots/</code> with emulator screenshots (same names, PNG or SVG).</sub></p>
+
+## Features
+- **Works offline.** Everything is stored on the device first; changes sync when the network is back. Two devices editing the same board converge (field-level last-writer-wins, delete wins) — [docs/sync.md](docs/sync.md).
+- **Live.** A card moved on one phone shows up on the others in about a second (Socket.IO board rooms) — [docs/realtime.md](docs/realtime.md).
+- **Made for one hand.** One column per screen with counted tabs, long-press drag with paging at the screen edge, "+ Task" quick add, a big "Move to the next column" button at the bottom of the card.
+- **Team work.** Workspaces with roles and invite links, assignees, due dates, priorities, labels, checklists, comments with `@mentions`.
+- **Push notifications** for assignments, mentions and "due tomorrow" — optional, the app and API run without Firebase — [docs/push.md](docs/push.md).
+- **Templates:** Basic (To do / Doing / Done), Development (Backlog / To Do / In Progress / Review / Done), Empty.
+- **Accessible:** WCAG AA contrast in light and dark themes, 48 dp tap targets, screen reader labels, cards movable without dragging, layouts tested at 200 % text size.
+
+## Stack
+| | |
+|---|---|
+| App | Flutter 3.44, flutter_bloc, go_router, get_it, Drift (SQLite), dio, socket_io_client, freezed, gen-l10n, Firebase Messaging (optional) |
+| API | NestJS 12, TypeScript (strict, ESM), Prisma 7 + PostgreSQL 17, Redis 7 (Socket.IO adapter, rate limiting), Socket.IO, JWT access + rotating refresh tokens, argon2, Swagger, firebase-admin (optional) |
+| Tests | flutter_test (unit, widget, accessibility guidelines), Vitest + supertest (unit, e2e on a real database) |
+| CI | GitHub Actions: API checks, app checks + debug APK, manual unsigned iOS build |
+
+## How it fits together
+```
+Flutter app                                         NestJS API
+UI → Cubit → Repository → Drift (SQLite) ─┐         ┌─ REST /auth, /workspaces, /devices
+                           Outbox ─► SyncEngine ──► │  /sync/push, /sync/pull ──► PostgreSQL
+                     RealtimeClient ◄─ Socket.IO ── │  RealtimeGateway (board:<id>) ◄─► Redis
+              NotificationService ◄─── FCM ──────── │  NotificationsService
+```
+The app reads only from its local database; the network is a background concern. Details: [docs/architecture.md](docs/architecture.md).
 
 ```
-apps/mobile   Flutter app
-apps/api      NestJS backend
-docs/         architecture, ADRs, backlog
+apps/mobile   Flutter app (feature-first: lib/features/<feature>/{data,domain,presentation}, lib/core)
+apps/api      NestJS backend (one module per feature under src/)
+docs/         architecture, sync, real-time, push, ADRs, backlog
+.github/      CI workflows
 ```
 
 ## Requirements
@@ -79,9 +117,9 @@ Invite links have the form `flowboard://app/invite/<token>`. To open one on the 
 adb shell am start -a android.intent.action.VIEW -d "flowboard://app/invite/<token>"
 ```
 
-Checks:
+Checks (`test/accessibility_test.dart` also runs Flutter's tap target, label and contrast guidelines in both themes):
 ```powershell
-flutter gen-l10n; dart format --set-exit-if-changed lib test; flutter analyze; flutter test
+flutter gen-l10n; dart format --set-exit-if-changed lib test tool; flutter analyze; flutter test
 ```
 After changing `@freezed` / `@JsonSerializable` models regenerate code:
 ```powershell
@@ -126,7 +164,22 @@ It prints the measured latency: about 540 ms, 500 ms of which is the deliberate 
 Off by default — the API and the app work without a Firebase project. To turn them on (Firebase project, `google-services.json`, service account key, `--dart-define=PUSH_ENABLED=true`) follow [docs/push.md](docs/push.md).
 
 ## iOS
-iOS cannot be built on Windows. The code avoids Android-only APIs; iOS builds will run on a macOS CI runner (phase 7). On the iOS simulator use `API_BASE_URL=http://localhost:3000`.
+iOS cannot be built on Windows. The code avoids Android-only APIs, and the iOS project targets iOS 15 (the Firebase SDK minimum). To check that it builds, run the **iOS build** workflow by hand on GitHub (Actions → iOS build → Run workflow): an unsigned release build on a macOS runner. On the iOS simulator use `API_BASE_URL=http://localhost:3000`.
+
+## Continuous integration
+| Workflow | When | What |
+|---|---|---|
+| [API](.github/workflows/api.yml) | changes in `apps/api` | lint, format, typecheck, unit tests, e2e tests against Postgres and Redis containers |
+| [Mobile](.github/workflows/mobile.yml) | changes in `apps/mobile` | format, analyze, tests, generated code is current; debug APK build (downloadable artifact) |
+| [iOS build](.github/workflows/ios.yml) | by hand | unsigned `flutter build ios` on macOS |
+
+## Documentation
+- [docs/architecture.md](docs/architecture.md) — layers and phases
+- [docs/sync.md](docs/sync.md) — offline sync protocol and conflict rules
+- [docs/realtime.md](docs/realtime.md) — Socket.IO rooms, comments and mentions
+- [docs/push.md](docs/push.md) — push notifications and Firebase setup, step by step
+- [docs/adr/](docs/adr/) — decisions; [docs/backlog.md](docs/backlog.md) — what is deferred
+- `apps/mobile/tool/generate_branding.dart` — draws the app icon and splash (then `dart run flutter_launcher_icons`, `dart run flutter_native_splash:create`)
 
 ## Troubleshooting
 - **`flutter pub get` fails with a symlink error** — enable Windows Developer Mode: `start ms-settings:developers`.
