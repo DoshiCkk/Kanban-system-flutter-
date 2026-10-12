@@ -807,5 +807,167 @@
   "errorWidgetMessage": "This part of the screen could not be shown.",
   "@errorWidgetMessage": {
     "description": "Replaces a widget that crashed while building (release builds)."
+  },
+  "splashTagline": "Kanban for small teams",
+  "@splashTagline": {
+    "description": "Splash screen subtitle under the app name."
+  },
+  "splashFailed": "Could not start the app. Please restart it.",
+  "@splashFailed": {
+    "description": "Splash screen when start-up failed."
+  },
+  "authConfirmPasswordLabel": "Repeat password",
+  "@authConfirmPasswordLabel": {
+    "description": "Registration: password confirmation field."
+  },
+  "validationPasswordMismatch": "Passwords do not match",
+  "@validationPasswordMismatch": {
+    "description": "Registration: the two passwords differ."
+  },
+  "authRegisteredBanner": "Account created. Sign in with your password.",
+  "@authRegisteredBanner": {
+    "description": "Sign-in screen right after registration."
+  },
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Bottom navigation: home tab."
+  },
+  "navMyTasks": "My tasks",
+  "@navMyTasks": {
+    "description": "Bottom navigation: tasks assigned to me."
+  },
+  "navProfile": "Profile",
+  "@navProfile": {
+    "description": "Bottom navigation: profile tab."
+  },
+  "homeGreeting": "Hello, {name}!",
+  "@homeGreeting": {
+    "description": "Home screen greeting.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeSummaryOverdue": "Overdue",
+  "@homeSummaryOverdue": {
+    "description": "Home summary tile: overdue tasks."
+  },
+  "homeSummaryToday": "Due today",
+  "@homeSummaryToday": {
+    "description": "Home summary tile: tasks due today."
+  },
+  "homeSummaryActive": "Assigned to me",
+  "@homeSummaryActive": {
+    "description": "Home summary tile: open tasks assigned to me."
+  },
+  "myTasksEmptyTitle": "No tasks assigned to you yet",
+  "@myTasksEmptyTitle": {
+    "description": "My tasks: empty state title."
+  },
+  "myTasksEmptyBody": "Open a card and choose yourself as the assignee.",
+  "@myTasksEmptyBody": {
+    "description": "My tasks: empty state hint."
+  },
+  "taskGroupOverdue": "Overdue",
+  "@taskGroupOverdue": {
+    "description": "My tasks section."
+  },
+  "taskGroupToday": "Today",
+  "@taskGroupToday": {
+    "description": "My tasks section."
+  },
+  "taskGroupUpcoming": "Upcoming",
+  "@taskGroupUpcoming": {
+    "description": "My tasks section."
+  },
+  "taskGroupNoDate": "No due date",
+  "@taskGroupNoDate": {
+    "description": "My tasks section."
+  },
+  "taskGroupDone": "Done",
+  "@taskGroupDone": {
+    "description": "My tasks section: cards in a board's last column."
+  },
+  "profileEditName": "Change name",
+  "@profileEditName": {
+    "description": "Profile action and dialog title."
+  },
+  "profileNameSaved": "Name updated",
+  "@profileNameSaved": {
+    "description": "Snackbar after renaming."
+  },
+  "profileSettings": "Language and theme",
+  "@profileSettings": {
+    "description": "Profile: opens settings."
+  },
+  "profileMemberSince": "Member since {date}",
+  "@profileMemberSince": {
+    "description": "Profile: sign-up date.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "profileStatWorkspaces": "Workspaces",
+  "@profileStatWorkspaces": {
+    "description": "Profile stat."
+  },
+  "profileStatActive": "Active tasks",
+  "@profileStatActive": {
+    "description": "Profile stat."
+  },
+  "profileStatDone": "Done",
+  "@profileStatDone": {
+    "description": "Profile stat."
+  },
+  "boardSearch": "Search",
+  "@boardSearch": {
+    "description": "Board app bar: open search."
+  },
+  "boardSearchHint": "Search cards",
+  "@boardSearchHint": {
+    "description": "Board search field hint."
+  },
+  "boardSearchClose": "Close search",
+  "@boardSearchClose": {
+    "description": "Board search: close."
+  },
+  "boardFilter": "Filter",
+  "@boardFilter": {
+    "description": "Board app bar: filter button and sheet title."
+  },
+  "filterOnlyMine": "Assigned to me",
+  "@filterOnlyMine": {
+    "description": "Board filter chip."
+  },
+  "filterOverdue": "Overdue",
+  "@filterOverdue": {
+    "description": "Board filter chip."
+  },
+  "filterReset": "Reset",
+  "@filterReset": {
+    "description": "Board filter: clear filters."
+  },
+  "filterShow": "Show cards",
+  "@filterShow": {
+    "description": "Board filter sheet: close and show results."
+  },
+  "filterSummary": "{shown} of {total} cards shown",
+  "@filterSummary": {
+    "description": "Bar above a filtered board.",
+    "placeholders": {
+      "shown": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "filterNoMatches": "No cards match the filter",
+  "@filterNoMatches": {
+    "description": "Empty column while filtering."
   }
 }

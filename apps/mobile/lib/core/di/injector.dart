@@ -35,13 +35,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 final GetIt getIt = GetIt.instance;
 
-Future<void> configureDependencies(AppConfig config) async {
-  final prefs = await SharedPreferencesWithCache.create(
-    cacheOptions: const SharedPreferencesWithCacheOptions(
-      allowList: PrefsSettingsRepository.keys,
-    ),
-  );
+/// Opened before [configureDependencies] so the splash screen can use the
+/// saved theme and language.
+Future<SharedPreferencesWithCache> openPreferences() =>
+    SharedPreferencesWithCache.create(
+      cacheOptions: const SharedPreferencesWithCacheOptions(
+        allowList: PrefsSettingsRepository.keys,
+      ),
+    );
 
+Future<void> configureDependencies(
+  AppConfig config,
+  SharedPreferencesWithCache prefs,
+) async {
   final db = AppDatabase();
   final sessionStorage = SecureSessionStorage();
   final tokens = TokenStore(sessionStorage);

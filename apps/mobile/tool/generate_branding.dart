@@ -100,6 +100,8 @@ void main() {
   final splash = canvas(480, background: orange, cornerRadius: 0.22);
   drawMark(splash, dark, 1);
   save('splash.png', splash, 480);
+  // The same mark inside the app (splash screen, sign-in, profile).
+  save('logo.png', splash, 480);
 
   // Android 12+ splash: the system draws the orange circle; the mark must
   // fit its inner two thirds.
