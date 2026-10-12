@@ -18,6 +18,9 @@ export class UserDto {
 
   @ApiProperty({ enum: AppLocale })
   locale!: AppLocale;
+
+  @ApiProperty({ description: 'When the account was created' })
+  createdAt!: Date;
 }
 
 export const toUserDto = (user: User): UserDto => ({
@@ -26,6 +29,7 @@ export const toUserDto = (user: User): UserDto => ({
   name: user.name,
   avatarUrl: user.avatarUrl,
   locale: user.locale,
+  createdAt: user.createdAt,
 });
 
 const trim = ({ value }: { value: unknown }): unknown =>

@@ -117,6 +117,10 @@ describe('Auth (e2e)', () => {
         .set(...bearer(user))
         .expect(200);
       expect(res.body.email).toBe(user.email);
+      // The app's profile shows the sign-up date.
+      expect(Date.parse(res.body.createdAt as string)).toBeLessThanOrEqual(
+        Date.now(),
+      );
     });
 
     it('PATCH /users/me updates name and locale', async () => {
@@ -127,6 +131,12 @@ describe('Auth (e2e)', () => {
         .send({ name: 'New Name', locale: 'ru' })
         .expect(200);
       expect(res.body).toMatchObject({ name: 'New Name', locale: 'ru' });
+
+      await http()
+        .patch('/users/me')
+        .set(...bearer(user))
+        .send({ name: '   ' })
+        .expect(400);
     });
   });
 
