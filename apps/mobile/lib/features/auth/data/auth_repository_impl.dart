@@ -58,21 +58,35 @@ class AuthRepositoryImpl implements AuthRepository {
       guardApi(() async => _start(await _api.login(email, password)));
 
   @override
-  Future<User> register({
+  Future<void> register({
     required String name,
     required String email,
     required String password,
     required String locale,
-  }) => guardApi(
-    () async => _start(
-      await _api.register(
+  }) async {
+    final result = await guardApi(
+      () => _api.register(
         name: name,
         email: email,
         password: password,
         locale: locale,
       ),
-    ),
-  );
+    );
+    // The API signs the new user in; this app asks them to sign in
+    // explicitly, so the session it opened is closed right away.
+    try {
+      await guardApi(() => _api.logout(result.tokens.refreshToken));
+    } on ApiException {
+      // Unused, it expires on its own.
+    }
+  }
+
+  @override
+  Future<User> updateName(String name) async {
+    final user = await guardApi(() => _api.updateMe(name: name.trim()));
+    await _setUser(user);
+    return user;
+  }
 
   @override
   Future<User?> refreshProfile() async {

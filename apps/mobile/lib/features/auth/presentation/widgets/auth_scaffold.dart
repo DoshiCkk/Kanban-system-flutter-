@@ -1,3 +1,4 @@
+import 'package:flowboard/core/widgets/brand.dart';
 import 'package:flutter/material.dart';
 
 /// Shared layout for auth screens: header at the top, form and primary
@@ -36,10 +37,9 @@ class AuthScaffold extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 32),
-                  Icon(
-                    Icons.view_kanban_rounded,
-                    size: 56,
-                    color: theme.colorScheme.primary,
+                  const Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: BrandLogo(size: 56),
                   ),
                   const SizedBox(height: 16),
                   Semantics(
@@ -67,31 +67,40 @@ class AuthScaffold extends StatelessWidget {
 
 /// Inline error/info banner.
 class AuthBanner extends StatelessWidget {
-  const AuthBanner(this.message, {super.key});
+  const AuthBanner(this.message, {this.success = false, super.key});
 
   final String message;
+
+  /// Good news (e.g. "account created") instead of an error.
+  final bool success;
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final background = success
+        ? scheme.secondaryContainer
+        : scheme.errorContainer;
+    final foreground = success
+        ? scheme.onSecondaryContainer
+        : scheme.onErrorContainer;
     return Semantics(
       liveRegion: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: scheme.errorContainer,
+          color: background,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Icon(Icons.error_outline, color: scheme.onErrorContainer),
+              Icon(
+                success ? Icons.check_circle_outline : Icons.error_outline,
+                color: foreground,
+              ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  message,
-                  style: TextStyle(color: scheme.onErrorContainer),
-                ),
+                child: Text(message, style: TextStyle(color: foreground)),
               ),
             ],
           ),
@@ -135,7 +144,8 @@ class PasswordField extends StatefulWidget {
     required this.showLabel,
     required this.hideLabel,
     required this.validator,
-    required this.onSubmitted,
+    this.onSubmitted,
+    this.focusNode,
     this.autofillHints = const [AutofillHints.password],
     super.key,
   });
@@ -145,7 +155,10 @@ class PasswordField extends StatefulWidget {
   final String showLabel;
   final String hideLabel;
   final FormFieldValidator<String> validator;
-  final VoidCallback onSubmitted;
+
+  /// Last field: submits the form. Otherwise "next" moves on.
+  final VoidCallback? onSubmitted;
+  final FocusNode? focusNode;
   final Iterable<String> autofillHints;
 
   @override
@@ -157,12 +170,16 @@ class _PasswordFieldState extends State<PasswordField> {
 
   @override
   Widget build(BuildContext context) {
+    final onSubmitted = widget.onSubmitted;
     return TextFormField(
       controller: widget.controller,
+      focusNode: widget.focusNode,
       obscureText: _obscured,
       autofillHints: widget.autofillHints,
-      textInputAction: TextInputAction.done,
-      onFieldSubmitted: (_) => widget.onSubmitted(),
+      textInputAction: onSubmitted == null
+          ? TextInputAction.next
+          : TextInputAction.done,
+      onFieldSubmitted: onSubmitted == null ? null : (_) => onSubmitted(),
       validator: widget.validator,
       decoration: InputDecoration(
         labelText: widget.label,

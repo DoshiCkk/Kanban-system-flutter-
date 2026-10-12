@@ -33,17 +33,38 @@ class FakeAuthRepository implements AuthRepository {
   @override
   Future<User?> restore() async => _user;
 
+  /// Signs in as the account [register]ed with [email], else as [testUser].
   @override
   Future<User> login({required String email, required String password}) =>
-      _signIn(testUser.copyWith(email: email));
+      _signIn(
+        registered.where((u) => u.email == email).firstOrNull ??
+            testUser.copyWith(email: email),
+      );
+
+  /// Accounts created through [register]; the user signs in afterwards.
+  final registered = <User>[];
 
   @override
-  Future<User> register({
+  Future<void> register({
     required String name,
     required String email,
     required String password,
     required String locale,
-  }) => _signIn(User(id: 'u2', email: email, name: name, locale: locale));
+  }) async {
+    final error = failWith;
+    if (error != null) throw ApiException(error);
+    registered.add(User(id: 'u2', email: email, name: name, locale: locale));
+  }
+
+  @override
+  Future<User> updateName(String name) async {
+    final error = failWith;
+    if (error != null) throw ApiException(error);
+    final user = _user!.copyWith(name: name);
+    _user = user;
+    _controller.add(user);
+    return user;
+  }
 
   Future<User> _signIn(User user) async {
     final error = failWith;

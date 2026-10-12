@@ -11,6 +11,9 @@ abstract class User with _$User {
     required String name,
     String? avatarUrl,
     @Default('en') String locale,
+
+    /// Sign-up date; `null` in profiles cached before it was sent.
+    DateTime? createdAt,
   }) = _User;
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);

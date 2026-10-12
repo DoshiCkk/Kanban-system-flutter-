@@ -12,6 +12,9 @@ _User _$UserFromJson(Map<String, dynamic> json) => _User(
   name: json['name'] as String,
   avatarUrl: json['avatarUrl'] as String?,
   locale: json['locale'] as String? ?? 'en',
+  createdAt: json['createdAt'] == null
+      ? null
+      : DateTime.parse(json['createdAt'] as String),
 );
 
 Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
@@ -20,4 +23,5 @@ Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
   'name': instance.name,
   'avatarUrl': instance.avatarUrl,
   'locale': instance.locale,
+  'createdAt': instance.createdAt?.toIso8601String(),
 };

@@ -14,6 +14,10 @@ import 'package:go_router/go_router.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
+  /// Query parameters set after registration.
+  static const emailParam = 'email';
+  static const registeredParam = 'registered';
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -22,11 +26,30 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _passwordFocus = FocusNode();
+  bool _justRegistered = false;
+  bool _readQuery = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_readQuery) return;
+    _readQuery = true;
+    final query = GoRouterState.of(context).uri.queryParameters;
+    _email.text = query[LoginPage.emailParam] ?? '';
+    _justRegistered = query[LoginPage.registeredParam] == '1';
+    if (_justRegistered) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _passwordFocus.requestFocus();
+      });
+    }
+  }
 
   @override
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -54,11 +77,16 @@ class _LoginPageState extends State<LoginPage> {
         : sessionExpired
         ? l10n.errorSessionExpired
         : null;
+    final banner = bannerText != null
+        ? AuthBanner(bannerText)
+        : _justRegistered
+        ? AuthBanner(l10n.authRegisteredBanner, success: true)
+        : null;
 
     return AuthScaffold(
       title: l10n.authLoginTitle,
       subtitle: l10n.authLoginSubtitle,
-      banner: bannerText == null ? null : AuthBanner(bannerText),
+      banner: banner,
       form: AutofillGroup(
         child: Form(
           key: _formKey,
@@ -79,6 +107,7 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 16),
               PasswordField(
                 controller: _password,
+                focusNode: _passwordFocus,
                 label: l10n.authPasswordLabel,
                 showLabel: l10n.authShowPassword,
                 hideLabel: l10n.authHidePassword,

@@ -12,12 +12,17 @@ abstract interface class AuthRepository {
 
   Future<User> login({required String email, required String password});
 
-  Future<User> register({
+  /// Creates the account without signing in: the user signs in next with
+  /// the new credentials.
+  Future<void> register({
     required String name,
     required String email,
     required String password,
     required String locale,
   });
+
+  /// Renames the signed-in user (needs the network).
+  Future<User> updateName(String name);
 
   /// Re-fetches the profile; keeps the cached one when offline.
   Future<User?> refreshProfile();

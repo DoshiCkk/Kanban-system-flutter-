@@ -28,6 +28,7 @@ class AuthFormCubit extends Cubit<AuthFormState> {
         () => _repository.login(email: email.trim(), password: password),
       );
 
+  /// On success the page sends the user to sign in with [email].
   Future<void> register({
     required String name,
     required String email,

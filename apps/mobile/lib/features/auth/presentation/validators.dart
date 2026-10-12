@@ -21,4 +21,9 @@ extension AuthValidators on AppLocalizations {
 
   String? validateName(String? value) =>
       (value ?? '').trim().isEmpty ? validationNameRequired : null;
+
+  String? validatePasswordConfirmation(String? value, String password) {
+    if ((value ?? '').isEmpty) return validationPasswordRequired;
+    return value == password ? null : validationPasswordMismatch;
+  }
 }
