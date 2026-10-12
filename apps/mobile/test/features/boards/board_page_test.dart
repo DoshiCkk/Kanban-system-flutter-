@@ -13,29 +13,30 @@ void main() {
   late BoardContent content;
 
   Future<void> openBoard(WidgetTester tester, {List<String>? cards}) async {
-    app = await pumpFlowBoard(tester);
-    app.workspaces.workspaces.add(
-      const Workspace(
-        id: 'w1',
-        name: 'Diploma team',
-        role: WorkspaceRole.owner,
-        memberCount: 1,
-      ),
+    app = await pumpFlowBoard(
+      tester,
+      workspaces: const [
+        Workspace(
+          id: 'w1',
+          name: 'Diploma team',
+          role: WorkspaceRole.owner,
+          memberCount: 1,
+        ),
+      ],
+      seed: (boards) async {
+        final board = await boards.createBoard(
+          workspaceId: 'w1',
+          title: 'Diploma',
+          template: BoardTemplate.basic,
+          columnTitles: const ['To do', 'Doing', 'Done'],
+        );
+        final todo = (await boards.watchBoard(board.id).first)!;
+        for (final title in cards ?? const <String>[]) {
+          await boards.createCard(todo.columns.first.column.id, title);
+        }
+        content = (await boards.watchBoard(board.id).first)!;
+      },
     );
-    // Real DB I/O must run outside the fake-async test zone.
-    await tester.runAsync(() async {
-      final board = await app.boards.createBoard(
-        workspaceId: 'w1',
-        title: 'Diploma',
-        template: BoardTemplate.basic,
-        columnTitles: const ['To do', 'Doing', 'Done'],
-      );
-      final todo = (await app.boards.watchBoard(board.id).first)!;
-      for (final title in cards ?? const <String>[]) {
-        await app.boards.createCard(todo.columns.first.column.id, title);
-      }
-      content = (await app.boards.watchBoard(board.id).first)!;
-    });
     app.router.go('/workspaces/w1/boards/${content.board.id}');
     await tester.pumpAndSettle();
   }
@@ -65,6 +66,33 @@ void main() {
     await tester.tap(tab('To do', 2));
     await tester.pumpAndSettle();
     expect(find.text('Intro'), findsOneWidget);
+  });
+
+  testWidgets('search narrows the cards and can be reset', (tester) async {
+    await openBoard(tester, cards: ['Intro', 'Survey', 'Survey report']);
+
+    await tester.tap(find.byTooltip('Search'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('board-search')), 'SURV');
+    await tester.pumpAndSettle();
+    expect(find.text('Intro'), findsNothing);
+    expect(find.text('Survey'), findsOneWidget);
+    expect(find.text('2 of 3 cards shown'), findsOneWidget);
+
+    // Columns without matches say so instead of "No cards yet".
+    await tester.tap(tab('Doing', 0));
+    await tester.pumpAndSettle();
+    expect(find.text('No cards match the filter'), findsOneWidget);
+
+    await tester.tap(find.text('Reset'));
+    await tester.pumpAndSettle();
+    expect(find.text('2 of 3 cards shown'), findsNothing);
+    await tester.tap(find.byTooltip('Close search'));
+    await tester.pumpAndSettle();
+    await tester.tap(tab('To do', 3));
+    await tester.pumpAndSettle();
+    expect(find.text('Intro'), findsOneWidget);
+    expect(find.text('Diploma'), findsOneWidget);
   });
 
   testWidgets('quick create keeps the sheet open after Enter', (tester) async {

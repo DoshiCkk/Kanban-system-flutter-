@@ -22,6 +22,7 @@ class CardTile extends StatelessWidget {
     required this.onDragUpdate,
     required this.onDragEnd,
     this.moves = const {},
+    this.dragEnabled = true,
     super.key,
   });
 
@@ -34,10 +35,24 @@ class CardTile extends StatelessWidget {
   /// Action label -> move, e.g. "Move to the Done column".
   final Map<String, VoidCallback> moves;
 
+  /// Off while the board is filtered.
+  final bool dragEnabled;
+
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width - 32;
     final body = CardBody(card: card);
+    final semanticsActions = {
+      for (final MapEntry(key: label, value: move) in moves.entries)
+        CustomSemanticsAction(label: label): move,
+    };
+    if (!dragEnabled) {
+      return CardBody(
+        card: card,
+        onTap: onTap,
+        semanticsActions: semanticsActions,
+      );
+    }
     return LongPressDraggable<DraggedCard>(
       data: DraggedCard(card),
       dragAnchorStrategy: pointerDragAnchorStrategy,
@@ -64,10 +79,7 @@ class CardTile extends StatelessWidget {
         card: card,
         onTap: onTap,
         semanticsHint: context.l10n.cardDragHint,
-        semanticsActions: {
-          for (final MapEntry(key: label, value: move) in moves.entries)
-            CustomSemanticsAction(label: label): move,
-        },
+        semanticsActions: semanticsActions,
       ),
     );
   }

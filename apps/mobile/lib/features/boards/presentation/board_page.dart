@@ -6,8 +6,10 @@ import 'package:flowboard/core/sync/sync_indicator.dart';
 import 'package:flowboard/core/widgets/dialogs.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
 import 'package:flowboard/core/widgets/skeleton.dart';
+import 'package:flowboard/features/boards/domain/board_filter.dart';
 import 'package:flowboard/features/boards/domain/board_models.dart';
 import 'package:flowboard/features/boards/presentation/cubit/board_cubit.dart';
+import 'package:flowboard/features/boards/presentation/widgets/board_filter_sheet.dart';
 import 'package:flowboard/features/boards/presentation/widgets/card_tile.dart';
 import 'package:flowboard/features/boards/presentation/widgets/quick_task_sheet.dart';
 import 'package:flutter/material.dart';
@@ -46,12 +48,21 @@ class _BoardPageState extends State<BoardPage> {
   Timer? _edgeTimer;
   int _edgeDirection = 0;
   bool _dragging = false;
+  bool _searching = false;
+  final _search = TextEditingController();
 
   @override
   void dispose() {
     _edgeTimer?.cancel();
     _pages.dispose();
+    _search.dispose();
     super.dispose();
+  }
+
+  void _closeSearch() {
+    _search.clear();
+    context.read<BoardCubit>().search('');
+    setState(() => _searching = false);
   }
 
   int get _columnCount => context.read<BoardCubit>().state.columns.length;
@@ -190,12 +201,49 @@ class _BoardPageState extends State<BoardPage> {
             ),
           );
         }
-        final columns = state.columns;
+        // Same columns as state.columns, with only the cards that match.
+        final columns = state.visibleColumns;
+        final filter = state.filter;
         final page = columns.isEmpty ? 0 : _page.clamp(0, columns.length - 1);
+        final cubit = context.read<BoardCubit>();
         return Scaffold(
           appBar: AppBar(
-            title: Text(state.content!.board.title),
+            leading: _searching
+                ? IconButton(
+                    tooltip: l10n.boardSearchClose,
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: _closeSearch,
+                  )
+                : null,
+            title: _searching
+                ? TextField(
+                    key: const ValueKey('board-search'),
+                    controller: _search,
+                    autofocus: true,
+                    textInputAction: TextInputAction.search,
+                    onChanged: cubit.search,
+                    decoration: InputDecoration(
+                      hintText: l10n.boardSearchHint,
+                      border: InputBorder.none,
+                    ),
+                  )
+                : Text(state.content!.board.title),
             actions: [
+              if (!_searching)
+                IconButton(
+                  tooltip: l10n.boardSearch,
+                  icon: const Icon(Icons.search),
+                  onPressed: () => setState(() => _searching = true),
+                ),
+              IconButton(
+                tooltip: l10n.boardFilter,
+                icon: Badge(
+                  isLabelVisible: filter.criteriaCount > 0,
+                  label: Text('${filter.criteriaCount}'),
+                  child: const Icon(Icons.filter_list),
+                ),
+                onPressed: () => unawaited(BoardFilterSheet.show(context)),
+              ),
               const SyncIndicator(),
               PopupMenuButton<_BoardAction>(
                 tooltip: l10n.commonMoreActions,
@@ -240,45 +288,64 @@ class _BoardPageState extends State<BoardPage> {
                     ),
                   ),
           ),
-          body: columns.isEmpty
-              ? MessageView(
-                  icon: Icons.view_column_outlined,
-                  title: l10n.boardNoColumnsTitle,
-                  body: l10n.boardNoColumnsBody,
-                  action: FilledButton.icon(
-                    onPressed: () => _onAction(_BoardAction.addColumn, state),
-                    icon: const Icon(Icons.add),
-                    label: Text(l10n.boardAddColumn),
-                  ),
-                )
-              : PageView.builder(
-                  controller: _pages,
-                  // Paging is driven by the edge timer while dragging.
-                  physics: _dragging
-                      ? const NeverScrollableScrollPhysics()
-                      : null,
-                  onPageChanged: (i) => setState(() => _page = i),
-                  itemCount: columns.length,
-                  itemBuilder: (context, i) => _ColumnView(
-                    key: ValueKey(columns[i].column.id),
-                    column: columns[i],
-                    neighbours: [
-                      if (i > 0) columns[i - 1],
-                      if (i < columns.length - 1) columns[i + 1],
-                    ],
-                    onOpenCard: _openCard,
-                    onDrop: (card, index) =>
-                        _moveCard(card, columns[i].column.id, index),
-                    onMoveTo: (card, target) => _moveCard(
-                      card,
-                      target.column.id,
-                      target.cards.length,
-                    ),
-                    onDragStarted: _onDragStarted,
-                    onDragUpdate: _onDragUpdate,
-                    onDragEnd: _onDragEnd,
-                  ),
+          body: Column(
+            children: [
+              if (filter.isActive)
+                FilterSummaryBar(
+                  shown: columns.fold(0, (n, c) => n + c.cards.length),
+                  total: state.cardCount,
+                  onReset: () {
+                    _search.clear();
+                    cubit.setFilter(const BoardFilter());
+                  },
                 ),
+              Expanded(
+                child: columns.isEmpty
+                    ? MessageView(
+                        icon: Icons.view_column_outlined,
+                        title: l10n.boardNoColumnsTitle,
+                        body: l10n.boardNoColumnsBody,
+                        action: FilledButton.icon(
+                          onPressed: () =>
+                              _onAction(_BoardAction.addColumn, state),
+                          icon: const Icon(Icons.add),
+                          label: Text(l10n.boardAddColumn),
+                        ),
+                      )
+                    : PageView.builder(
+                        controller: _pages,
+                        // Paging is driven by the edge timer while dragging.
+                        physics: _dragging
+                            ? const NeverScrollableScrollPhysics()
+                            : null,
+                        onPageChanged: (i) => setState(() => _page = i),
+                        itemCount: columns.length,
+                        itemBuilder: (context, i) => _ColumnView(
+                          key: ValueKey(columns[i].column.id),
+                          column: columns[i],
+                          neighbours: [
+                            if (i > 0) columns[i - 1],
+                            if (i < columns.length - 1) columns[i + 1],
+                          ],
+                          // Drop positions count visible cards only, so
+                          // dragging is off while filtering; "Move to"
+                          // still works.
+                          dragEnabled: !filter.isActive,
+                          filtered: filter.isActive,
+                          onOpenCard: _openCard,
+                          onDrop: (card, index) =>
+                              _moveCard(card, columns[i].column.id, index),
+                          // Past the end: appended (clamped by the repository).
+                          onMoveTo: (card, target) =>
+                              _moveCard(card, target.column.id, 1 << 30),
+                          onDragStarted: _onDragStarted,
+                          onDragUpdate: _onDragUpdate,
+                          onDragEnd: _onDragEnd,
+                        ),
+                      ),
+              ),
+            ],
+          ),
           floatingActionButton: columns.isEmpty
               ? null
               : FloatingActionButton.extended(
@@ -391,6 +458,8 @@ class _ColumnView extends StatefulWidget {
   const _ColumnView({
     required this.column,
     required this.neighbours,
+    required this.dragEnabled,
+    required this.filtered,
     required this.onOpenCard,
     required this.onDrop,
     required this.onMoveTo,
@@ -404,6 +473,10 @@ class _ColumnView extends StatefulWidget {
 
   /// Adjacent columns, offered as move actions to screen readers.
   final List<ColumnWithCards> neighbours;
+  final bool dragEnabled;
+
+  /// A filter hides some cards; an empty column says so.
+  final bool filtered;
   final ValueChanged<CardSummary> onOpenCard;
   final void Function(CardSummary card, int index) onDrop;
   final void Function(CardSummary card, ColumnWithCards target) onMoveTo;
@@ -469,11 +542,16 @@ class _ColumnViewState extends State<_ColumnView>
       builder: (context, candidates, _) {
         final cards = widget.column.cards;
         if (cards.isEmpty && candidates.isEmpty) {
-          return MessageView(
-            icon: Icons.inbox_outlined,
-            title: l10n.columnEmpty,
-            body: l10n.columnEmptyHint,
-          );
+          return widget.filtered
+              ? MessageView(
+                  icon: Icons.filter_alt_off_outlined,
+                  title: l10n.filterNoMatches,
+                )
+              : MessageView(
+                  icon: Icons.inbox_outlined,
+                  title: l10n.columnEmpty,
+                  body: l10n.columnEmptyHint,
+                );
         }
         final indicator = Container(
           height: 4,
@@ -495,6 +573,7 @@ class _ColumnViewState extends State<_ColumnView>
               padding: const EdgeInsets.only(bottom: 8),
               child: CardTile(
                 card: card,
+                dragEnabled: widget.dragEnabled,
                 onTap: () => widget.onOpenCard(card),
                 onDragStarted: widget.onDragStarted,
                 onDragUpdate: widget.onDragUpdate,

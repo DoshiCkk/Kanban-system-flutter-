@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flowboard/app.dart';
+import 'package:flowboard/bootstrap.dart';
 import 'package:flowboard/core/db/app_database.dart';
 import 'package:flowboard/core/di/injector.dart';
 import 'package:flowboard/core/router/app_router.dart';
@@ -8,6 +9,7 @@ import 'package:flowboard/core/sync/sync_cubit.dart';
 import 'package:flowboard/core/sync/sync_engine.dart';
 import 'package:flowboard/core/sync/sync_store.dart';
 import 'package:flowboard/features/auth/domain/auth_repository.dart';
+import 'package:flowboard/features/auth/domain/user.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/boards/data/drift_boards_repository.dart';
 import 'package:flowboard/features/boards/domain/boards_repository.dart';
@@ -51,15 +53,25 @@ class TestApp {
 }
 
 /// Pumps the full app (real router + cubits) on top of fake repositories.
+///
+/// With [splash], the app starts behind [AppBootstrap] like in `main.dart`
+/// and the call returns while the splash is still shown.
+///
+/// [seed] fills the database before the app is built. Once the app runs,
+/// its Drift streams query in the fake-async zone, and a real-zone write
+/// would wait forever for their lock.
 Future<TestApp> pumpFlowBoard(
   WidgetTester tester, {
   bool signedIn = true,
+  User user = testUser,
   String? initialLocation,
   ThemeMode themeMode = ThemeMode.system,
   List<Workspace> workspaces = const [],
+  Future<void> Function(DriftBoardsRepository boards)? seed,
+  Duration? splash,
 }) async {
   await getIt.reset();
-  final auth = FakeAuthRepository(user: signedIn ? testUser : null);
+  final auth = FakeAuthRepository(user: signedIn ? user : null);
   final workspacesRepository = FakeWorkspacesRepository()
     ..workspaces.addAll(workspaces);
   final settings = InMemorySettingsRepository(
@@ -79,6 +91,7 @@ Future<TestApp> pumpFlowBoard(
     ..registerSingleton<BoardsRepository>(boards)
     ..registerSingleton<CardRepository>(boards)
     ..registerSingleton<CommentsRepository>(DriftCommentsRepository(db));
+  if (seed != null) await tester.runAsync(() => seed(boards));
 
   final syncApi = FakeSyncApi(FakeSyncServer(), testUser.id);
   final syncEngine = SyncEngine(store: SyncStore(db), api: syncApi);
@@ -96,16 +109,27 @@ Future<TestApp> pumpFlowBoard(
   });
   if (initialLocation != null) router.go(initialLocation);
 
-  await tester.pumpWidget(
-    FlowBoardApp(
-      settingsRepository: settings,
-      authCubit: authCubit,
-      syncCubit: syncCubit,
-      router: router,
-      notifications: notifications,
-    ),
+  final app = FlowBoardApp(
+    settingsRepository: settings,
+    authCubit: authCubit,
+    syncCubit: syncCubit,
+    router: router,
+    notifications: notifications,
   );
-  await tester.pumpAndSettle();
+  if (splash == null) {
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
+  } else {
+    // The splash spins until [splash] passes; the test pumps past it.
+    await tester.pumpWidget(
+      AppBootstrap(
+        initialize: () async {},
+        minimumSplash: splash,
+        settings: settings.settings,
+        builder: (_) => app,
+      ),
+    );
+  }
   return TestApp(
     auth: auth,
     workspaces: workspacesRepository,
