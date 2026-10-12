@@ -218,29 +218,33 @@ class _Stats extends StatelessWidget {
       (c) => c.state.workspaceCount,
     );
     final tasks = context.watch<MyTasksCubit>().state;
-    return Row(
-      children: [
-        Expanded(
-          child: _Stat(
-            value: workspaces?.toString() ?? '—',
-            label: l10n.profileStatWorkspaces,
+    // Equal heights when a label wraps (e.g. "Активные задачи").
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _Stat(
+              value: workspaces?.toString() ?? '—',
+              label: l10n.profileStatWorkspaces,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _Stat(
-            value: '${tasks.active}',
-            label: l10n.profileStatActive,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _Stat(
+              value: '${tasks.active}',
+              label: l10n.profileStatActive,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _Stat(
-            value: '${tasks.count(TaskGroup.done)}',
-            label: l10n.profileStatDone,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _Stat(
+              value: '${tasks.count(TaskGroup.done)}',
+              label: l10n.profileStatDone,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -260,6 +264,7 @@ class _Stat extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         child: MergeSemantics(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(value, style: theme.textTheme.headlineSmall),
               const SizedBox(height: 4),

@@ -78,7 +78,8 @@ void main() {
     expect(tileValue(tester, 'summary-overdue'), '1');
     expect(tileValue(tester, 'summary-today'), '1');
     expect(tileValue(tester, 'summary-active'), '3');
-    expect(find.byTooltip('My tasks: Overdue 1'), findsOneWidget);
+    // The tab badge is read with its meaning.
+    expect(find.bySemanticsLabel(RegExp('Overdue: 1')), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey('summary-overdue')));
     await tester.pumpAndSettle();

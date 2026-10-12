@@ -18,6 +18,11 @@ class HomeShell extends StatelessWidget {
     final overdue = context.select<MyTasksCubit, int>(
       (c) => c.state.count(TaskGroup.overdue),
     );
+    // Read as "Overdue: 2, My tasks", not "2, My tasks".
+    final overdueCount = Text(
+      '$overdue',
+      semanticsLabel: '${l10n.taskGroupOverdue}: $overdue',
+    );
     return Scaffold(
       body: shell,
       bottomNavigationBar: NavigationBar(
@@ -34,18 +39,15 @@ class HomeShell extends StatelessWidget {
           NavigationDestination(
             icon: Badge(
               isLabelVisible: overdue > 0,
-              label: Text('$overdue'),
+              label: overdueCount,
               child: const Icon(Icons.task_alt_outlined),
             ),
             selectedIcon: Badge(
               isLabelVisible: overdue > 0,
-              label: Text('$overdue'),
+              label: overdueCount,
               child: const Icon(Icons.task_alt),
             ),
             label: l10n.navMyTasks,
-            tooltip: overdue > 0
-                ? '${l10n.navMyTasks}: ${l10n.taskGroupOverdue} $overdue'
-                : null,
           ),
           NavigationDestination(
             icon: const Icon(Icons.person_outline),

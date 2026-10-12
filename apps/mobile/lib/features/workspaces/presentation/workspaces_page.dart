@@ -167,39 +167,43 @@ class _TaskSummary extends StatelessWidget {
     final tasks = context.watch<MyTasksCubit>().state;
     final overdue = tasks.count(TaskGroup.overdue);
     void open() => context.goNamed(AppRoutes.myTasks);
-    return Row(
-      children: [
-        Expanded(
-          child: _SummaryTile(
-            key: const ValueKey('summary-overdue'),
-            value: overdue,
-            label: l10n.homeSummaryOverdue,
-            icon: Icons.warning_amber_rounded,
-            color: overdue > 0 ? scheme.error : null,
-            onTap: open,
+    // Equal heights when a label wraps to two lines.
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _SummaryTile(
+              key: const ValueKey('summary-overdue'),
+              value: overdue,
+              label: l10n.homeSummaryOverdue,
+              icon: Icons.warning_amber_rounded,
+              color: overdue > 0 ? scheme.error : null,
+              onTap: open,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _SummaryTile(
-            key: const ValueKey('summary-today'),
-            value: tasks.count(TaskGroup.today),
-            label: l10n.homeSummaryToday,
-            icon: Icons.today_outlined,
-            onTap: open,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _SummaryTile(
+              key: const ValueKey('summary-today'),
+              value: tasks.count(TaskGroup.today),
+              label: l10n.homeSummaryToday,
+              icon: Icons.today_outlined,
+              onTap: open,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _SummaryTile(
-            key: const ValueKey('summary-active'),
-            value: tasks.active,
-            label: l10n.homeSummaryActive,
-            icon: Icons.task_alt,
-            onTap: open,
+          const SizedBox(width: 8),
+          Expanded(
+            child: _SummaryTile(
+              key: const ValueKey('summary-active'),
+              value: tasks.active,
+              label: l10n.homeSummaryActive,
+              icon: Icons.task_alt,
+              onTap: open,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
