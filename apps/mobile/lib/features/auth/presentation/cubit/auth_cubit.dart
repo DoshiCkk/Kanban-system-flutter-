@@ -51,6 +51,9 @@ class AuthCubit extends Cubit<AuthState> {
     } finally {
       _loggingOut = false;
     }
+    // userChanges may deliver the null user only after this point, when a
+    // signed-in state would make it look like an expired session.
+    if (!isClosed && state.isAuthenticated) emit(const AuthState());
   }
 
   @override

@@ -79,6 +79,9 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<void> logout() async {
+    // Like the real repository clearing secure storage first: the null user
+    // reaches listeners only after logout() has returned.
+    await Future<void>.value();
     _user = null;
     _controller.add(null);
   }

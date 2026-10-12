@@ -55,5 +55,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);
+    // A chosen sign-out is not an expired session.
+    expect(
+      find.text('Your session has expired. Please sign in again.'),
+      findsNothing,
+    );
   });
 }

@@ -117,5 +117,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(app.authCubit.state.isAuthenticated, isFalse);
     expect(find.text('Welcome back'), findsOneWidget);
+    expect(
+      find.text('Your session has expired. Please sign in again.'),
+      findsNothing,
+    );
   });
 }
