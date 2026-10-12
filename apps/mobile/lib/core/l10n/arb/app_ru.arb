@@ -207,6 +207,7 @@
   "boardSearchHint": "Поиск по карточкам",
   "boardSearchClose": "Закрыть поиск",
   "boardFilter": "Фильтр",
+  "boardFilterActive": "Фильтр: активно {count}",
   "filterOnlyMine": "Только мои",
   "filterOverdue": "Просроченные",
   "filterReset": "Сбросить",

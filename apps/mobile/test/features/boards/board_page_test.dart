@@ -95,6 +95,31 @@ void main() {
     expect(find.text('Diploma'), findsOneWidget);
   });
 
+  testWidgets('search jumps to a column with matches; back closes it', (
+    tester,
+  ) async {
+    await openBoard(tester, cards: ['Intro']);
+    await tester.tap(tab('Doing', 0));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Search'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey('board-search')), 'int');
+    await tester.pumpAndSettle();
+    expect(find.text('Intro'), findsOneWidget);
+
+    // Android back: the search closes, the board stays.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('board-search')), findsNothing);
+    expect(find.text('1 of 1 cards shown'), findsNothing);
+    expect(find.byType(BoardPage), findsOneWidget);
+
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(BoardPage), findsNothing);
+  });
+
   testWidgets('quick create keeps the sheet open after Enter', (tester) async {
     await openBoard(tester);
 

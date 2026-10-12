@@ -142,6 +142,12 @@ void main() {
         await tester.tap(find.text('Show cards'));
         await tester.pumpAndSettle();
         expect(find.text('1 of 2 cards shown'), findsOneWidget);
+        // The badge number does not replace the button's name.
+        final button = tester
+            .getSemantics(find.byTooltip('Filter: 1 active'))
+            .getSemanticsData();
+        expect(button.label, isEmpty);
+        expect(button.tooltip, 'Filter: 1 active');
         await expectAccessible(tester);
         semantics.dispose();
       });

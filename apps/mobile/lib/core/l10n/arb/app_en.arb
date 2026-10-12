@@ -938,6 +938,15 @@
   "@boardFilter": {
     "description": "Board app bar: filter button and sheet title."
   },
+  "boardFilterActive": "Filter: {count} active",
+  "@boardFilterActive": {
+    "description": "Filter button tooltip while filters are on.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "filterOnlyMine": "Assigned to me",
   "@filterOnlyMine": {
     "description": "Board filter chip."

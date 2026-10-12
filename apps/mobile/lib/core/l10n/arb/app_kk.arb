@@ -207,6 +207,7 @@
   "boardSearchHint": "Карточкалардан іздеу",
   "boardSearchClose": "Іздеуді жабу",
   "boardFilter": "Сүзгі",
+  "boardFilterActive": "Сүзгі: {count} белсенді",
   "filterOnlyMine": "Тек менікі",
   "filterOverdue": "Мерзімі өткен",
   "filterReset": "Тазарту",

@@ -67,6 +67,16 @@ class _BoardPageState extends State<BoardPage> {
 
   int get _columnCount => context.read<BoardCubit>().state.columns.length;
 
+  /// After the search or a filter changes, leaves a column without matches
+  /// for the first one that has some.
+  void _showMatches(BoardState state) {
+    final columns = state.visibleColumns;
+    if (!state.filter.isActive || columns.isEmpty) return;
+    if (columns[_page.clamp(0, columns.length - 1)].cards.isNotEmpty) return;
+    final first = columns.indexWhere((c) => c.cards.isNotEmpty);
+    if (first >= 0) _goTo(first);
+  }
+
   void _goTo(int page) {
     if (page < 0 || page >= _columnCount || !_pages.hasClients) return;
     unawaited(
@@ -182,10 +192,14 @@ class _BoardPageState extends State<BoardPage> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return BlocConsumer<BoardCubit, BoardState>(
-      listenWhen: (prev, next) => prev.columns.length != next.columns.length,
+      listenWhen: (prev, next) =>
+          prev.columns.length != next.columns.length ||
+          prev.filter != next.filter,
       listener: (context, state) {
         if (_page >= state.columns.length && state.columns.isNotEmpty) {
           _goTo(state.columns.length - 1);
+        } else {
+          _showMatches(state);
         }
       },
       builder: (context, state) {
@@ -206,164 +220,177 @@ class _BoardPageState extends State<BoardPage> {
         final filter = state.filter;
         final page = columns.isEmpty ? 0 : _page.clamp(0, columns.length - 1);
         final cubit = context.read<BoardCubit>();
-        return Scaffold(
-          appBar: AppBar(
-            leading: _searching
-                ? IconButton(
-                    tooltip: l10n.boardSearchClose,
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: _closeSearch,
-                  )
-                : null,
-            title: _searching
-                ? TextField(
-                    key: const ValueKey('board-search'),
-                    controller: _search,
-                    autofocus: true,
-                    textInputAction: TextInputAction.search,
-                    onChanged: cubit.search,
-                    decoration: InputDecoration(
-                      hintText: l10n.boardSearchHint,
-                      border: InputBorder.none,
-                    ),
-                  )
-                : Text(state.content!.board.title),
-            actions: [
-              if (!_searching)
-                IconButton(
-                  tooltip: l10n.boardSearch,
-                  icon: const Icon(Icons.search),
-                  onPressed: () => setState(() => _searching = true),
-                ),
-              IconButton(
-                tooltip: l10n.boardFilter,
-                icon: Badge(
-                  isLabelVisible: filter.criteriaCount > 0,
-                  label: Text('${filter.criteriaCount}'),
-                  child: const Icon(Icons.filter_list),
-                ),
-                onPressed: () => unawaited(BoardFilterSheet.show(context)),
-              ),
-              const SyncIndicator(),
-              PopupMenuButton<_BoardAction>(
-                tooltip: l10n.commonMoreActions,
-                onSelected: (action) => _onAction(action, state),
-                itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: _BoardAction.addColumn,
-                    child: Text(l10n.boardAddColumn),
+        // Android back closes the search before leaving the board.
+        return PopScope(
+          canPop: !_searching,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop) _closeSearch();
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              leading: _searching
+                  ? IconButton(
+                      tooltip: l10n.boardSearchClose,
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: _closeSearch,
+                    )
+                  : null,
+              title: _searching
+                  ? TextField(
+                      key: const ValueKey('board-search'),
+                      controller: _search,
+                      autofocus: true,
+                      textInputAction: TextInputAction.search,
+                      onChanged: cubit.search,
+                      decoration: InputDecoration(
+                        hintText: l10n.boardSearchHint,
+                        border: InputBorder.none,
+                      ),
+                    )
+                  : Text(state.content!.board.title),
+              actions: [
+                if (!_searching)
+                  IconButton(
+                    tooltip: l10n.boardSearch,
+                    icon: const Icon(Icons.search),
+                    onPressed: () => setState(() => _searching = true),
                   ),
-                  if (columns.isNotEmpty) ...[
+                IconButton(
+                  tooltip: filter.criteriaCount > 0
+                      ? l10n.boardFilterActive(filter.criteriaCount)
+                      : l10n.boardFilter,
+                  // The tooltip says it; the badge text would replace it.
+                  icon: ExcludeSemantics(
+                    child: Badge(
+                      isLabelVisible: filter.criteriaCount > 0,
+                      label: Text('${filter.criteriaCount}'),
+                      child: const Icon(Icons.filter_list),
+                    ),
+                  ),
+                  onPressed: () => unawaited(BoardFilterSheet.show(context)),
+                ),
+                const SyncIndicator(),
+                PopupMenuButton<_BoardAction>(
+                  tooltip: l10n.commonMoreActions,
+                  onSelected: (action) => _onAction(action, state),
+                  itemBuilder: (_) => [
                     PopupMenuItem(
-                      value: _BoardAction.renameColumn,
-                      child: Text(l10n.columnRename),
+                      value: _BoardAction.addColumn,
+                      child: Text(l10n.boardAddColumn),
+                    ),
+                    if (columns.isNotEmpty) ...[
+                      PopupMenuItem(
+                        value: _BoardAction.renameColumn,
+                        child: Text(l10n.columnRename),
+                      ),
+                      PopupMenuItem(
+                        value: _BoardAction.deleteColumn,
+                        child: Text(l10n.columnDelete),
+                      ),
+                    ],
+                    const PopupMenuDivider(),
+                    PopupMenuItem(
+                      value: _BoardAction.renameBoard,
+                      child: Text(l10n.boardRename),
                     ),
                     PopupMenuItem(
-                      value: _BoardAction.deleteColumn,
-                      child: Text(l10n.columnDelete),
+                      value: _BoardAction.deleteBoard,
+                      child: Text(l10n.boardDelete),
                     ),
                   ],
-                  const PopupMenuDivider(),
-                  PopupMenuItem(
-                    value: _BoardAction.renameBoard,
-                    child: Text(l10n.boardRename),
-                  ),
-                  PopupMenuItem(
-                    value: _BoardAction.deleteBoard,
-                    child: Text(l10n.boardDelete),
-                  ),
-                ],
-              ),
-            ],
-            bottom: columns.isEmpty
-                ? null
-                : _ColumnTabs(
-                    columns: columns,
-                    selected: page,
-                    onSelect: _goTo,
-                    onDropToColumn: (card, column) => _moveCard(
-                      card,
-                      column.column.id,
-                      column.cards.length,
+                ),
+              ],
+              bottom: columns.isEmpty
+                  ? null
+                  : _ColumnTabs(
+                      columns: columns,
+                      selected: page,
+                      onSelect: _goTo,
+                      onDropToColumn: (card, column) => _moveCard(
+                        card,
+                        column.column.id,
+                        column.cards.length,
+                      ),
                     ),
+            ),
+            body: Column(
+              children: [
+                if (filter.isActive)
+                  FilterSummaryBar(
+                    shown: columns.fold(0, (n, c) => n + c.cards.length),
+                    total: state.cardCount,
+                    onReset: () {
+                      _search.clear();
+                      cubit.setFilter(const BoardFilter());
+                    },
+                  ),
+                Expanded(
+                  child: columns.isEmpty
+                      ? MessageView(
+                          icon: Icons.view_column_outlined,
+                          title: l10n.boardNoColumnsTitle,
+                          body: l10n.boardNoColumnsBody,
+                          action: FilledButton.icon(
+                            onPressed: () =>
+                                _onAction(_BoardAction.addColumn, state),
+                            icon: const Icon(Icons.add),
+                            label: Text(l10n.boardAddColumn),
+                          ),
+                        )
+                      : PageView.builder(
+                          controller: _pages,
+                          // Paging is driven by the edge timer while dragging.
+                          physics: _dragging
+                              ? const NeverScrollableScrollPhysics()
+                              : null,
+                          onPageChanged: (i) => setState(() => _page = i),
+                          itemCount: columns.length,
+                          itemBuilder: (context, i) => _ColumnView(
+                            key: ValueKey(columns[i].column.id),
+                            column: columns[i],
+                            neighbours: [
+                              if (i > 0) columns[i - 1],
+                              if (i < columns.length - 1) columns[i + 1],
+                            ],
+                            // Drop positions count visible cards only, so
+                            // dragging is off while filtering; "Move to"
+                            // still works.
+                            dragEnabled: !filter.isActive,
+                            filtered: filter.isActive,
+                            onOpenCard: _openCard,
+                            onDrop: (card, index) =>
+                                _moveCard(card, columns[i].column.id, index),
+                            // Past the end: appended (the repository
+                            // clamps the index).
+                            onMoveTo: (card, target) =>
+                                _moveCard(card, target.column.id, 1 << 30),
+                            onDragStarted: _onDragStarted,
+                            onDragUpdate: _onDragUpdate,
+                            onDragEnd: _onDragEnd,
+                          ),
+                        ),
+                ),
+              ],
+            ),
+            floatingActionButton: columns.isEmpty
+                ? null
+                : FloatingActionButton.extended(
+                    onPressed: () {
+                      final columnId = columns[page].column.id;
+                      unawaited(
+                        QuickTaskSheet.show(
+                          context,
+                          (title) => context.read<BoardCubit>().createCard(
+                            columnId,
+                            title,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: Text(l10n.addTask),
                   ),
           ),
-          body: Column(
-            children: [
-              if (filter.isActive)
-                FilterSummaryBar(
-                  shown: columns.fold(0, (n, c) => n + c.cards.length),
-                  total: state.cardCount,
-                  onReset: () {
-                    _search.clear();
-                    cubit.setFilter(const BoardFilter());
-                  },
-                ),
-              Expanded(
-                child: columns.isEmpty
-                    ? MessageView(
-                        icon: Icons.view_column_outlined,
-                        title: l10n.boardNoColumnsTitle,
-                        body: l10n.boardNoColumnsBody,
-                        action: FilledButton.icon(
-                          onPressed: () =>
-                              _onAction(_BoardAction.addColumn, state),
-                          icon: const Icon(Icons.add),
-                          label: Text(l10n.boardAddColumn),
-                        ),
-                      )
-                    : PageView.builder(
-                        controller: _pages,
-                        // Paging is driven by the edge timer while dragging.
-                        physics: _dragging
-                            ? const NeverScrollableScrollPhysics()
-                            : null,
-                        onPageChanged: (i) => setState(() => _page = i),
-                        itemCount: columns.length,
-                        itemBuilder: (context, i) => _ColumnView(
-                          key: ValueKey(columns[i].column.id),
-                          column: columns[i],
-                          neighbours: [
-                            if (i > 0) columns[i - 1],
-                            if (i < columns.length - 1) columns[i + 1],
-                          ],
-                          // Drop positions count visible cards only, so
-                          // dragging is off while filtering; "Move to"
-                          // still works.
-                          dragEnabled: !filter.isActive,
-                          filtered: filter.isActive,
-                          onOpenCard: _openCard,
-                          onDrop: (card, index) =>
-                              _moveCard(card, columns[i].column.id, index),
-                          // Past the end: appended (clamped by the repository).
-                          onMoveTo: (card, target) =>
-                              _moveCard(card, target.column.id, 1 << 30),
-                          onDragStarted: _onDragStarted,
-                          onDragUpdate: _onDragUpdate,
-                          onDragEnd: _onDragEnd,
-                        ),
-                      ),
-              ),
-            ],
-          ),
-          floatingActionButton: columns.isEmpty
-              ? null
-              : FloatingActionButton.extended(
-                  onPressed: () {
-                    final columnId = columns[page].column.id;
-                    unawaited(
-                      QuickTaskSheet.show(
-                        context,
-                        (title) => context.read<BoardCubit>().createCard(
-                          columnId,
-                          title,
-                        ),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.add),
-                  label: Text(l10n.addTask),
-                ),
         );
       },
     );
