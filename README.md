@@ -16,7 +16,11 @@ Mobile-first, offline-first Kanban for small teams — students, small IT teams,
 ## Features
 - **Works offline.** Everything is stored on the device first; changes sync when the network is back. Two devices editing the same board converge (field-level last-writer-wins, delete wins) — [docs/sync.md](docs/sync.md).
 - **Live.** A card moved on one phone shows up on the others in about a second (Socket.IO board rooms) — [docs/realtime.md](docs/realtime.md).
-- **Made for one hand.** One column per screen with counted tabs, long-press drag with paging at the screen edge, "+ Task" quick add, a big "Move to the next column" button at the bottom of the card.
+- **Made for one hand.** Bottom navigation (Home, My tasks, Profile), one column per screen with counted tabs, long-press drag with paging at the screen edge, "+ Task" quick add, a big "Move to the next column" button at the bottom of the card.
+- **My tasks.** Home greets you with today's numbers (overdue, due today, assigned to me); the My tasks tab lists every card assigned to you across boards, grouped into Overdue / Today / Upcoming / No due date / Done, with an overdue badge on the tab.
+- **Search and filters** on a board: by title or label, "assigned to me", overdue, priority and labels.
+- **Profile:** name (editable), e-mail, member since, workspace and task counters, language and theme, sign-out with a warning about unsynced changes.
+- **Sign-up flow:** splash with the logo while the app starts, registration with password confirmation, then the sign-in screen with the e-mail filled in.
 - **Team work.** Workspaces with roles and invite links, assignees, due dates, priorities, labels, checklists, comments with `@mentions`.
 - **Push notifications** for assignments, mentions and "due tomorrow" — optional, the app and API run without Firebase — [docs/push.md](docs/push.md).
 - **Templates:** Basic (To do / Doing / Done), Development (Backlog / To Do / In Progress / Review / Done), Empty.

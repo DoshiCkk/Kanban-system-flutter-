@@ -22,7 +22,7 @@ lib/
     config/   AppConfig (--dart-define)
     di/       get_it registrations
     l10n/     ARB files (en, ru, kk) + context.l10n
-    router/   go_router
+    router/   go_router; HomeShell = bottom navigation (Home, My tasks, Profile)
     theme/    AppColors, AppTheme (Material 3, light/dark)
     db/ network/ sync/   (phases 2–4)
   features/<feature>/{data,domain,presentation}
