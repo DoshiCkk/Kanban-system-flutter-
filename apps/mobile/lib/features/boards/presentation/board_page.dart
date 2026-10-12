@@ -247,7 +247,14 @@ class _BoardPageState extends State<BoardPage> {
                         border: InputBorder.none,
                       ),
                     )
-                  : Text(state.content!.board.title),
+                  // Four actions leave little room: a smaller title
+                  // that may wrap instead of "Курсовой п…".
+                  : Text(
+                      state.content!.board.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
               actions: [
                 if (!_searching)
                   IconButton(

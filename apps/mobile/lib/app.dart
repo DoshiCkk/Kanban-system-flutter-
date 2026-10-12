@@ -47,6 +47,8 @@ class FlowBoardApp extends StatelessWidget {
       ],
       child: BlocBuilder<SettingsCubit, AppSettings>(
         builder: (context, settings) => MaterialApp.router(
+          // Same as the splash; debug builds are also used for demos.
+          debugShowCheckedModeBanner: false,
           onGenerateTitle: (context) => context.l10n.appTitle,
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),
