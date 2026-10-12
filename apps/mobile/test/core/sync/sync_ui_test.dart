@@ -65,10 +65,12 @@ void main() {
 
   testWidgets('sign-out warns about unsynced changes', (tester) async {
     final app = await setUpOffline(tester);
-    app.router.go('/settings');
+    app.router.go('/profile');
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Sign out'));
+    final signOut = find.byKey(const ValueKey('logout'));
+    await tester.ensureVisible(signOut);
+    await tester.tap(signOut);
     await tester.pumpAndSettle();
     expect(find.text('3 changes are not synced yet'), findsOneWidget);
 
@@ -82,7 +84,7 @@ void main() {
     expect(app.authCubit.state.isAuthenticated, isTrue);
 
     app.syncApi.offline = false;
-    await tester.tap(find.text('Sign out'));
+    await tester.tap(signOut);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sync and sign out'));
     await tester.pumpAndSettle();

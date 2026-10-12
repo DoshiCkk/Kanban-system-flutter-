@@ -54,6 +54,22 @@ abstract class CardSummary with _$CardSummary {
   }) = _CardSummary;
 }
 
+/// A card assigned to the user, with where it lives (My tasks, home).
+@freezed
+abstract class AssignedCard with _$AssignedCard {
+  const factory AssignedCard({
+    required CardSummary card,
+    required String workspaceId,
+    required String boardId,
+    required String boardTitle,
+    required String columnTitle,
+
+    /// In the last column of a board with several columns ("Done" in every
+    /// template), like the server's due-date reminders.
+    required bool done,
+  }) = _AssignedCard;
+}
+
 @freezed
 abstract class ColumnWithCards with _$ColumnWithCards {
   const factory ColumnWithCards({

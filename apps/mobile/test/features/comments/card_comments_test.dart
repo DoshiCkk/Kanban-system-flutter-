@@ -13,31 +13,33 @@ void main() {
   late String cardId;
 
   Future<void> openCard(WidgetTester tester) async {
-    final app = await pumpFlowBoard(tester);
-    app.workspaces.workspaces.add(
-      const Workspace(
-        id: 'w1',
-        name: 'Diploma team',
-        role: WorkspaceRole.owner,
-        memberCount: 2,
-      ),
+    late String boardId;
+    final app = await pumpFlowBoard(
+      tester,
+      workspaces: const [
+        Workspace(
+          id: 'w1',
+          name: 'Diploma team',
+          role: WorkspaceRole.owner,
+          memberCount: 2,
+        ),
+      ],
+      seed: (boards) async {
+        final board = await boards.createBoard(
+          workspaceId: 'w1',
+          title: 'Diploma',
+          template: BoardTemplate.basic,
+          columnTitles: const ['To do', 'Done'],
+        );
+        boardId = board.id;
+        final content = (await boards.watchBoard(board.id).first)!;
+        cardId = (await boards.createCard(
+          content.columns.first.column.id,
+          'Intro',
+        )).id;
+      },
     );
     app.workspaces.teammates.add(bob);
-    late String boardId;
-    await tester.runAsync(() async {
-      final board = await app.boards.createBoard(
-        workspaceId: 'w1',
-        title: 'Diploma',
-        template: BoardTemplate.basic,
-        columnTitles: const ['To do', 'Done'],
-      );
-      boardId = board.id;
-      final content = (await app.boards.watchBoard(board.id).first)!;
-      cardId = (await app.boards.createCard(
-        content.columns.first.column.id,
-        'Intro',
-      )).id;
-    });
     app.router.go('/workspaces/w1/boards/$boardId/cards/$cardId');
     await tester.pumpAndSettle();
   }

@@ -34,36 +34,36 @@ void main() {
           memberCount: 1,
         ),
       ],
+      seed: (boards) async {
+        final created = await boards.createBoard(
+          workspaceId: 'w1',
+          title: 'Diploma',
+          template: BoardTemplate.basic,
+          columnTitles: const ['To do', 'Doing', 'Done'],
+        );
+        final content = (await boards.watchBoard(created.id).first)!;
+        final todo = content.columns.first.column.id;
+        final intro = await boards.createCard(todo, 'Write the intro');
+        await boards.updateCard(
+          intro.id,
+          CardPatch(
+            priority: CardPriority.high,
+            labels: const ['thesis', 'urgent'],
+            dueDate: DateTime(2026, 1, 15),
+            assigneeId: 'u1',
+          ),
+        );
+        final item = await boards.addChecklistItem(intro.id, 'Outline');
+        await boards.updateChecklistItem(item.id, done: true);
+        await boards.addChecklistItem(intro.id, 'Draft');
+        final survey = await boards.createCard(todo, 'Survey');
+        await boards.updateCard(
+          survey.id,
+          const CardPatch(priority: CardPriority.low),
+        );
+        board = (await boards.watchBoard(created.id).first)!;
+      },
     );
-    await tester.runAsync(() async {
-      final created = await app.boards.createBoard(
-        workspaceId: 'w1',
-        title: 'Diploma',
-        template: BoardTemplate.basic,
-        columnTitles: const ['To do', 'Doing', 'Done'],
-      );
-      final content = (await app.boards.watchBoard(created.id).first)!;
-      final todo = content.columns.first.column.id;
-      final intro = await app.boards.createCard(todo, 'Write the intro');
-      await app.boards.updateCard(
-        intro.id,
-        CardPatch(
-          priority: CardPriority.high,
-          labels: const ['thesis', 'urgent'],
-          dueDate: DateTime(2026, 1, 15),
-          assigneeId: 'u1',
-        ),
-      );
-      final item = await app.boards.addChecklistItem(intro.id, 'Outline');
-      await app.boards.updateChecklistItem(item.id, done: true);
-      await app.boards.addChecklistItem(intro.id, 'Draft');
-      final survey = await app.boards.createCard(todo, 'Survey');
-      await app.boards.updateCard(
-        survey.id,
-        const CardPatch(priority: CardPriority.low),
-      );
-      board = (await app.boards.watchBoard(created.id).first)!;
-    });
   }
 
   Future<void> go(WidgetTester tester, String location) async {
@@ -86,6 +86,7 @@ void main() {
         final semantics = tester.ensureSemantics();
         await seed(tester, theme);
         expect(find.text('Diploma team'), findsOneWidget);
+        expect(find.text('Hello, Aigerim!'), findsOneWidget);
         await expectAccessible(tester);
 
         await go(tester, '/workspaces/w1');
@@ -112,10 +113,35 @@ void main() {
         semantics.dispose();
       });
 
-      testWidgets('settings', (tester) async {
+      testWidgets('my tasks, profile and settings', (tester) async {
         final semantics = tester.ensureSemantics();
         await seed(tester, theme);
-        await go(tester, '/settings');
+        await go(tester, '/tasks');
+        expect(find.text('Write the intro'), findsOneWidget);
+        await expectAccessible(tester);
+
+        await go(tester, '/profile');
+        expect(find.text('aigerim@example.com'), findsOneWidget);
+        await expectAccessible(tester);
+
+        await go(tester, '/profile/settings');
+        await expectAccessible(tester);
+        semantics.dispose();
+      });
+
+      testWidgets('board search and filters', (tester) async {
+        final semantics = tester.ensureSemantics();
+        await seed(tester, theme);
+        await go(tester, boardPath());
+        await tester.tap(find.byTooltip('Filter'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Overdue'));
+        await tester.pumpAndSettle();
+        await expectAccessible(tester);
+
+        await tester.tap(find.text('Show cards'));
+        await tester.pumpAndSettle();
+        expect(find.text('1 of 2 cards shown'), findsOneWidget);
         await expectAccessible(tester);
         semantics.dispose();
       });
@@ -135,7 +161,9 @@ void main() {
       boardPath(),
       '${boardPath()}/cards/${intro.id}',
       '/workspaces/w1/members',
-      '/settings',
+      '/tasks',
+      '/profile',
+      '/profile/settings',
     ]) {
       await go(tester, path);
     }

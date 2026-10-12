@@ -163,6 +163,58 @@ void main() {
     expect(await repo.watchCard(card.id).first, isNull);
   });
 
+  test('lists cards assigned to a user with their board and column', () async {
+    final content = await createBasic();
+    final todo = content.columns[0].column.id;
+    final done = content.columns[2].column.id;
+    final mine = await repo.createCard(todo, 'Mine');
+    final finished = await repo.createCard(todo, 'Finished');
+    final other = await repo.createCard(todo, 'Theirs');
+    await repo.updateCard(mine.id, const CardPatch(assigneeId: 'u1'));
+    await repo.updateCard(finished.id, const CardPatch(assigneeId: 'u1'));
+    await repo.updateCard(other.id, const CardPatch(assigneeId: 'u2'));
+    await repo.moveCard(finished.id, toColumnId: done, toIndex: 0);
+    final item = await repo.addChecklistItem(mine.id, 'Outline');
+    await repo.updateChecklistItem(item.id, done: true);
+
+    final tasks = await repo.watchAssignedCards('u1').first;
+    expect(
+      tasks.map((t) => t.card.title),
+      unorderedEquals(['Mine', 'Finished']),
+    );
+    final first = tasks.firstWhere((t) => t.card.id == mine.id);
+    expect(first.boardTitle, 'Diploma');
+    expect(first.columnTitle, 'To do');
+    expect(first.workspaceId, 'w1');
+    expect(first.done, isFalse);
+    expect((first.card.checklistDone, first.card.checklistTotal), (1, 1));
+    // The last column counts as done.
+    expect(tasks.firstWhere((t) => t.card.id == finished.id).done, isTrue);
+
+    // Deleted cards and cards on deleted boards drop out.
+    await repo.deleteCard(mine.id);
+    expect(
+      (await repo.watchAssignedCards('u1').first).map((t) => t.card.title),
+      ['Finished'],
+    );
+    await repo.deleteBoard(content.board.id);
+    expect(await repo.watchAssignedCards('u1').first, isEmpty);
+  });
+
+  test('a single-column board has no done column', () async {
+    final board = await repo.createBoard(
+      workspaceId: 'w1',
+      title: 'Inbox',
+      template: BoardTemplate.basic,
+      columnTitles: const ['Inbox'],
+    );
+    final content = (await repo.watchBoard(board.id).first)!;
+    final card = await repo.createCard(content.columns[0].column.id, 'Note');
+    await repo.updateCard(card.id, const CardPatch(assigneeId: 'u1'));
+    final tasks = await repo.watchAssignedCards('u1').first;
+    expect(tasks.single.done, isFalse);
+  });
+
   test('data survives closing and reopening the database file', () async {
     final dir = await Directory.systemTemp.createTemp('flowboard_test');
     final file = File('${dir.path}/db.sqlite');

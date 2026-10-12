@@ -159,6 +159,111 @@ class DriftBoardsRepository implements BoardsRepository, CardRepository {
     });
   }
 
+  @override
+  Stream<List<AssignedCard>> watchAssignedCards(String userId) => _db
+      .customSelect(
+        'SELECT 1',
+        readsFrom: {
+          _db.boards,
+          _db.boardColumns,
+          _db.cards,
+          _db.checklistItems,
+        },
+      )
+      .watch()
+      .asyncMap((_) => _loadAssigned(userId))
+      .distinct(_sameList);
+
+  static bool _sameList(List<AssignedCard> a, List<AssignedCard> b) =>
+      a.length == b.length &&
+      Iterable<int>.generate(a.length).every((i) => a[i] == b[i]);
+
+  Future<List<AssignedCard>> _loadAssigned(String userId) async {
+    final rows =
+        await (_db.select(_db.cards).join([
+              innerJoin(
+                _db.boardColumns,
+                _db.boardColumns.id.equalsExp(_db.cards.columnId) &
+                    _db.boardColumns.deletedAt.isNull(),
+              ),
+              innerJoin(
+                _db.boards,
+                _db.boards.id.equalsExp(_db.cards.boardId) &
+                    _db.boards.deletedAt.isNull(),
+              ),
+            ])..where(
+              _db.cards.assigneeId.equals(userId) &
+                  _db.cards.deletedAt.isNull(),
+            ))
+            .get();
+    if (rows.isEmpty) return const [];
+
+    final boardIds = {for (final r in rows) r.readTable(_db.boards).id};
+    final columns =
+        await (_db.select(_db.boardColumns)..where(
+              (c) => c.boardId.isIn(boardIds) & c.deletedAt.isNull(),
+            ))
+            .get();
+    // Fractional keys sort by code unit, like SQLite's BINARY collation.
+    final last = <String, (String position, int count)>{};
+    for (final c in columns) {
+      final (position, count) = last[c.boardId] ?? ('', 0);
+      last[c.boardId] = (
+        c.position.compareTo(position) > 0 ? c.position : position,
+        count + 1,
+      );
+    }
+
+    final cardIds = [for (final r in rows) r.readTable(_db.cards).id];
+    final counts = <String, (int, int)>{};
+    final checklist = await _db
+        .customSelect(
+          'SELECT card_id, COUNT(*) AS total, SUM(done) AS done '
+          'FROM checklist_items WHERE deleted_at IS NULL AND card_id IN '
+          '(${List.filled(cardIds.length, '?').join(', ')}) '
+          'GROUP BY card_id',
+          variables: [for (final id in cardIds) Variable.withString(id)],
+          readsFrom: {_db.checklistItems},
+        )
+        .get();
+    for (final row in checklist) {
+      counts[row.read<String>('card_id')] = (
+        row.read<int>('done'),
+        row.read<int>('total'),
+      );
+    }
+
+    return [
+      for (final row in rows)
+        _toAssigned(
+          row.readTable(_db.cards),
+          row.readTable(_db.boardColumns),
+          row.readTable(_db.boards),
+          last,
+          counts,
+        ),
+    ];
+  }
+
+  AssignedCard _toAssigned(
+    CardRow card,
+    ColumnRow column,
+    BoardRow board,
+    Map<String, (String, int)> last,
+    Map<String, (int, int)> counts,
+  ) {
+    final (lastPosition, columnCount) = last[board.id] ?? ('', 0);
+    final (done, total) = counts[card.id] ?? (0, 0);
+    return AssignedCard(
+      card: _toSummary(card, done, total),
+      workspaceId: board.workspaceId,
+      boardId: board.id,
+      boardTitle: board.title,
+      columnTitle: column.title,
+      done: columnCount > 1 && column.position == lastPosition,
+    );
+  }
+
   Future<BoardContent?> _loadBoard(String boardId) async {
     final board =
         await (_db.select(_db.boards)

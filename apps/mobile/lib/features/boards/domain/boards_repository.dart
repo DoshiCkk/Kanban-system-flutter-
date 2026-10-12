@@ -20,6 +20,9 @@ abstract interface class BoardsRepository {
   /// Board with ordered columns and cards; emits `null` once deleted.
   Stream<BoardContent?> watchBoard(String boardId);
 
+  /// Live cards assigned to [userId] on every local board.
+  Stream<List<AssignedCard>> watchAssignedCards(String userId);
+
   Future<BoardColumn> addColumn(String boardId, String title);
 
   Future<void> renameColumn(String columnId, String title);

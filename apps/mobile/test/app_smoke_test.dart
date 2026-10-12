@@ -5,8 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'helpers/pump_app.dart';
 
 void main() {
+  Future<void> openProfile(WidgetTester tester) async {
+    await tester.tap(find.text('Profile'));
+    await tester.pumpAndSettle();
+  }
+
   Future<void> openSettings(WidgetTester tester) async {
-    await tester.tap(find.byIcon(Icons.settings_outlined));
+    await openProfile(tester);
+    await tester.tap(find.text('Language and theme'));
     await tester.pumpAndSettle();
   }
 
@@ -41,9 +47,11 @@ void main() {
 
   testWidgets('sign out returns to the login screen', (tester) async {
     await pumpFlowBoard(tester);
-    await openSettings(tester);
+    await openProfile(tester);
 
-    await tester.tap(find.text('Sign out'));
+    final signOut = find.byKey(const ValueKey('logout'));
+    await tester.ensureVisible(signOut);
+    await tester.tap(signOut);
     await tester.pumpAndSettle();
 
     expect(find.text('Welcome back'), findsOneWidget);

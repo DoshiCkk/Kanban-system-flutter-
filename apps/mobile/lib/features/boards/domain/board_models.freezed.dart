@@ -840,6 +840,300 @@ as int,
 }
 
 /// @nodoc
+mixin _$AssignedCard {
+
+ CardSummary get card; String get workspaceId; String get boardId; String get boardTitle; String get columnTitle;/// In the last column of a board with several columns ("Done" in every
+/// template), like the server's due-date reminders.
+ bool get done;
+/// Create a copy of AssignedCard
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AssignedCardCopyWith<AssignedCard> get copyWith => _$AssignedCardCopyWithImpl<AssignedCard>(this as AssignedCard, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AssignedCard&&(identical(other.card, card) || other.card == card)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.boardId, boardId) || other.boardId == boardId)&&(identical(other.boardTitle, boardTitle) || other.boardTitle == boardTitle)&&(identical(other.columnTitle, columnTitle) || other.columnTitle == columnTitle)&&(identical(other.done, done) || other.done == done));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,card,workspaceId,boardId,boardTitle,columnTitle,done);
+
+@override
+String toString() {
+  return 'AssignedCard(card: $card, workspaceId: $workspaceId, boardId: $boardId, boardTitle: $boardTitle, columnTitle: $columnTitle, done: $done)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AssignedCardCopyWith<$Res>  {
+  factory $AssignedCardCopyWith(AssignedCard value, $Res Function(AssignedCard) _then) = _$AssignedCardCopyWithImpl;
+@useResult
+$Res call({
+ CardSummary card, String workspaceId, String boardId, String boardTitle, String columnTitle, bool done
+});
+
+
+$CardSummaryCopyWith<$Res> get card;
+
+}
+/// @nodoc
+class _$AssignedCardCopyWithImpl<$Res>
+    implements $AssignedCardCopyWith<$Res> {
+  _$AssignedCardCopyWithImpl(this._self, this._then);
+
+  final AssignedCard _self;
+  final $Res Function(AssignedCard) _then;
+
+/// Create a copy of AssignedCard
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? card = null,Object? workspaceId = null,Object? boardId = null,Object? boardTitle = null,Object? columnTitle = null,Object? done = null,}) {
+  return _then(_self.copyWith(
+card: null == card ? _self.card : card // ignore: cast_nullable_to_non_nullable
+as CardSummary,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
+as String,boardId: null == boardId ? _self.boardId : boardId // ignore: cast_nullable_to_non_nullable
+as String,boardTitle: null == boardTitle ? _self.boardTitle : boardTitle // ignore: cast_nullable_to_non_nullable
+as String,columnTitle: null == columnTitle ? _self.columnTitle : columnTitle // ignore: cast_nullable_to_non_nullable
+as String,done: null == done ? _self.done : done // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+/// Create a copy of AssignedCard
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CardSummaryCopyWith<$Res> get card {
+  
+  return $CardSummaryCopyWith<$Res>(_self.card, (value) {
+    return _then(_self.copyWith(card: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [AssignedCard].
+extension AssignedCardPatterns on AssignedCard {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AssignedCard value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AssignedCard() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AssignedCard value)  $default,){
+final _that = this;
+switch (_that) {
+case _AssignedCard():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AssignedCard value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AssignedCard() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( CardSummary card,  String workspaceId,  String boardId,  String boardTitle,  String columnTitle,  bool done)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AssignedCard() when $default != null:
+return $default(_that.card,_that.workspaceId,_that.boardId,_that.boardTitle,_that.columnTitle,_that.done);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( CardSummary card,  String workspaceId,  String boardId,  String boardTitle,  String columnTitle,  bool done)  $default,) {final _that = this;
+switch (_that) {
+case _AssignedCard():
+return $default(_that.card,_that.workspaceId,_that.boardId,_that.boardTitle,_that.columnTitle,_that.done);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( CardSummary card,  String workspaceId,  String boardId,  String boardTitle,  String columnTitle,  bool done)?  $default,) {final _that = this;
+switch (_that) {
+case _AssignedCard() when $default != null:
+return $default(_that.card,_that.workspaceId,_that.boardId,_that.boardTitle,_that.columnTitle,_that.done);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _AssignedCard implements AssignedCard {
+  const _AssignedCard({required this.card, required this.workspaceId, required this.boardId, required this.boardTitle, required this.columnTitle, required this.done});
+  
+
+@override final  CardSummary card;
+@override final  String workspaceId;
+@override final  String boardId;
+@override final  String boardTitle;
+@override final  String columnTitle;
+/// In the last column of a board with several columns ("Done" in every
+/// template), like the server's due-date reminders.
+@override final  bool done;
+
+/// Create a copy of AssignedCard
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AssignedCardCopyWith<_AssignedCard> get copyWith => __$AssignedCardCopyWithImpl<_AssignedCard>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AssignedCard&&(identical(other.card, card) || other.card == card)&&(identical(other.workspaceId, workspaceId) || other.workspaceId == workspaceId)&&(identical(other.boardId, boardId) || other.boardId == boardId)&&(identical(other.boardTitle, boardTitle) || other.boardTitle == boardTitle)&&(identical(other.columnTitle, columnTitle) || other.columnTitle == columnTitle)&&(identical(other.done, done) || other.done == done));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,card,workspaceId,boardId,boardTitle,columnTitle,done);
+
+@override
+String toString() {
+  return 'AssignedCard(card: $card, workspaceId: $workspaceId, boardId: $boardId, boardTitle: $boardTitle, columnTitle: $columnTitle, done: $done)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AssignedCardCopyWith<$Res> implements $AssignedCardCopyWith<$Res> {
+  factory _$AssignedCardCopyWith(_AssignedCard value, $Res Function(_AssignedCard) _then) = __$AssignedCardCopyWithImpl;
+@override @useResult
+$Res call({
+ CardSummary card, String workspaceId, String boardId, String boardTitle, String columnTitle, bool done
+});
+
+
+@override $CardSummaryCopyWith<$Res> get card;
+
+}
+/// @nodoc
+class __$AssignedCardCopyWithImpl<$Res>
+    implements _$AssignedCardCopyWith<$Res> {
+  __$AssignedCardCopyWithImpl(this._self, this._then);
+
+  final _AssignedCard _self;
+  final $Res Function(_AssignedCard) _then;
+
+/// Create a copy of AssignedCard
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? card = null,Object? workspaceId = null,Object? boardId = null,Object? boardTitle = null,Object? columnTitle = null,Object? done = null,}) {
+  return _then(_AssignedCard(
+card: null == card ? _self.card : card // ignore: cast_nullable_to_non_nullable
+as CardSummary,workspaceId: null == workspaceId ? _self.workspaceId : workspaceId // ignore: cast_nullable_to_non_nullable
+as String,boardId: null == boardId ? _self.boardId : boardId // ignore: cast_nullable_to_non_nullable
+as String,boardTitle: null == boardTitle ? _self.boardTitle : boardTitle // ignore: cast_nullable_to_non_nullable
+as String,columnTitle: null == columnTitle ? _self.columnTitle : columnTitle // ignore: cast_nullable_to_non_nullable
+as String,done: null == done ? _self.done : done // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+/// Create a copy of AssignedCard
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$CardSummaryCopyWith<$Res> get card {
+  
+  return $CardSummaryCopyWith<$Res>(_self.card, (value) {
+    return _then(_self.copyWith(card: value));
+  });
+}
+}
+
+/// @nodoc
 mixin _$ColumnWithCards {
 
  BoardColumn get column; List<CardSummary> get cards;

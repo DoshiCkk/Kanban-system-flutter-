@@ -86,34 +86,64 @@ class ListSkeleton extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       itemCount: itemCount,
       separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (context, i) => Card(
-        margin: EdgeInsets.zero,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              const SkeletonBox(width: 40, height: 40, radius: 20),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Vary widths so it reads as text, not as bars.
-                    FractionallySizedBox(
-                      widthFactor: i.isEven ? 0.6 : 0.45,
-                      child: const SkeletonBox(),
-                    ),
-                    const SizedBox(height: 8),
-                    const FractionallySizedBox(
-                      widthFactor: 0.3,
-                      child: SkeletonBox(height: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+      itemBuilder: (context, i) => _SkeletonTile(index: i),
+    ),
+  );
+}
+
+/// [ListSkeleton] tiles without their own scroll view, for a section of a
+/// longer list.
+class SkeletonTiles extends StatelessWidget {
+  const SkeletonTiles({this.count = 3, super.key});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) => Skeleton(
+    child: Column(
+      children: [
+        for (var i = 0; i < count; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _SkeletonTile(index: i),
           ),
-        ),
+      ],
+    ),
+  );
+}
+
+class _SkeletonTile extends StatelessWidget {
+  const _SkeletonTile({required this.index});
+
+  final int index;
+
+  @override
+  Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
+    child: Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const SkeletonBox(width: 40, height: 40, radius: 20),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Vary widths so it reads as text, not as bars.
+                FractionallySizedBox(
+                  widthFactor: index.isEven ? 0.6 : 0.45,
+                  child: const SkeletonBox(),
+                ),
+                const SizedBox(height: 8),
+                const FractionallySizedBox(
+                  widthFactor: 0.3,
+                  child: SkeletonBox(height: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     ),
   );

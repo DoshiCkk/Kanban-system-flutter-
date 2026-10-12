@@ -1,6 +1,7 @@
 import 'package:flowboard/core/network/api_exception.dart';
 import 'package:flowboard/features/workspaces/domain/workspace.dart';
 import 'package:flowboard/features/workspaces/presentation/cubit/workspaces_cubit.dart';
+import 'package:flowboard/features/workspaces/presentation/workspaces_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,7 +28,7 @@ void main() {
   testWidgets('shows an error with retry when loading fails', (tester) async {
     final app = await pumpFlowBoard(tester);
     app.workspaces.failWith = ApiErrorCode.network;
-    final element = tester.element(find.byType(Scaffold).first);
+    final element = tester.element(find.byType(WorkspacesPage));
     await BlocProvider.of<WorkspacesCubit>(element).load();
     await tester.pumpAndSettle();
 
@@ -47,6 +48,9 @@ void main() {
           memberCount: 2,
         ),
       );
+    // Below the greeting and the task summary; the list end clears the FAB.
+    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
     expect(find.text('Recovered'), findsOneWidget);
