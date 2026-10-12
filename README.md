@@ -6,12 +6,18 @@
 Mobile-first, offline-first Kanban for small teams — students, small IT teams, freelancers. Flutter (Android/iOS) + NestJS + PostgreSQL + Redis. Interface languages: Kazakh, Russian, English.
 
 <p align="center">
-  <img src="docs/screenshots/board.svg" width="200" alt="Board: one column per screen">
-  <img src="docs/screenshots/card.svg" width="200" alt="Card with checklist and mentions">
-  <img src="docs/screenshots/workspaces.svg" width="200" alt="Workspaces">
-  <img src="docs/screenshots/offline.svg" width="200" alt="Offline changes waiting to sync">
+  <img src="docs/screenshots/05-home.png" width="180" alt="Home: greeting, my tasks summary, workspaces">
+  <img src="docs/screenshots/06-my-tasks.png" width="180" alt="My tasks grouped by due date">
+  <img src="docs/screenshots/08-board.png" width="180" alt="Board: one column per screen with counted tabs">
+  <img src="docs/screenshots/10-card-comments.png" width="180" alt="Card with checklist and comments with mentions">
 </p>
-<p align="center"><sub>Placeholders — replace the files in <code>docs/screenshots/</code> with emulator screenshots (same names, PNG or SVG).</sub></p>
+<p align="center">
+  <img src="docs/screenshots/12-board-filtered.png" width="180" alt="Board filtered by assignee and label">
+  <img src="docs/screenshots/16-profile.png" width="180" alt="Profile">
+  <img src="docs/screenshots/19-board-dark.png" width="180" alt="Board in the dark theme">
+  <img src="docs/screenshots/22-offline.png" width="180" alt="Offline: two changes waiting for the network">
+</p>
+<p align="center"><sub>Android emulator (Pixel 7, Android 15), Russian UI. All 22 screens, including Kazakh, are in <a href="docs/screenshots/"><code>docs/screenshots/</code></a> and listed in the <a href="docs/testing-report.md">testing report</a>.</sub></p>
 
 ## Features
 - **Works offline.** Everything is stored on the device first; changes sync when the network is back. Two devices editing the same board converge (field-level last-writer-wins, delete wins) — [docs/sync.md](docs/sync.md).
@@ -182,6 +188,7 @@ iOS cannot be built on Windows. The code avoids Android-only APIs, and the iOS p
 - [docs/sync.md](docs/sync.md) — offline sync protocol and conflict rules
 - [docs/realtime.md](docs/realtime.md) — Socket.IO rooms, comments and mentions
 - [docs/push.md](docs/push.md) — push notifications and Firebase setup, step by step
+- [docs/testing-report.md](docs/testing-report.md) — testing report (in Russian, for the course work): test levels, results and coverage, manual test cases on the emulator, defects found and fixed
 - [docs/adr/](docs/adr/) — decisions; [docs/backlog.md](docs/backlog.md) — what is deferred
 - `apps/mobile/tool/generate_branding.dart` — draws the app icon and splash (then `dart run flutter_launcher_icons`, `dart run flutter_native_splash:create`)
 
