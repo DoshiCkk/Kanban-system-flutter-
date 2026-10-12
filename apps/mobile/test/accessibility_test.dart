@@ -175,6 +175,25 @@ void main() {
     }
   });
 
+  testWidgets('counters stack at 200 % text instead of breaking words', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await seed(tester, ThemeMode.light);
+    double top(Finder f) => tester.getTopLeft(f).dy;
+
+    final overdue = find.byKey(const ValueKey('summary-overdue'));
+    final today = find.byKey(const ValueKey('summary-today'));
+    expect(top(today), greaterThan(top(overdue)));
+
+    await go(tester, '/profile');
+    expect(
+      top(find.text('Active tasks')),
+      greaterThan(top(find.text('Workspaces'))),
+    );
+  });
+
   testWidgets('sign-in screen', (tester) async {
     final semantics = tester.ensureSemantics();
     usePhone(tester);

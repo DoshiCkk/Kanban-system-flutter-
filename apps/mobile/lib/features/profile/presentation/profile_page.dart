@@ -5,6 +5,7 @@ import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/router/app_router.dart';
 import 'package:flowboard/core/sync/sync_cubit.dart';
 import 'package:flowboard/core/widgets/dialogs.dart';
+import 'package:flowboard/core/widgets/tile_row.dart';
 import 'package:flowboard/features/auth/domain/user.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/profile/presentation/cubit/profile_cubit.dart';
@@ -218,33 +219,21 @@ class _Stats extends StatelessWidget {
       (c) => c.state.workspaceCount,
     );
     final tasks = context.watch<MyTasksCubit>().state;
-    // Equal heights when a label wraps (e.g. "Активные задачи").
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: _Stat(
-              value: workspaces?.toString() ?? '—',
-              label: l10n.profileStatWorkspaces,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _Stat(
-              value: '${tasks.active}',
-              label: l10n.profileStatActive,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _Stat(
-              value: '${tasks.count(TaskGroup.done)}',
-              label: l10n.profileStatDone,
-            ),
-          ),
-        ],
-      ),
+    return TileRow(
+      children: [
+        _Stat(
+          value: workspaces?.toString() ?? '—',
+          label: l10n.profileStatWorkspaces,
+        ),
+        _Stat(
+          value: tasks.loading ? '—' : '${tasks.active}',
+          label: l10n.profileStatActive,
+        ),
+        _Stat(
+          value: tasks.loading ? '—' : '${tasks.count(TaskGroup.done)}',
+          label: l10n.profileStatDone,
+        ),
+      ],
     );
   }
 }

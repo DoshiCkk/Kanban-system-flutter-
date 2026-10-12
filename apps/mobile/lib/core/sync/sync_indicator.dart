@@ -29,7 +29,9 @@ class SyncIndicator extends StatelessWidget {
           ),
           SyncStatus(phase: SyncPhase.offline) => (
             Icons.cloud_off_outlined,
-            l10n.syncPending(status.pending),
+            status.pending > 0
+                ? l10n.syncPending(status.pending)
+                : l10n.syncOffline,
             null,
           ),
           SyncStatus(pending: > 0) => (
@@ -46,7 +48,9 @@ class SyncIndicator extends StatelessWidget {
           onPressed: () => unawaited(context.read<SyncCubit>().syncNow()),
           icon: Badge(
             isLabelVisible: pending > 0 && status.phase != SyncPhase.syncing,
-            label: Text('$pending'),
+            // The label already says how many; the bare number would be
+            // read as well.
+            label: ExcludeSemantics(child: Text('$pending')),
             child: Icon(icon, color: color, semanticLabel: label),
           ),
         );

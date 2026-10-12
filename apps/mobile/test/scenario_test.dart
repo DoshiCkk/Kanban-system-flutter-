@@ -59,7 +59,7 @@ void main() {
 
     // 4. Home: greeting, task summary, workspaces.
     expect(find.byType(WorkspacesPage), findsOneWidget);
-    expect(find.text('Hello, Dana Sadykova!'), findsOneWidget);
+    expect(find.text('Hello, Dana!'), findsOneWidget);
     expect(find.text('Assigned to me'), findsOneWidget);
     expect(find.text('No workspaces yet'), findsOneWidget);
 

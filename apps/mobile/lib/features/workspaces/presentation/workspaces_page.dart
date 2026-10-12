@@ -1,10 +1,12 @@
 import 'package:flowboard/core/l10n/error_messages.dart';
 import 'package:flowboard/core/l10n/l10n.dart';
 import 'package:flowboard/core/router/app_router.dart';
+import 'package:flowboard/core/sync/sync_cubit.dart';
 import 'package:flowboard/core/sync/sync_indicator.dart';
 import 'package:flowboard/core/widgets/brand.dart';
 import 'package:flowboard/core/widgets/message_view.dart';
 import 'package:flowboard/core/widgets/skeleton.dart';
+import 'package:flowboard/core/widgets/tile_row.dart';
 import 'package:flowboard/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:flowboard/features/tasks/domain/task_groups.dart';
 import 'package:flowboard/features/tasks/presentation/cubit/my_tasks_cubit.dart';
@@ -59,7 +61,11 @@ class WorkspacesPage extends StatelessWidget {
         builder: (context, state) {
           final cubit = context.read<WorkspacesCubit>();
           return RefreshIndicator(
-            onRefresh: cubit.load,
+            // Also syncs boards; a failure shows up in the sync indicator.
+            onRefresh: () => Future.wait([
+              cubit.load(),
+              context.read<SyncCubit>().syncNow(),
+            ]),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               // Leave room for the FAB.
@@ -120,7 +126,7 @@ class WorkspacesPage extends StatelessWidget {
   }
 }
 
-/// "Hello, Aigerim!" and today's date.
+/// "Hello, Aigerim!" (first name only) and today's date.
 class _Greeting extends StatelessWidget {
   const _Greeting();
 
@@ -129,7 +135,7 @@ class _Greeting extends StatelessWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final name = context.select<AuthCubit, String>(
-      (c) => c.state.user?.name ?? '',
+      (c) => (c.state.user?.name ?? '').trim().split(RegExp(r'\s+')).first,
     );
     final locale = Localizations.localeOf(context).toLanguageTag();
     final today = DateFormat.MMMMEEEEd(locale).format(DateTime.now());
@@ -167,43 +173,31 @@ class _TaskSummary extends StatelessWidget {
     final tasks = context.watch<MyTasksCubit>().state;
     final overdue = tasks.count(TaskGroup.overdue);
     void open() => context.goNamed(AppRoutes.myTasks);
-    // Equal heights when a label wraps to two lines.
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: _SummaryTile(
-              key: const ValueKey('summary-overdue'),
-              value: overdue,
-              label: l10n.homeSummaryOverdue,
-              icon: Icons.warning_amber_rounded,
-              color: overdue > 0 ? scheme.error : null,
-              onTap: open,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _SummaryTile(
-              key: const ValueKey('summary-today'),
-              value: tasks.count(TaskGroup.today),
-              label: l10n.homeSummaryToday,
-              icon: Icons.today_outlined,
-              onTap: open,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: _SummaryTile(
-              key: const ValueKey('summary-active'),
-              value: tasks.active,
-              label: l10n.homeSummaryActive,
-              icon: Icons.task_alt,
-              onTap: open,
-            ),
-          ),
-        ],
-      ),
+    return TileRow(
+      children: [
+        _SummaryTile(
+          key: const ValueKey('summary-overdue'),
+          value: tasks.loading ? null : overdue,
+          label: l10n.homeSummaryOverdue,
+          icon: Icons.warning_amber_rounded,
+          color: overdue > 0 ? scheme.error : null,
+          onTap: open,
+        ),
+        _SummaryTile(
+          key: const ValueKey('summary-today'),
+          value: tasks.loading ? null : tasks.count(TaskGroup.today),
+          label: l10n.homeSummaryToday,
+          icon: Icons.today_outlined,
+          onTap: open,
+        ),
+        _SummaryTile(
+          key: const ValueKey('summary-active'),
+          value: tasks.loading ? null : tasks.active,
+          label: l10n.homeSummaryActive,
+          icon: Icons.task_alt,
+          onTap: open,
+        ),
+      ],
     );
   }
 }
@@ -218,7 +212,8 @@ class _SummaryTile extends StatelessWidget {
     super.key,
   });
 
-  final int value;
+  /// `null` while loading.
+  final int? value;
   final String label;
   final IconData icon;
   final VoidCallback onTap;
@@ -240,7 +235,7 @@ class _SummaryTile extends StatelessWidget {
               Icon(icon, color: color ?? theme.colorScheme.primary),
               const SizedBox(height: 8),
               Text(
-                '$value',
+                value?.toString() ?? '—',
                 style: theme.textTheme.headlineSmall?.copyWith(color: color),
               ),
               Text(

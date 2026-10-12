@@ -63,6 +63,59 @@ void main() {
     await stopEngine(tester, app);
   });
 
+  testWidgets('offline with nothing queued says so', (tester) async {
+    final app = await pumpFlowBoard(
+      tester,
+      workspaces: const [
+        Workspace(
+          id: 'w1',
+          name: 'Team',
+          role: WorkspaceRole.owner,
+          memberCount: 1,
+        ),
+      ],
+    );
+    app.syncApi.offline = true;
+    app.syncEngine.start();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+
+    expect(tooltip('Offline. Changes are saved on the device'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const ValueKey('sync-indicator')),
+        matching: find.text('0'),
+      ),
+      findsNothing,
+    );
+    await stopEngine(tester, app);
+  });
+
+  testWidgets('pull to refresh on home also syncs', (tester) async {
+    final app = await pumpFlowBoard(
+      tester,
+      workspaces: const [
+        Workspace(
+          id: 'w1',
+          name: 'Team',
+          role: WorkspaceRole.owner,
+          memberCount: 1,
+        ),
+      ],
+    );
+    app.syncEngine.start();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pumpAndSettle();
+    expect(tooltip('All changes synced'), findsOneWidget);
+
+    // The server goes away: refreshing the list says so in the indicator.
+    app.syncApi.offline = true;
+    await tester.fling(find.text('Team'), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+    expect(tooltip('Offline. Changes are saved on the device'), findsOneWidget);
+    await stopEngine(tester, app);
+  });
+
   testWidgets('sign-out warns about unsynced changes', (tester) async {
     final app = await setUpOffline(tester);
     app.router.go('/profile');

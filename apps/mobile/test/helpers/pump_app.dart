@@ -91,7 +91,21 @@ Future<TestApp> pumpFlowBoard(
     ..registerSingleton<BoardsRepository>(boards)
     ..registerSingleton<CardRepository>(boards)
     ..registerSingleton<CommentsRepository>(DriftCommentsRepository(db));
-  if (seed != null) await tester.runAsync(() => seed(boards));
+  await tester.runAsync(() async {
+    // Like the real repository: the sync engine pulls cached workspaces.
+    await db.batch(
+      (b) => b.insertAll(db.cachedWorkspaces, [
+        for (final w in workspaces)
+          CachedWorkspacesCompanion.insert(
+            id: w.id,
+            name: w.name,
+            role: w.role.name,
+            memberCount: w.memberCount,
+          ),
+      ]),
+    );
+    await seed?.call(boards);
+  });
 
   final syncApi = FakeSyncApi(FakeSyncServer(), testUser.id);
   final syncEngine = SyncEngine(store: SyncStore(db), api: syncApi);

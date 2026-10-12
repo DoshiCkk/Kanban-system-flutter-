@@ -59,15 +59,16 @@ void main() {
   testWidgets('renames the user everywhere', (tester) async {
     final app = await openProfile(tester);
 
-    await rename(tester, '  Aigerim Nur  ');
+    await rename(tester, '  Dana Nur  ');
     expect(find.text('Name updated'), findsOneWidget);
-    expect(find.text('Aigerim Nur'), findsOneWidget);
-    expect(find.text('AN'), findsOneWidget);
-    expect(app.authCubit.state.user!.name, 'Aigerim Nur');
+    expect(find.text('Dana Nur'), findsOneWidget);
+    expect(find.text('DN'), findsOneWidget);
+    expect(app.authCubit.state.user!.name, 'Dana Nur');
 
+    // Home greets by the first name.
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
-    expect(find.text('Hello, Aigerim Nur!'), findsOneWidget);
+    expect(find.text('Hello, Dana!'), findsOneWidget);
   });
 
   testWidgets('keeps the old name when saving fails', (tester) async {

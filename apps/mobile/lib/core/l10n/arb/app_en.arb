@@ -689,6 +689,10 @@
       }
     }
   },
+  "syncOffline": "Offline. Changes are saved on the device",
+  "@syncOffline": {
+    "description": "Sync indicator: no connection and nothing waiting to be sent."
+  },
   "syncError": "Sync failed. Tap to retry.",
   "@syncError": {
     "description": "Sync indicator: the server returned an error."
